@@ -26,7 +26,7 @@ jobs:
       run: ./gradlew clean build -x test
 
     - name: Archive JAR file
-      run: zip -j app.zip build/libs/*.jar
+      run: zip -j app.zip build/libs/weather-0.0.1-SNAPSHOT.jar
 
     - name: Upload app.zip to S3
       uses: jakejarvis/s3-sync-action@v0.5.1
