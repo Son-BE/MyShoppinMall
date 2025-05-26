@@ -1,13 +1,12 @@
-package zerobase.weather.controller;
+package zerobase.MyShoppingMall.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import zerobase.weather.domain.Member;
-import zerobase.weather.dto.user.MemberRequestDto;
-import zerobase.weather.dto.user.MemberResponseDto;
-import zerobase.weather.repository.MemberRepository;
-import zerobase.weather.service.MemberService;
+import zerobase.MyShoppingMall.dto.user.MemberRequestDto;
+import zerobase.MyShoppingMall.dto.user.MemberResponseDto;
+import zerobase.MyShoppingMall.repository.MemberRepository;
+import zerobase.MyShoppingMall.service.MemberService;
 
 @RestController
 @RequestMapping("api/members")
@@ -28,5 +27,21 @@ public class MemberController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MemberResponseDto> getById(@PathVariable Long id) {
+        return memberService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+        memberService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
 
 }

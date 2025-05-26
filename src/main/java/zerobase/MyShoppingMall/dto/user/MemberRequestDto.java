@@ -1,4 +1,4 @@
-package zerobase.weather.dto.user;
+package zerobase.MyShoppingMall.dto.user;
 
 import lombok.*;
 

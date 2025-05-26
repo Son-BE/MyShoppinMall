@@ -1,29 +1,31 @@
-package zerobase.weather.domain;
+package zerobase.MyShoppingMall.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "cart")
+@Table(name = "order_detail")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Cart {
+public class OrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id",nullable = false)
-    private Member member;
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
-    @Column(name = "item_quantity", nullable = false)
-    private int itemQuantity;
+    @Column(nullable = false)
+    private int price;
 
+    @Column(nullable = false)
+    private int quantity;
 }

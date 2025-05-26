@@ -1,0 +1,50 @@
+package zerobase.MyShoppingMall.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import zerobase.MyShoppingMall.domain.Item;
+import zerobase.MyShoppingMall.domain.ItemImage;
+import zerobase.MyShoppingMall.repository.ItemImageRepository;
+import zerobase.MyShoppingMall.repository.ItemRepository;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class ItemImageService {
+
+    private final ItemRepository itemRepository;
+    private final ItemImageRepository itemImageRepository;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
+    public ItemImage saveItemImage(Long itemId, MultipartFile imageFile) throws IOException {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+
+        String originalFilename = imageFile.getOriginalFilename();
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String uniqueFilename = UUID.randomUUID() + extension;
+
+        // 저장 경로 설정
+        Path savePath = Paths.get(uploadDir + uniqueFilename);
+        Files.createDirectories(savePath.getParent());
+        Files.copy(imageFile.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING);
+
+        // DB 저장
+        ItemImage image = ItemImage.builder()
+                .item(item)
+                .itemPath("/images/" + uniqueFilename)
+                .build();
+
+        return itemImageRepository.save(image);
+    }
+}

@@ -1,9 +1,9 @@
-package zerobase.weather.domain;
+package zerobase.MyShoppingMall.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -31,13 +31,13 @@ public class Item {
     private int quantity;
 
     @Column(name = "delete_type", columnDefinition = "CHAR(1) DEFAULT 'N'")
-    private String deleteType;
+    private char deleteType;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private LocalDate updatedAt;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails;

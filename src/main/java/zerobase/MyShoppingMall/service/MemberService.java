@@ -1,12 +1,12 @@
-package zerobase.weather.service;
+package zerobase.MyShoppingMall.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zerobase.weather.domain.Member;
-import zerobase.weather.dto.user.MemberRequestDto;
-import zerobase.weather.dto.user.MemberResponseDto;
-import zerobase.weather.repository.MemberRepository;
+import zerobase.MyShoppingMall.domain.Member;
+import zerobase.MyShoppingMall.dto.user.MemberRequestDto;
+import zerobase.MyShoppingMall.dto.user.MemberResponseDto;
+import zerobase.MyShoppingMall.repository.MemberRepository;
 
 import java.util.Optional;
 
@@ -61,6 +61,18 @@ public class MemberService {
                         .createdAt(member.getCreatedAt())
                         .updatedAt(member.getUpdatedAt())
                         .build());
+    }
+
+    public Optional<MemberResponseDto> findById(Long id) {
+        return memberRepository.findById(id)
+                .map(MemberResponseDto::new);
+    }
+
+    public void deleteById(Long id) {
+        if (!memberRepository.existsById(id)) {
+            throw new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다: " + id);
+        }
+        memberRepository.deleteById(id);
     }
 
 }

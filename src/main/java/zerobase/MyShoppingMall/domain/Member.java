@@ -1,4 +1,4 @@
-package zerobase.weather.domain;
+package zerobase.MyShoppingMall.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

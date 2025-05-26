@@ -1,4 +1,4 @@
-package zerobase.weather.config;
+package zerobase.MyShoppingMall.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 new AntPathRequestMatcher("/api/members/register"),
-                                new AntPathRequestMatcher("/api/members/email")
+                                new AntPathRequestMatcher("/api/members/email"),
+                                new AntPathRequestMatcher("/api/members/**"),
+                                new AntPathRequestMatcher("/api/items"),
+                                new AntPathRequestMatcher("/api/items/**"),
+                                new AntPathRequestMatcher("/api/items/images/**")
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
