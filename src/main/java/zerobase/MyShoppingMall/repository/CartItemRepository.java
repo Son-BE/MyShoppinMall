@@ -1,11 +1,12 @@
-//package zerobase.weather.repository;
-//
-//import org.springframework.data.jpa.repository.JpaRepository;
-//import zerobase.weather.domain.CartItem;
-//
-//import java.util.List;
-//
-//public interface CartItemRepository extends JpaRepository<CartItem, Long> {
-//    List<CartItem> findByMemberId(Long memberId);
-//    void deleteByMemberIdAndProductId(Long memberId, Long productId);
-//}
+package zerobase.MyShoppingMall.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import zerobase.MyShoppingMall.domain.Cart;
+import zerobase.MyShoppingMall.domain.CartItem;
+import zerobase.MyShoppingMall.domain.Item;
+
+import java.util.Optional;
+
+public interface CartItemRepository extends JpaRepository<CartItem, Long> {
+    Optional<CartItem> findByCartAndItem(Cart cart, Item item);
+}

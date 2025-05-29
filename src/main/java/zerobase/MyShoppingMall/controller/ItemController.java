@@ -1,12 +1,14 @@
 package zerobase.MyShoppingMall.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import zerobase.MyShoppingMall.dto.item.ItemRequestDto;
 import zerobase.MyShoppingMall.dto.item.ItemResponseDto;
 import zerobase.MyShoppingMall.service.ItemService;
+import zerobase.MyShoppingMall.type.Category;
 
 import java.util.List;
 
@@ -48,5 +50,16 @@ public class ItemController {
         List<ItemResponseDto> response = itemService.getAllItems();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/category")
+    public ResponseEntity<Page<ItemResponseDto>> getItemsByCategory(
+            @RequestParam Category category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<ItemResponseDto> items = itemService.getItemsByCategory(category, page, size);
+        return ResponseEntity.ok(items);
+    }
+
 
 }

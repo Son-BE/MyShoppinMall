@@ -1,12 +1,14 @@
 package zerobase.MyShoppingMall.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zerobase.MyShoppingMall.domain.Member;
 import zerobase.MyShoppingMall.dto.user.MemberRequestDto;
 import zerobase.MyShoppingMall.dto.user.MemberResponseDto;
 import zerobase.MyShoppingMall.repository.MemberRepository;
+import zerobase.MyShoppingMall.type.Role;
 
 import java.util.Optional;
 
@@ -14,19 +16,24 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
     public MemberResponseDto registerMember(MemberRequestDto memberRequestDto) {
         if (memberRepository.existsByEmail(memberRequestDto.getEmail())) {
             throw new IllegalStateException("이미 존재하는 이메일입니다.");
         }
+        if (memberRepository.existsByNickName(memberRequestDto.getNickName())) {
+            throw new IllegalStateException("이미 존재하는 닉네임입니다.");
+        }
+
 
         Member member = Member.builder()
                 .email(memberRequestDto.getEmail())
-                .password(memberRequestDto.getPassword())
+                .password(bCryptPasswordEncoder.encode(memberRequestDto.getPassword()))
                 .nickName(memberRequestDto.getNickName())
                 .gender(memberRequestDto.getGender())
-                .role(memberRequestDto.getRole())
+                .role(Role.USER)
                 .phoneNumber(memberRequestDto.getPhoneNumber())
                 .deleteType(memberRequestDto.getDeleteType())
                 .createdAt(memberRequestDto.getCreatedAt())
@@ -73,6 +80,14 @@ public class MemberService {
             throw new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다: " + id);
         }
         memberRepository.deleteById(id);
+    }
+
+    public boolean existsByEmail(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+
+    public boolean existsByNickName(String nickName) {
+        return memberRepository.existsByNickName(nickName);
     }
 
 }

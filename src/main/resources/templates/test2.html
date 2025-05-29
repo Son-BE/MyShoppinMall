@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>상품 등록</title>
+</head>
+<body>
+<h2>상품 등록</h2>
+<form action="/api/items" method="POST" enctype="multipart/form-data">
+  <label>상품명: <input type="text" name="itemName" required></label><br><br>
+  <label>상품 설명: <textarea name="itemComment" required></textarea></label><br><br>
+  <label>가격: <input type="number" name="price" required></label><br><br>
+  <label>수량: <input type="number" name="quantity" required></label><br><br>
+
+  <label>카테고리:
+    <select name="category">
+      <option value="MENS_TOP">남성 상의</option>
+      <option value="WOMENS_BOTTOM">여성 하의</option>
+      <!-- 필요에 따라 더 추가 -->
+    </select>
+  </label><br><br>
+
+  <label>이미지: <input type="file" name="image"></label><br><br>
+
+  <button type="submit">등록</button>
+</form>
+</body>
+</html>

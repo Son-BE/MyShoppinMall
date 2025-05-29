@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>상품 목록</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+</head>
+<body>
+<div class="container mt-4">
+    <h2>상품 목록</h2>
+    <div class="mb-3">
+        <form method="get" th:action="@{/admin/items}">
+            <select name="category" class="form-select" onchange="this.form.submit()">
+                <option value="">전체</option>
+                <option th:each="cat : ${T(zerobase.MyShoppingMall.type.Category).values()}"
+                        th:value="${cat}" th:text="${cat}"></option>
+            </select>
+        </form>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>상품명</th>
+            <th>가격</th>
+            <th>카테고리</th>
+            <th>관리</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${items}">
+            <td th:text="${item.id}">1</td>
+            <td th:text="${item.name}">상품명</td>
+            <td th:text="${item.price}">10000</td>
+            <td th:text="${item.category}">MENS_TOP</td>
+            <td>
+                <a th:href="@{'/admin/items/edit/' + ${item.id}}" class="btn btn-sm btn-warning">수정</a>
+                <form th:action="@{'/admin/items/delete/' + ${item.id}}" method="post" style="display:inline;">
+                    <button class="btn btn-sm btn-danger" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="/admin/items/new" class="btn btn-primary">상품 등록</a>
+</div>
+</body>
+</html>

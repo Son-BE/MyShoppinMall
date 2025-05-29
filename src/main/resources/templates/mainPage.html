@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>병의's 쇼핑몰</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; }
+        header, nav, footer { padding: 1rem; background-color: #f8f8f8; }
+        nav a { margin-right: 1rem; text-decoration: none; }
+
+        .container { display: flex; padding: 1rem; }
+        .sidebar { width: 20%; }
+        .products { width: 80%; display: flex; flex-wrap: wrap; gap: 1rem; }
+        .product-card { border: 1px solid #ccc; padding: 1rem; width: 180px; }
+
+        .user-info { float: right; font-size: 0.9rem; color: #555; }
+
+        .dropdown {
+            display: inline-block;
+            position: relative;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            top: 100%;
+            left: 0;
+            min-width: 160px;
+            z-index: 1000;
+        }
+        .dropdown-menu li a {
+            display: block;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #333;
+        }
+        .dropdown-menu li a:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<header style="display: flex; justify-content: space-between; align-items: center;">
+    <h2> 병의's 쇼핑몰<</h2>
+    <div class="user-info">
+        <span th:if="${#authorization.expression('isAuthenticated()')}"
+              th:text="${#authentication.name} + '님'">
+            로그인 사용자
+        </span>
+        <a href="/logout" style="margin-left: 10px;">로그아웃</a>
+    </div>
+</header>
+
+<nav>
+    <a href="#">Home</a>
+
+    <div class="dropdown">
+        <a href="#" onclick="toggleDropdown('menMenu')">Men ▼</a>
+        <ul id="menMenu" class="dropdown-menu">
+            <li><a href="/items?category=MENS_TOP">남성 상의</a></li>
+            <li><a href="/items?category=MENS_BOTTOM">남성 하의</a></li>
+            <li><a href="/items?category=MENS_OUTER">남성 아우터</a></li>
+            <li><a href="/items?category=MENS_SHOES">남성 신발</a></li>
+            <li><a href="/items?category=MENS_ACCESSORY">남성 악세서리</a></li>
+        </ul>
+    </div>
+
+    <div class="dropdown">
+        <a href="#" onclick="toggleDropdown('womenMenu')">Women ▼</a>
+        <ul id="womenMenu" class="dropdown-menu">
+            <li><a href="/items?category=WOMENS_TOP">여성 상의</a></li>
+            <li><a href="/items?category=WOMENS_BOTTOM">여성 하의</a></li>
+            <li><a href="/items?category=WOMENS_DRESS">원피스</a></li>
+            <li><a href="/items?category=WOMENS_OUTER">여성 아우터</a></li>
+            <li><a href="/items?category=WOMENS_SHOES">여성 신발</a></li>
+            <li><a href="/items?category=WOMENS_ACCESSORY">여성 악세서리</a></li>
+            <li><a href="/items?category=WOMENS_BAG">여성 가방</a></li>
+        </ul>
+    </div>
+
+    <a href="#">ItemCart</a>
+    <a href="#">WishList</a>
+</nav>
+
+<div class="container">
+
+
+    <section class="products">
+        <div class="product-card">
+            <img src="https://via.placeholder.com/150" alt="상품 이미지" />
+            <p><strong>남성 반팔티</strong></p>
+            <p>₩19,900</p>
+        </div>
+        <div class="product-card">
+            <img src="https://via.placeholder.com/150" alt="상품 이미지" />
+            <p><strong>여성 원피스</strong></p>
+            <p>₩29,900</p>
+        </div>
+    </section>
+</div>
+
+<footer>
+    <p>&copy; 2025 My Shopping Mall</p>
+</footer>
+
+<script>
+    function toggleDropdown(id) {
+        const menu = document.getElementById(id);
+        const isVisible = menu.style.display === 'block';
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
+        if (!isVisible) {
+            menu.style.display = 'block';
+        }
+    }
+
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.dropdown')) {
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -2,11 +2,16 @@ package zerobase.MyShoppingMall.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import zerobase.MyShoppingMall.domain.Item;
 import zerobase.MyShoppingMall.dto.item.ItemRequestDto;
 import zerobase.MyShoppingMall.dto.item.ItemResponseDto;
 import zerobase.MyShoppingMall.repository.ItemRepository;
+import zerobase.MyShoppingMall.type.Category;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,6 +31,7 @@ public class ItemService {
                 .quantity(dto.getQuantity())
                 .deleteType('N')
                 .createdAt(LocalDate.now())
+                .category(dto.getCategory())
                 .build();
         itemRepository.save(item);
         return new ItemResponseDto(item);
@@ -42,6 +48,7 @@ public class ItemService {
         item.setPrice(dto.getPrice());
         item.setQuantity(dto.getQuantity());
         item.setUpdatedAt(LocalDate.now());
+        item.setCategory(dto.getCategory());
 
         return new ItemResponseDto(item);
     }
@@ -77,5 +84,19 @@ public class ItemService {
                 .map(ItemResponseDto::new)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public Page<ItemResponseDto> getItemsByCategory(Category category, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return itemRepository.findByCategory(category, pageable)
+                .map(ItemResponseDto::new);
+    }
+
+    public Page<ItemResponseDto> getAllItemsPageable(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Item> itemsPage = itemRepository.findAll(pageable);
+        return itemsPage.map(ItemResponseDto::fromEntity);
+    }
+
 
 }

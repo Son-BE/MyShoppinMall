@@ -2,8 +2,10 @@ package zerobase.MyShoppingMall.dto.user;
 
 import lombok.*;
 import zerobase.MyShoppingMall.domain.Member;
+import zerobase.MyShoppingMall.type.Gender;
+import zerobase.MyShoppingMall.type.Role;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 //클라이언트에게 회원정보를 응답할 때 사용
 @Getter
@@ -15,12 +17,12 @@ public class MemberResponseDto {
     private Long id;
     private String email;
     private String nickName;
-    private String gender;
-    private String role;
+    private Gender gender;
+    private Role role;
     private String phoneNumber;
     private String deleteType;
-    private LocalDate createdAt;
-    private LocalDate updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public MemberResponseDto(Member member) {
         this.id = member.getId();

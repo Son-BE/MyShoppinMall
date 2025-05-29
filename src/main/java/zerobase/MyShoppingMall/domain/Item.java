@@ -2,6 +2,7 @@ package zerobase.MyShoppingMall.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import zerobase.MyShoppingMall.type.Category;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,11 +44,15 @@ public class Item {
     private List<OrderDetail> orderDetails;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
-    private List<Cart> carts;
+    private List<CartItem> cartItems;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     private List<WishList> wishLists;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     private List<ItemImage> itemImages;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Category category;
 }
