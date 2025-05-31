@@ -4,12 +4,83 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>관리자 대시보드</title>
-    <!-- Bootstrap CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-</head>
-<body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background-color: #fdf6f0;
+            font-family: 'Segoe UI', sans-serif;
+            color: #4a3b2d;
+        }
+
+        .navbar {
+            background-color: #a47148;
+        }
+
+        .navbar .navbar-brand,
+        .navbar .nav-link {
+            color: #fff;
+        }
+
+        .navbar .nav-link:hover {
+            color: #f0e6e1;
+        }
+
+        .sidebar {
+            background-color: #e8d8c3;
+            height: 100vh;
+            padding-top: 2rem;
+        }
+
+        .sidebar .nav-link {
+            color: #4a3b2d;
+            font-weight: 500;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #decbb7;
+            color: #3c2f23;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: #d5b9a3;
+            color: #3c2f23;
+            font-weight: bold;
+            border-left: 4px solid #a47148;
+        }
+
+        .sidebar i {
+            width: 20px;
+            margin-right: 8px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+        }
+
+        .card-title {
+            font-weight: bold;
+        }
+
+        .card.bg-primary {
+            background-color: #d4a373 !important;
+            color: #fff;
+        }
+
+        .card.bg-success {
+            background-color: #b5838d !important;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body th:with="uri=${#httpServletRequest?.requestURI}">
+
+<nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">관리자 대시보드</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -33,39 +104,74 @@
 <div class="container-fluid">
     <div class="row">
         <!-- 사이드바 -->
-        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-            <div class="position-sticky pt-3">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/admin/dashboard">
-                            대시보드
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <ul class="nav flex-column">
+                <!-- 대시보드 -->
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="/dashboard"
+                       th:classappend="${uri != null and uri.startsWith('/dashboard')} ? ' active'">
+                        <i class="fas fa-chart-line"></i> 대시보드
+                    </a>
+                </li>
+
+                <!-- 회원 관리 -->
+                <li class="nav-item">
+                    <a class="nav-link"
+                       data-bs-toggle="collapse"
+                       href="#memberSub"
+                       role="button"
+                       aria-expanded="false"
+                       aria-controls="memberSub"
+                       th:classappend="${uri != null and uri.startsWith('/admin/members')} ? ' active'">
+                        <i class="fas fa-users"></i> 회원 관리
+                    </a>
+                    <div class="collapse ps-3"
+                         id="memberSub"
+                         th:classappend="${uri != null and uri.startsWith('/admin/members')} ? ' show'">
+                        <a class="nav-link"
+                           href="/admin/members"
+                           th:classappend="${uri == '/admin/members'} ? ' active'">
+                            <i class="fas fa-user-friends"></i> 전체 회원
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/members">
-                            회원 관리
+                        <a class="nav-link"
+                           href="/admin/members/new"
+                           th:classappend="${uri == '/admin/members/new'} ? ' active'">
+                            <i class="fas fa-user-plus"></i> 신규 회원
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/orders">
-                            주문 관리
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/orders">
-                            상품 관리
-                        </a>
-                    </li>
-                </ul>
-            </div>
+                    </div>
+                </li>
+
+                <!-- 주문 관리 -->
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#orderSub" role="button" aria-expanded="false" aria-controls="orderSub">
+                        <i class="fas fa-box"></i> 주문 관리
+                    </a>
+                    <div class="collapse ps-3" id="orderSub">
+                        <a class="nav-link" href="/admin/orders"><i class="fas fa-list-alt"></i> 전체 주문</a>
+                        <a class="nav-link" href="/admin/orders/pending"><i class="fas fa-clock"></i> 대기 중 주문</a>
+                    </div>
+                </li>
+
+                <!-- 상품 관리 -->
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#itemSub" role="button" aria-expanded="false" aria-controls="itemSub">
+                        <i class="fas fa-boxes-stacked"></i> 상품 관리
+                    </a>
+                    <div class="collapse ps-3" id="itemSub">
+                        <a class="nav-link" href="/admin/items/create"><i class="fas fa-plus-square"></i> 상품 등록</a>
+                        <a class="nav-link" href="/admin/items"><i class="fas fa-list-ul"></i> 상품 목록</a>
+                    </div>
+                </li>
+            </ul>
         </nav>
 
-        <!-- 메인 컨텐츠 -->
+        <!-- 메인 콘텐츠 -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <h1 class="mt-4">대시보드</h1>
             <div class="row my-4">
                 <div class="col-md-4">
-                    <div class="card text-white bg-primary mb-3">
+                    <div class="card bg-primary mb-3">
                         <div class="card-body">
                             <h5 class="card-title">총 회원 수</h5>
                             <p class="card-text fs-2" th:text="${memberCount}">0</p>
@@ -73,21 +179,19 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card text-white bg-success mb-3">
+                    <div class="card bg-success mb-3">
                         <div class="card-body">
                             <h5 class="card-title">총 주문 수</h5>
                             <p class="card-text fs-2" th:text="${orderCount}">0</p>
                         </div>
                     </div>
                 </div>
-                <!-- 카드 추가 가능 -->
             </div>
-            <!-- 추가 컨텐츠 영역 -->
         </main>
     </div>
 </div>
 
-<!-- Bootstrap JS Bundle CDN (Popper 포함) -->
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

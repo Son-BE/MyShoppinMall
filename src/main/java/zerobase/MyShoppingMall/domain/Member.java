@@ -34,7 +34,7 @@ public class Member {
     @Column(name = "nick_name", nullable = false)
     private String nickName;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private Gender gender;
 

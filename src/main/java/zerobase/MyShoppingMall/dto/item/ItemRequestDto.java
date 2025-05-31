@@ -1,7 +1,8 @@
 package zerobase.MyShoppingMall.dto.item;
 
 import lombok.*;
-import zerobase.MyShoppingMall.type.Category;
+import zerobase.MyShoppingMall.type.ItemCategory;
+import zerobase.MyShoppingMall.type.ItemSubCategory;
 
 //상품 등록, 수정 시 사용
 @Getter
@@ -14,5 +15,8 @@ public class ItemRequestDto {
     private String itemComment;
     private int price;
     private int quantity;
-    private Category category;
+    private ItemCategory category;
+    private ItemSubCategory subCategory;
+
+
 }

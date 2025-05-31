@@ -1,5 +1,5 @@
 package zerobase.MyShoppingMall.type;
 
 public enum Gender {
-    MALE, FEMALE
+    MALE, FEMALE, M, W
 }

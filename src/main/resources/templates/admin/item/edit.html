@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>상품 수정</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<div class="container mt-4">
+    <h2>상품 수정</h2>
+    <form id="editForm">
+        <input type="hidden" id="itemId" th:value="${item.id}" />
+
+        <div class="mb-3">
+            <label for="itemName" class="form-label">상품명</label>
+            <input type="text" class="form-control" id="itemName" th:value="${item.itemName}" />
+        </div>
+        <div class="mb-3">
+            <label for="itemComment" class="form-label">설명</label>
+            <input type="text" class="form-control" id="itemComment" th:value="${item.itemComment}" />
+        </div>
+        <div class="mb-3">
+            <label for="price" class="form-label">가격</label>
+            <input type="number" class="form-control" id="price" th:value="${item.price}" />
+        </div>
+        <div class="mb-3">
+            <label for="quantity" class="form-label">재고</label>
+            <input type="number" class="form-control" id="quantity" th:value="${item.quantity}" />
+        </div>
+        <div class="mb-3">
+            <label for="category" class="form-label">카테고리</label>
+            <input type="text" class="form-control" id="category" th:value="${item.category}" />
+        </div>
+        <div class="mb-3">
+            <label for="subCategory" class="form-label">하위 카테고리</label>
+            <input type="text" class="form-control" id="subCategory" th:value="${item.subCategory}" />
+        </div>
+        <button type="button" class="btn btn-success" onclick="updateItem()">수정 완료</button>
+    </form>
+</div>
+
+<script>
+    function updateItem() {
+        const dto = {
+            itemName: document.getElementById('itemName').value,
+            itemComment: document.getElementById('itemComment').value,
+            price: Number(document.getElementById('price').value),
+            quantity: Number(document.getElementById('quantity').value),
+            category: document.getElementById('category').value,
+            subCategory: document.getElementById('subCategory').value
+        };
+        const itemId = document.getElementById('itemId').value;
+
+        fetch('/api/items/' + itemId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dto)
+        })
+            .then(response => {
+                if(response.ok) {
+                    alert('수정되었습니다.');
+                    window.location.href = '/admin/items'; // 목록 페이지로 이동
+                } else {
+                    alert('수정에 실패했습니다.');
+                }
+            })
+            .catch(error => alert('수정 요청 중 오류가 발생했습니다.'));
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

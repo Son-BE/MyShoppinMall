@@ -37,7 +37,7 @@
 //                .formLogin(form -> form
 //                        .loginPage("/login")
 //                        .defaultSuccessUrl("/mainPage", true)
-//                        .permitAll()
+//       3                 .permitAll()
 //                )
 //                .logout(logout -> logout
 //                        .logoutSuccessUrl("/login")
