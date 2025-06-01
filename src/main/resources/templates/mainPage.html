@@ -4,26 +4,75 @@
     <meta charset="UTF-8" />
     <title>병의's 쇼핑몰</title>
     <style>
-        body { font-family: sans-serif; margin: 0; }
-        header, nav, footer { padding: 1rem; background-color: #f8f8f8; }
-        nav a { margin-right: 1rem; text-decoration: none; }
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: #fff8f3;
+            color: #4e342e;
+        }
 
-        .container { display: flex; padding: 1rem; }
-        .sidebar { width: 20%; }
-        .products { width: 80%; display: flex; flex-wrap: wrap; gap: 1rem; }
-        .product-card { border: 1px solid #ccc; padding: 1rem; width: 180px; }
+        header, nav, footer {
+            padding: 1rem;
+            background-color: #ffe5d0; /* 따뜻한 베이지-살구색 */
+        }
 
-        .user-info { float: right; font-size: 0.9rem; color: #555; }
+        nav a {
+            margin-right: 1rem;
+            text-decoration: none;
+            color: #6d4c41;
+        }
+
+        nav a:hover {
+            color: #d84315; /* 진한 웜톤 브라운 */
+        }
+
+        .user-info {
+            float: right;
+            font-size: 0.9rem;
+            color: #6d4c41;
+        }
+
+        .container {
+            display: flex;
+            padding: 1rem;
+            gap: 2rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .product-card {
+            border: 1px solid #ffccbc;
+            padding: 1rem;
+            background-color: #fff3e0; /* 연한 웜톤 배경 */
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(255, 138, 101, 0.2); /* 부드러운 그림자 */
+        }
+
+        .product-card img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            max-height: 150px;
+            border-radius: 4px;
+        }
 
         .dropdown {
             display: inline-block;
             position: relative;
         }
+
         .dropdown-menu {
             display: none;
             position: absolute;
-            background-color: white;
-            border: 1px solid #ddd;
+            background-color: #fff8f3;
+            border: 1px solid #ffccbc;
             list-style: none;
             padding: 0;
             margin: 0;
@@ -32,16 +81,44 @@
             min-width: 160px;
             z-index: 1000;
         }
+
         .dropdown-menu li a {
             display: block;
             padding: 8px 12px;
             text-decoration: none;
-            color: #333;
+            color: #4e342e;
         }
+
         .dropdown-menu li a:hover {
-            background-color: #f1f1f1;
+            background-color: #ffe0b2; /* 오렌지 계열 hover */
+        }
+
+        select {
+            background-color: #ffe0b2;
+            border: 1px solid #ffb74d;
+            padding: 0.3rem;
+            border-radius: 4px;
+            color: #4e342e;
+        }
+
+        footer {
+            text-align: center;
+            background-color: #ffe5d0;
+            color: #6d4c41;
+        }
+
+        button {
+            background-color: transparent;
+            border: none;
+            color: #d84315;
+            cursor: pointer;
+        }
+
+        button:hover {
+            color: #bf360c;
         }
     </style>
+
 </head>
 <body>
 
@@ -90,14 +167,56 @@
     <a href="#">WishList</a>
 </nav>
 
-<div class="container">
-
-
-    <section class="products">
-        <div class="product-card">
-
+<div class="container" style="gap: 2rem;">
+    <!-- Men's Popular Section -->
+    <div class="men-section" style="width: 50%;">
+        <h3>Men's Popular</h3>
+        <div style="margin-bottom: 1rem;">
+            <label>정렬:
+                <select id="men-sort" onchange="loadMenItems(this.value)">
+                    <option value="popular">인기 많은순</option>
+                    <option value="latest">최신 등록순</option>
+                </select>
+            </label>
         </div>
-    </section>
+        <div id="men-products" class="products-grid">
+            <!-- 빈칸 카드 9개 -->
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+        </div>
+
+    </div>
+
+    <!-- Women's Popular Section -->
+    <div class="women-section" style="width: 50%;">
+        <h3>Women's Popular</h3>
+        <div style="margin-bottom: 1rem;">
+            <label>정렬:
+                <select id="women-sort" onchange="loadWomenItems(this.value)">
+                    <option value="popular">인기 많은순</option>
+                    <option value="latest">최신 등록순</option>
+                </select>
+            </label>
+        </div>
+        <div id="women-products" class="products-grid">
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
+        </div>
+    </div>
 </div>
 
 <footer>
@@ -118,12 +237,12 @@
             document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
         }
     });
-    ocument.addEventListener('DOMContentLoaded', () => {
-        fetch('/api/items')  // 전체 상품 리스트 API 호출
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/api/items')
             .then(response => response.json())
             .then(data => {
                 const productList = document.getElementById('product-list');
-                productList.innerHTML = ''; // 초기화
+                productList.innerHTML = '';
 
                 data.forEach(item => {
                     const card = document.createElement('div');
@@ -140,6 +259,40 @@
                 console.error('상품 로드 실패:', err);
             });
     });
+
+    function createCard(item) {
+        return `
+            <div class="product-card">
+                <img src="${item.imageUrl || 'https://via.placeholder.com/150'}" alt="상품 이미지" />
+                <p><strong>${item.itemName}</strong></p>
+                <p>₩${item.price.toLocaleString()}</p>
+            </div>
+        `;
+    }
+
+    function loadMenItems(sort) {
+        fetch(`/api/items?category=MEN&sort=${sort}`)
+            .then(res => res.json())
+            .then(data => {
+                const menContainer = document.getElementById('men-products');
+                menContainer.innerHTML = data.slice(0, 9).map(createCard).join('');
+            });
+    }
+
+    function loadWomenItems(sort) {
+        fetch(`/api/items?category=WOMEN&sort=${sort}`)
+            .then(res => res.json())
+            .then(data => {
+                const womenContainer = document.getElementById('women-products');
+                womenContainer.innerHTML = data.slice(0, 9).map(createCard).join('');
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadMenItems('popular');
+        loadWomenItems('popular');
+    });
+
 </script>
 
 </body>

@@ -42,7 +42,7 @@ public class ItemImageService {
         // DB 저장
         ItemImage image = ItemImage.builder()
                 .item(item)
-                .itemPath("/images/" + uniqueFilename)
+                .itemPath(uniqueFilename)
                 .build();
 
         return itemImageRepository.save(image);

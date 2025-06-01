@@ -20,6 +20,7 @@ public class ItemResponseDto {
     private int price;
     private int quantity;
     private String deleteType;
+    private String imagePath;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private ItemCategory category;
@@ -36,9 +37,21 @@ public class ItemResponseDto {
         this.updatedAt = item.getUpdatedAt();
         this.category = item.getCategory();
         this.subCategory = item.getSubCategory();
+        if (item.getItemImages() != null && !item.getItemImages().isEmpty()) {
+            this.imagePath = "/images/" + item.getItemImages().get(0).getItemPath();
+        } else {
+            this.imagePath = null;
+        }
+
     }
 
     public static ItemResponseDto fromEntity(Item item) {
+        String imagePath = null;
+
+        if (item.getItemImages() != null && !item.getItemImages().isEmpty()) {
+            imagePath = "/images/" + item.getItemImages().get(0).getItemPath();
+        }
+
         return ItemResponseDto.builder()
                 .id(item.getId())
                 .itemName(item.getItemName())
@@ -47,6 +60,7 @@ public class ItemResponseDto {
                 .quantity(item.getQuantity())
                 .category(item.getCategory())
                 .subCategory(item.getSubCategory())
+                .imagePath(imagePath)
                 .build();
     }
 }

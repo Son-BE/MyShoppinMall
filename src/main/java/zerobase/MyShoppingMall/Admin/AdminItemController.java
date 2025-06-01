@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import zerobase.MyShoppingMall.dto.item.ItemRequestDto;
 import zerobase.MyShoppingMall.dto.item.ItemResponseDto;
 import zerobase.MyShoppingMall.service.item.ItemService;
@@ -43,8 +44,9 @@ public class AdminItemController {
 
     // 상품 등록 처리
     @PostMapping("/create")
-    public String createItem(@ModelAttribute ItemRequestDto itemRequestDto) {
-        itemService.createItem(itemRequestDto);
+    public String createItem(@ModelAttribute ItemRequestDto itemRequestDto,
+                             @RequestParam("imageFile") MultipartFile imageFile) {
+        itemService.createItem(itemRequestDto,imageFile);
         return "redirect:/admin/items";
     }
 
@@ -54,6 +56,6 @@ public class AdminItemController {
         ItemResponseDto item = itemService.getItem(itemId);
         model.addAttribute("item", item);
         model.addAttribute("categories", ItemCategory.values());
-        return "admin/item/edit";  // 수정 폼 뷰 이름 (템플릿 경로)
+        return "admin/item/edit";
     }
 }
