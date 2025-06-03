@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8" />
     <title>병의's 쇼핑몰</title>
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          integrity="sha512-dx1+2FovCWPKixmYk3xE6WKw54bo1tDUX6sZtyDPiH65JL2+lImN0YGK5wCw8uYmL5Y8ZDU3iGn8+yS+jc5URw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <style>
         body {
             font-family: sans-serif;
@@ -13,7 +20,7 @@
 
         header, nav, footer {
             padding: 1rem;
-            background-color: #ffe5d0; /* 따뜻한 베이지-살구색 */
+            background-color: #ffe5d0;
         }
 
         nav a {
@@ -23,7 +30,7 @@
         }
 
         nav a:hover {
-            color: #d84315; /* 진한 웜톤 브라운 */
+            color: #d84315;
         }
 
         .user-info {
@@ -32,267 +39,169 @@
             color: #6d4c41;
         }
 
-        .container {
+        .controls {
             display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 1rem;
-            gap: 2rem;
+        }
+
+        .controls select, .controls button {
+            background-color: #ffe0b2;
+            border: 1px solid #ffb74d;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            color: #4e342e;
+            margin-right: 0.5rem;
+            cursor: pointer;
+        }
+
+        .controls button.active {
+            background-color: #ffb74d;
+            font-weight: bold;
         }
 
         .products-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
+            padding: 1rem;
         }
 
         .product-card {
             border: 1px solid #ffccbc;
             padding: 1rem;
-            background-color: #fff3e0; /* 연한 웜톤 배경 */
-            width: 100%;
-            box-sizing: border-box;
+            background-color: #fff3e0;
             text-align: center;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(255, 138, 101, 0.2); /* 부드러운 그림자 */
+            box-shadow: 0 2px 5px rgba(255, 138, 101, 0.2);
+            text-decoration: none;
+            color: #4e342e;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .product-card img {
             width: 100%;
             height: auto;
-            object-fit: cover;
             max-height: 150px;
+            object-fit: cover;
             border-radius: 4px;
-        }
-
-        .dropdown {
-            display: inline-block;
-            position: relative;
-        }
-
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            background-color: #fff8f3;
-            border: 1px solid #ffccbc;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            top: 100%;
-            left: 0;
-            min-width: 160px;
-            z-index: 1000;
-        }
-
-        .dropdown-menu li a {
-            display: block;
-            padding: 8px 12px;
-            text-decoration: none;
-            color: #4e342e;
-        }
-
-        .dropdown-menu li a:hover {
-            background-color: #ffe0b2; /* 오렌지 계열 hover */
-        }
-
-        select {
-            background-color: #ffe0b2;
-            border: 1px solid #ffb74d;
-            padding: 0.3rem;
-            border-radius: 4px;
-            color: #4e342e;
+            margin-bottom: 0.8rem;
         }
 
         footer {
             text-align: center;
             background-color: #ffe5d0;
             color: #6d4c41;
-        }
-
-        button {
-            background-color: transparent;
-            border: none;
-            color: #d84315;
-            cursor: pointer;
+            padding: 1rem;
         }
 
         button:hover {
-            color: #bf360c;
+            background-color: #ffc107;
         }
     </style>
-
 </head>
 <body>
 
 <header style="display: flex; justify-content: space-between; align-items: center;">
-    <h2> 병의's 쇼핑몰<</h2>
+    <h2><i class="fa-solid fa-store"></i> 병의's 쇼핑몰</h2>
     <div class="user-info">
         <span th:if="${#authorization.expression('isAuthenticated()')}"
               th:text="${#authentication.name} + '님'">
-            로그인
-        </span>
+              <i class="fa-solid fa-user"></i> 사용자</span>
+        <a th:if="${!#authorization.expression('isAuthenticated()')}" href="/login">
+            <i class="fa-solid fa-right-to-bracket"></i> 로그인
+        </a>
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <button type="submit" style="margin-left: 10px; background:none; border:none; color:blue; cursor:pointer;">로그아웃</button>
+            <button type="submit" style="margin-left: 10px; background:none; border:none; color:blue; cursor:pointer;">
+                <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+            </button>
         </form>
     </div>
 </header>
 
 <nav>
-    <a href="#">Home</a>
-
-    <div class="dropdown">
-        <a href="#" onclick="toggleDropdown('menMenu')">Men ▼</a>
-        <ul id="menMenu" class="dropdown-menu">
-            <li><a href="/items?category=MENS_TOP">남성 상의</a></li>
-            <li><a href="/items?category=MENS_BOTTOM">남성 하의</a></li>
-            <li><a href="/items?category=MENS_OUTER">남성 아우터</a></li>
-            <li><a href="/items?category=MENS_SHOES">남성 신발</a></li>
-            <li><a href="/items?category=MENS_ACCESSORY">남성 악세서리</a></li>
-        </ul>
-    </div>
-
-    <div class="dropdown">
-        <a href="#" onclick="toggleDropdown('womenMenu')">Women ▼</a>
-        <ul id="womenMenu" class="dropdown-menu">
-            <li><a href="/items?category=WOMENS_TOP">여성 상의</a></li>
-            <li><a href="/items?category=WOMENS_BOTTOM">여성 하의</a></li>
-            <li><a href="/items?category=WOMENS_DRESS">원피스</a></li>
-            <li><a href="/items?category=WOMENS_OUTER">여성 아우터</a></li>
-            <li><a href="/items?category=WOMENS_SHOES">여성 신발</a></li>
-            <li><a href="/items?category=WOMENS_ACCESSORY">여성 악세서리</a></li>
-            <li><a href="/items?category=WOMENS_BAG">여성 가방</a></li>
-        </ul>
-    </div>
-
-    <a href="#">ItemCart</a>
-    <a href="#">WishList</a>
+    <a href="/mainPage"><i class="fa-solid fa-house"></i> Home</a>
+    <a href="/user/cart"><i class="fa-solid fa-cart-shopping"></i> ItemCart</a>
+    <a href="/wishList"><i class="fa-solid fa-heart"></i> WishList</a>
 </nav>
 
-<div class="container" style="gap: 2rem;">
-    <!-- Men's Popular Section -->
-    <div class="men-section" style="width: 50%;">
-        <h3>Men's Popular</h3>
-        <div style="margin-bottom: 1rem;">
-            <label>정렬:
-                <select id="men-sort" onchange="loadMenItems(this.value)">
-                    <option value="popular">인기 많은순</option>
-                    <option value="latest">최신 등록순</option>
-                </select>
-            </label>
-        </div>
-        <div id="men-products" class="products-grid">
-            <!-- 빈칸 카드 9개 -->
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-        </div>
-
+<div class="controls">
+    <div>
+        <button id="btn-men" class="active" onclick="switchGender('male')">
+            <i class="fa-solid fa-mars"></i> Men
+        </button>
+        <button id="btn-women" onclick="switchGender('female')">
+            <i class="fa-solid fa-venus"></i> Women
+        </button>
     </div>
-
-    <!-- Women's Popular Section -->
-    <div class="women-section" style="width: 50%;">
-        <h3>Women's Popular</h3>
-        <div style="margin-bottom: 1rem;">
-            <label>정렬:
-                <select id="women-sort" onchange="loadWomenItems(this.value)">
-                    <option value="popular">인기 많은순</option>
-                    <option value="latest">최신 등록순</option>
-                </select>
-            </label>
-        </div>
-        <div id="women-products" class="products-grid">
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-            <div class="product-card"><img src="https://via.placeholder.com/150"><p><strong>상품명</strong></p><p>₩0</p></div>
-        </div>
+    <div>
+        <label><i class="fa-solid fa-sort"></i> 정렬:
+            <select id="sort-select" onchange="loadItems()">
+                <option value="priceLow">가격 낮은순</option>
+                <option value="priceHigh">가격 높은순</option>
+                <option value="popular">인기 많은순</option>
+                <option value="latest">최신 등록순</option>
+                <option value="scoreHigh">평점 높은순</option>
+                <option value="mostReviews">리뷰 많은순</option>
+            </select>
+        </label>
     </div>
 </div>
 
+<div id="product-container" class="products-grid">
+
+</div>
+
 <footer>
-    <p>&copy; 2025 My Shopping Mall </p>
+    <p>&copy; 2025 My Shopping Mall</p>
 </footer>
 
 <script>
-    function toggleDropdown(id) {
-        const menu = document.getElementById(id);
-        const isVisible = menu.style.display === 'block';
-        document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
-        if (!isVisible) {
-            menu.style.display = 'block';
-        }
-    }
-    document.addEventListener('click', function(event) {
-        if (!event.target.closest('.dropdown')) {
-            document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
-        }
-    });
-    document.addEventListener('DOMContentLoaded', () => {
-        fetch('/api/items')
-            .then(response => response.json())
-            .then(data => {
-                const productList = document.getElementById('product-list');
-                productList.innerHTML = '';
+    let currentGender = 'male';
+    let currentSort = 'priceLow';
 
-                data.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'product-card';
-                    card.innerHTML = `
-                    <img src="${item.imageUrl || 'https://via.placeholder.com/150'}" alt="상품 이미지" />
-                    <p><strong>${item.itemName}</strong></p>
-                    <p>₩${item.price.toLocaleString()}</p>
-                `;
-                    productList.appendChild(card);
-                });
-            })
-            .catch(err => {
-                console.error('상품 로드 실패:', err);
-            });
-    });
+    function switchGender(gender) {
+        currentGender = gender;
+        document.getElementById('btn-men').classList.toggle('active', gender === 'male');
+        document.getElementById('btn-women').classList.toggle('active', gender === 'female');
+        loadItems();
+    }
 
     function createCard(item) {
+        const imageUrl = item.imagePath && item.imagePath.length > 0
+            ? item.imagePath[0]
+            : '/images/default.jpg';
+
         return `
-            <div class="product-card">
-                <img src="${item.imageUrl || 'https://via.placeholder.com/150'}" alt="상품 이미지" />
+            <a href="/detail/${item.id}" class="product-card">
+                <img src="${imageUrl}" alt="상품 이미지" />
                 <p><strong>${item.itemName}</strong></p>
                 <p>₩${item.price.toLocaleString()}</p>
-            </div>
+            </a>
         `;
     }
 
-    function loadMenItems(sort) {
-        fetch(`/api/items?category=MEN&sort=${sort}`)
+    function loadItems() {
+        currentSort = document.getElementById('sort-select').value;
+        const url = `/api/items/sorted?gender=${currentGender}&sort=${currentSort}`;
+        fetch(url)
             .then(res => res.json())
-            .then(data => {
-                const menContainer = document.getElementById('men-products');
-                menContainer.innerHTML = data.slice(0, 9).map(createCard).join('');
-            });
-    }
-
-    function loadWomenItems(sort) {
-        fetch(`/api/items?category=WOMEN&sort=${sort}`)
-            .then(res => res.json())
-            .then(data => {
-                const womenContainer = document.getElementById('women-products');
-                womenContainer.innerHTML = data.slice(0, 9).map(createCard).join('');
+            .then(items => {
+                const container = document.getElementById('product-container');
+                container.innerHTML = items.slice(0, 9).map(createCard).join('');
+            })
+            .catch(err => {
+                console.error('상품 불러오기 실패:', err);
             });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        loadMenItems('popular');
-        loadWomenItems('popular');
+        loadItems();
     });
-
 </script>
 
 </body>

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import zerobase.MyShoppingMall.domain.Item;
+import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.ItemCategory;
 
 import java.util.List;
@@ -19,4 +20,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Page<Item> findByCategory(ItemCategory category, Pageable pageable);
     @EntityGraph(attributePaths = "itemImages")
     List<Item> findAll();
+    Page<Item> findByGender(Gender gender, Pageable pageable);
+
+
 }

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>장바구니</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          integrity="sha512-dx1+2FovCWPKixmYk3xE6WKw54bo1tDUX6sZtyDPiH65JL2+lImN0YGK5wCw8uYmL5Y8ZDU3iGn8+yS+jc5URw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #fff8f3;
+            color: #4e342e;
+            margin: 0;
+            padding: 1rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        th, td {
+            border-bottom: 1px solid #d7ccc8;
+            padding: 0.8rem;
+            text-align: center;
+        }
+        th {
+            background-color: #ffe5d0;
+            color: #4e342e;
+        }
+        td img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+        }
+        .btn {
+            background-color: #ffb74d;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn:hover {
+            background-color: #ffa726;
+        }
+        .btn-delete {
+            background-color: #ef5350;
+        }
+        .btn-delete:hover {
+            background-color: #e53935;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 1.3rem;
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+        .order-btn {
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin-left: auto;
+            background-color: #4caf50;
+            color: white;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            text-align: center;
+            text-decoration: none;
+        }
+        .order-btn:hover {
+            background-color: #388e3c;
+        }
+    </style>
+</head>
+<body>
+
+<div th:insert="~{fragment/header :: header}"></div>
+
+<h1>장바구니</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>상품 이미지</th>
+        <th>상품명</th>
+        <th>가격</th>
+        <th>수량</th>
+        <th>합계</th>
+        <th>삭제</th>
+    </tr>
+    </thead>
+    <tbody id="cart-body">
+
+    </tbody>
+</table>
+
+<div class="total">
+    총 합계: <span id="total-price">₩0</span>
+</div>
+
+<button class="order-btn" onclick="location.href='/order'">주문하기</button>
+
+<div th:insert="~{fragment/footer :: footer}"></div>
+
+<script>
+    const csrfHeader = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
+    const csrfToken = /*[[${_csrf.token}]]*/ '';
+
+    function formatPrice(num) {
+        return '₩' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    async function fetchCartItems() {
+        const res = await fetch('/carts');
+        if (!res.ok) {
+            alert('장바구니 정보를 불러오는데 실패했습니다.');
+            return;
+        }
+        const cartItems = await res.json();
+        renderCartItems(cartItems);
+    }
+
+    function renderCartItems(items) {
+        const tbody = document.getElementById('cart-body');
+        tbody.innerHTML = '';
+
+        let totalPrice = 0;
+
+        items.forEach(item => {
+            const subtotal = item.price * item.quantity;
+            totalPrice += subtotal;
+
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+                <td><img src="${item.imagePath ? item.imagePath : '/images/default-item.png'}" alt="상품 이미지" /></td>
+                <td>${item.itemName}</td>
+                <td>${formatPrice(item.price)}</td>
+                <td>
+                    <input type="number" class="quantity-input" value="${item.quantity}" min="1"
+                        onchange="updateQuantity(${item.cartItemId}, this.value)" />
+                </td>
+                <td>${formatPrice(subtotal)}</td>
+                <td>
+                    <button class="btn btn-delete" onclick="removeItem(${item.cartItemId})">
+                        <i class="fa-solid fa-trash"></i> 삭제
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('total-price').innerText = formatPrice(totalPrice);
+    }
+
+    async function updateQuantity(cartItemId, quantity) {
+        if (quantity < 1) {
+            alert('수량은 1 이상이어야 합니다.');
+            fetchCartItems();
+            return;
+        }
+
+        const res = await fetch(`/carts/update/${cartItemId}?quantity=${quantity}`, {
+            method: 'PUT',
+            headers: {
+                [csrfHeader]: csrfToken
+            }
+        });
+        if (res.ok) {
+            fetchCartItems();
+        } else {
+            alert('수량 변경에 실패했습니다.');
+            fetchCartItems();
+        }
+    }
+
+    async function removeItem(cartItemId) {
+        if (!confirm('정말로 이 아이템을 삭제하시겠습니까?')) return;
+
+        const res = await fetch(`/carts/remove/${cartItemId}`, {
+            method: 'DELETE',
+            headers: {
+                [csrfHeader]: csrfToken
+            }
+        });
+
+        if (res.ok) {
+            fetchCartItems();
+        } else {
+            alert('아이템 삭제에 실패했습니다.');
+        }
+    }
+
+    async function clearCart() {
+        if (!confirm('장바구니를 비우시겠습니까?')) return;
+
+        const res = await fetch('/carts/clear', {
+            method: 'DELETE',
+            headers: {
+                [csrfHeader]: csrfToken
+            }
+        });
+
+        if (res.ok) {
+            fetchCartItems();
+        } else {
+            alert('장바구니 비우기에 실패했습니다.');
+        }
+    }
+
+    // 페이지 로드 시 장바구니 아이템 불러오기
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchCartItems();
+    });
+</script>
+
+</body>
+</html>

@@ -2,6 +2,8 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <title>상품 목록</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
@@ -12,6 +14,7 @@
         font-family: 'Segoe UI', sans-serif;
         color: #4a3b2d;
     }
+
 
     .navbar {
         background-color: #ffe5d0;
@@ -48,13 +51,19 @@
         margin-right: 8px;
     }
 
+    t   able.table td,
+    table.table th {
+        text-align: center;
+        vertical-align: middle;
+    }
+
 </style>
 
 <body>
 
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">관리자 대시보드</a>
+        <a class="navbar-brand" href="/dashboard">관리자 대시보드</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarNav" aria-controls="navbarNav"
                 aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +85,7 @@
 <div class="container mt-4">
     <h2>상품 목록</h2>
     <table class="table table-striped table-bordered">
+
         <thead>
         <tr>
             <th>이름</th>
@@ -85,6 +95,7 @@
             <th>재고</th>
             <th>카테고리</th>
             <th>하위 카테고리</th>
+            <th>성별</th>
             <th>액션</th>
         </tr>
         </thead>
@@ -92,14 +103,19 @@
         <tr th:each="item : ${items}">
             <td th:text="${item.itemName}">이름</td>
             <td>
-                <img th:if="${item.imagePath}" th:src="@{${item.imagePath}}" alt="상품 이미지" style="width: 100px;" />
-                <img th:unless="${item.imagePath}" src="/images/default.jpg" alt="기본 이미지" style="width: 100px;" />
+                <img th:if="${item.imagePath != null and item.imagePath != ''}"
+                     th:src="@{${item.imagePath}}"
+                     alt="상품 이미지" style="width: 100px;" />
+                <img th:unless="${item.imagePath != null and item.imagePath != ''}"
+                     src="/images/default.jpg"
+                     alt="기본 이미지" style="width: 100px;" />
             </td>
             <td th:text="${item.itemComment}">내용</td>
             <td th:text="${item.price}">가격</td>
             <td th:text="${item.quantity}">재고</td>
             <td th:text="${item.category}">카테고리</td>
             <td th:text="${item.subCategory}">하위 카테고리</td>
+            <td th:text="${item.gender}">성별</td>
             <td>
                 <a th:href="@{/admin/items/edit/{id}(id=${item.id})}" class="btn btn-primary btn-sm">수정</a>
                 <button class="btn btn-danger btn-sm" th:onclick="'deleteItem(' + ${item.id} + ')'">삭제</button>
@@ -107,19 +123,60 @@
             </td>
         </tr>
         </tbody>
+
     </table>
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/admin/items(page=${currentPage - 1}, category=${category})}">이전</a>
+            </li>
+
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/admin/items(page=${i}, category=${category})}"
+                   th:text="${i + 1}">1</a>
+            </li>
+
+            <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/admin/items(page=${currentPage + 1}, category=${category})}">다음</a>
+            </li>
+        </ul>
+    </nav>
+    <form method="get" action="/admin/items" class="mb-3">
+        <select name="category" class="form-select" onchange="this.form.submit()">
+            <option value="" th:selected="${category == null}">전체</option>
+            <option th:each="cat : ${T(zerobase.MyShoppingMall.type.ItemCategory).values()}"
+                    th:value="${cat}"
+                    th:text="${cat}"
+                    th:selected="${cat == category}">
+            </option>
+        </select>
+    </form>
+
 </div>
+<a href="/admin/items/create" class="btn btn-secondary ms-2">상품 등록하기</a>
 <a href="javascript:history.back()" class="btn btn-secondary ms-2">뒤로가기</a>
+
 <script>
     function deleteItem(itemId) {
         if (confirm('정말 삭제하시겠습니까?')) {
-            fetch('/api/items/' + itemId, {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+            fetch('/admin/items/' + itemId, {
                 method: 'DELETE',
+                headers: {
+                    [csrfHeader]: csrfToken
+                }
             })
                 .then(response => {
                     if (response.status === 204) {
                         alert('삭제되었습니다.');
-                        location.reload(); //
+                        location.reload();
                     } else {
                         alert('삭제에 실패했습니다.');
                     }

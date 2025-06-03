@@ -1,7 +1,11 @@
 package zerobase.MyShoppingMall.Admin;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +16,14 @@ import zerobase.MyShoppingMall.service.item.ItemService;
 import zerobase.MyShoppingMall.type.ItemCategory;
 import zerobase.MyShoppingMall.type.ItemSubCategory;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin/items")
@@ -19,7 +31,41 @@ public class AdminItemController {
 
     private final ItemService itemService;
 
-    // 상품 목록 보기
+    // 상품 등록
+    @PostMapping("/create")
+    public String createItem(@ModelAttribute ItemRequestDto itemRequestDto,
+                             @RequestParam("imageFile") MultipartFile imageFile) {
+        itemService.createItem(itemRequestDto,imageFile);
+        return "redirect:/admin/items";
+    }
+
+    // 상품 삭제
+    @DeleteMapping("/{itemId}")
+    public ResponseEntity<ItemResponseDto> deleteItem(
+            @PathVariable Long itemId) {
+        log.info("삭제요청 - itemId : {}", itemId);
+        itemService.deleteItem(itemId);
+        return ResponseEntity.noContent().build();
+    }
+
+    //상품 수정
+    @PutMapping("/{itemId}")
+    public ResponseEntity<ItemResponseDto> updateItem(
+            @PathVariable Long itemId,
+            @ModelAttribute ItemRequestDto dto,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
+
+        ItemResponseDto response = itemService.updateItemWithImage(itemId, dto, imageFile);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/view")
+    public ResponseEntity<List<ItemResponseDto>> getAllItems() {
+        List<ItemResponseDto> response = itemService.getAllItems();
+        return ResponseEntity.ok(response);
+    }
+
+    // 상품 목록 페이징
     @GetMapping
     public String list(@RequestParam(required = false) ItemCategory category,
                        @RequestParam(defaultValue = "0") int page,
@@ -30,24 +76,28 @@ public class AdminItemController {
                 : itemService.getAllItemsPageable(page, size);
 
         model.addAttribute("items", items.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", items.getTotalPages() == 0 ? 1 : items.getTotalPages());
+        model.addAttribute("category", category);
+
         return "admin/item/list";
     }
+
 
     // 상품 등록 폼 이동
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("item", new ItemRequestDto());
         model.addAttribute("categories", ItemCategory.values());
-        model.addAttribute("subCategories", ItemSubCategory.values());
-        return "admin/item/create";
-    }
 
-    // 상품 등록 처리
-    @PostMapping("/create")
-    public String createItem(@ModelAttribute ItemRequestDto itemRequestDto,
-                             @RequestParam("imageFile") MultipartFile imageFile) {
-        itemService.createItem(itemRequestDto,imageFile);
-        return "redirect:/admin/items";
+        Map<String, List<String>> subCategoryMap = Arrays.stream(ItemSubCategory.values())
+                .collect(Collectors.groupingBy(
+                        sub -> sub.getItemCategory().name(),
+                        Collectors.mapping(ItemSubCategory::name, Collectors.toList())
+                ));
+        model.addAttribute("subCategories", subCategoryMap);
+
+        return "admin/item/create";
     }
 
     // 상품 수정 폼 이동

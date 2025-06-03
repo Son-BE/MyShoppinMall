@@ -1,17 +1,17 @@
 package zerobase.MyShoppingMall.dto.item;
 
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import zerobase.MyShoppingMall.domain.Item;
+import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.ItemCategory;
 import zerobase.MyShoppingMall.type.ItemSubCategory;
-//상품 조회 시 반환
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class ItemResponseDto {
     private Long id;
@@ -25,42 +25,46 @@ public class ItemResponseDto {
     private LocalDateTime updatedAt;
     private ItemCategory category;
     private ItemSubCategory subCategory;
+    private Gender gender;
 
-    public ItemResponseDto(Item item) {
-        this.id = item.getId();
-        this.itemName = item.getItemName();
-        this.itemComment = item.getItemComment();
-        this.price = item.getPrice();
-        this.quantity = item.getQuantity();
-        this.deleteType = String.valueOf(item.getDeleteType());
-        this.createdAt = item.getCreatedAt();
-        this.updatedAt = item.getUpdatedAt();
-        this.category = item.getCategory();
-        this.subCategory = item.getSubCategory();
-        if (item.getItemImages() != null && !item.getItemImages().isEmpty()) {
-            this.imagePath = "/images/" + item.getItemImages().get(0).getItemPath();
-        } else {
-            this.imagePath = null;
-        }
-
+    public ItemResponseDto(Long id, String itemName, String itemComment, int price, int quantity, String deleteType,
+                           String imagePath, LocalDateTime createdAt, LocalDateTime updatedAt,
+                           ItemCategory category, ItemSubCategory subCategory, Gender gender) {
+        this.id = id;
+        this.itemName = itemName;
+        this.itemComment = itemComment;
+        this.price = price;
+        this.quantity = quantity;
+        this.deleteType = deleteType;
+        this.imagePath = imagePath;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.category = category;
+        this.subCategory = subCategory;
+        this.gender = gender;
     }
 
     public static ItemResponseDto fromEntity(Item item) {
         String imagePath = null;
-
         if (item.getItemImages() != null && !item.getItemImages().isEmpty()) {
             imagePath = "/images/" + item.getItemImages().get(0).getItemPath();
         }
 
-        return ItemResponseDto.builder()
+        ItemResponseDto dto = ItemResponseDto.builder()
                 .id(item.getId())
                 .itemName(item.getItemName())
                 .itemComment(item.getItemComment())
                 .price(item.getPrice())
                 .quantity(item.getQuantity())
+                .deleteType(String.valueOf(item.getDeleteType()))
+                .createdAt(item.getCreatedAt())
+                .updatedAt(item.getUpdatedAt())
                 .category(item.getCategory())
                 .subCategory(item.getSubCategory())
+                .gender(item.getGender())
                 .imagePath(imagePath)
                 .build();
+
+        return dto;
     }
 }

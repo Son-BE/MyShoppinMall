@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,11 +17,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import zerobase.MyShoppingMall.service.member.CustomUserDetailsService;
 
 import java.io.IOException;
 import java.util.Collection;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -43,6 +44,8 @@ public class SecurityConfig {
 
                         //관리자만 접근 가능
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        //로그인 시 접근 가능
+                        .requestMatchers("/user/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
@@ -87,6 +90,7 @@ public class SecurityConfig {
                         return;
                     }
                 }
+                log.info("로그인 성공");
                 response.sendRedirect("/mainPage");
             }
         };

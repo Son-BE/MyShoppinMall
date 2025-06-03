@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="${item.itemName} + ' - 상품 상세'">상품 상세</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha512-dx1+2FovCWPKixmYk3xE6WKw54bo1tDUX6sZtyDPiH65JL2+lImN0YGK5wCw8uYmL5Y8ZDU3iGn8+yS+jc5URw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #fff8f3;
+      color: #4e342e;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background-color: #fff3e0;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(255, 138, 101, 0.2);
+    }
+
+    .image-section img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .info-section {
+      margin-top: 1.5rem;
+    }
+
+    .info-section h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .info-section p.price {
+      font-size: 1.5rem;
+      color: #d84315;
+      margin: 0.5rem 0;
+    }
+
+    .info-section p.description {
+      margin-top: 1rem;
+    }
+
+    .actions {
+      margin-top: 2rem;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .actions form button,
+    .actions a {
+      background-color: #ffb74d;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .actions form button:hover,
+    .actions a:hover {
+      background-color: #ffa726;
+    }
+
+    .actions .wish-btn {
+      background-color: #f06292;
+    }
+
+    .actions .wish-btn:hover {
+      background-color: #ec407a;
+    }
+  </style>
+</head>
+<body>
+<div th:insert="~{fragment/header :: header}"></div>
+
+<div class="container">
+  <div class="image-section">
+    <img th:src="${item.imagePath[0]}" alt="상품 이미지" />
+  </div>
+
+  <div class="info-section">
+    <h1 th:text="${item.itemName}">상품명</h1>
+    <p class="price" th:text="'₩' + ${#numbers.formatInteger(item.price, 3, 'COMMA')}">가격</p>
+    <p class="description" th:text="${item.itemComment}">상품 설명</p>
+  </div>
+
+  <div class="actions">
+    <!-- 장바구니 등록 -->
+    <form id="addCartForm" th:action="@{/carts/add}" method="post" onsubmit="return confirmAddToCart(event)">
+      <input type="hidden" name="itemId" th:value="${item.id}" />
+      <input type="hidden" name="quantity" value="1" />
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <button type="submit"><i class="fa-solid fa-cart-plus"></i> 장바구니 추가</button>
+    </form>
+
+    <!-- 찜 등록 -->
+    <form th:action="@{/wishlist/add}" method="post">
+      <input type="hidden" name="itemId" th:value="${item.id}" />
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <button type="submit" class="wish-btn"><i class="fa-solid fa-heart"></i> 찜하기</button>
+    </form>
+
+    <script>
+      async function confirmAddToCart(event) {
+        event.preventDefault();
+
+        if (!confirm("장바구니에 추가하시겠습니까?")) {
+          return false;
+        }
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        try {
+          const response = await fetch(form.action, {
+            method: form.method,
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          });
+
+          if (response.ok) {
+            window.location.href = "/mainPage?added=true";
+          } else {
+            alert("장바구니 추가 중 오류가 발생했습니다.");
+          }
+        } catch (error) {
+          alert("네트워크 오류가 발생했습니다.");
+        }
+      }
+    </script>
+  </div>
+</div>
+<div th:insert="~{fragment/footer :: footer}"></div>
+</body>
+</html>

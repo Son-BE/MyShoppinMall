@@ -21,4 +21,8 @@ public class ItemImage {
 
     @Column(name = "item_path", nullable = false)
     private String itemPath;
+
+    public String getImagePath() {
+        return this.itemPath;
+    }
 }

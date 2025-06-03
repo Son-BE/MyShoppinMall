@@ -6,87 +6,82 @@ import org.springframework.transaction.annotation.Transactional;
 import zerobase.MyShoppingMall.domain.Cart;
 import zerobase.MyShoppingMall.domain.CartItem;
 import zerobase.MyShoppingMall.domain.Item;
-import zerobase.MyShoppingMall.dto.cart.CartItemDto;
-import zerobase.MyShoppingMall.dto.cart.CartResponseDto;
+import zerobase.MyShoppingMall.domain.Member;
 import zerobase.MyShoppingMall.repository.cart.CartItemRepository;
 import zerobase.MyShoppingMall.repository.cart.CartRepository;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
+import zerobase.MyShoppingMall.repository.member.MemberRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CartService {
-
-    private final ItemRepository itemRepository;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final MemberRepository memberRepository;
+    private final ItemRepository itemRepository;
 
-    // 장바구니 조회
-    @Transactional(readOnly = true)
-    public CartResponseDto getCartByCartId(Long cartId) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new IllegalArgumentException("장바구니를 찾을 수 없습니다."));
+    //회원의 장바구니 생성 or 조회
+    public Cart getOrCreateCart(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(()-> new IllegalArgumentException("회원이 없습니다."));
 
-        List<CartItemDto> items = cart.getCartItems().stream()
-                .map(cartItem -> CartItemDto.builder()
-                        .itemId(cartItem.getId())
-                        .itemId(cartItem.getItem().getId())
-                        .itemName(cartItem.getItem().getItemName())
-                        .price(cartItem.getItem().getPrice())
-                        .quantity(cartItem.getQuantity())
-                        .build())
-                .toList();
-
-        return CartResponseDto.builder()
-                .cartId(cart.getId())
-                .memberId(cart.getMember().getId())
-                .items(items)
-                .build();
+        return cartRepository.findByMember(member)
+                .orElseGet(() -> {
+                    Cart cart = Cart.builder()
+                            .member(member)
+                            .build();
+                    return cartRepository.save(cart);
+                });
     }
 
-    // 장바구니에 상품 추가
-    @Transactional
-    public void addItemToCart(Long cartId, Long itemId, int quantity) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new IllegalArgumentException("장바구니를 찾을 수 없습니다."));
+    //장바구니에 상품 추가
+    public void addItemToCart(Long memberId, Long itemId, int quantity) {
+        if(quantity <= 0) throw new IllegalArgumentException("수량은 1개 이상이어야 합니다.");
+
+        Cart cart = getOrCreateCart(memberId);
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다."));
 
-        Optional<CartItem> existingCartItem = cartItemRepository.findByCartAndItem(cart, item);
+        CartItem cartItem = cartItemRepository.findByCartAndItem(cart, item)
+                .orElse(CartItem.builder()
+                        .cart(cart)
+                        .item(item)
+                        .quantity(quantity)
+                        .build());
 
-        if (existingCartItem.isPresent()) {
-            CartItem cartItem = existingCartItem.get();
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
-        } else {
-            CartItem newCartItem = CartItem.builder()
-                    .cart(cart)
-                    .item(item)
-                    .quantity(quantity)
-                    .build();
-            cartItemRepository.save(newCartItem);
+        cartItem.setQuantity(cartItem.getQuantity() + quantity);
+        cartItemRepository.save(cartItem);
+
+        if(!cart.getCartItems().contains(cartItem)) {
+            cart.getCartItems().add(cartItem);
         }
     }
 
-    // 장바구니 상품 수량 수정
-    @Transactional
-    public void updateCartItemQuantity(Long cartItemId, int newQuantity) {
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new IllegalArgumentException("장바구니 항목을 찾을 수 없습니다."));
-
-        if (newQuantity <= 0) {
-            cartItemRepository.delete(cartItem);
-        } else {
-            cartItem.setQuantity(newQuantity);
-        }
+    // 회원의 장바구니 아이템 리스트 조회
+    @Transactional()
+    public List<CartItem> getCartItems(Long memberId) {
+        Cart cart = getOrCreateCart(memberId);
+        return cart.getCartItems();
     }
 
-    // 장바구니 상품 삭제
-    @Transactional
-    public void deleteCartItem(Long cartItemId) {
+    // 장바구니 아이템 수량 변경
+    public void updateItemQuantity(Long cartItemId, int quantity) {
+        if (quantity <= 0) throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
+
         CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new IllegalArgumentException("장바구니 항목을 찾을 수 없습니다."));
-        cartItemRepository.delete(cartItem);
+                .orElseThrow(() -> new IllegalArgumentException("장바구니 아이템이 없습니다."));
+
+        cartItem.setQuantity(quantity);
+        cartItemRepository.save(cartItem);
     }
+
+    // 장바구니 비우기
+    public void clearCart(Long memberId) {
+        Cart cart = getOrCreateCart(memberId);
+        cart.getCartItems().clear();
+        cartItemRepository.deleteAll(cart.getCartItems());
+    }
+
 }

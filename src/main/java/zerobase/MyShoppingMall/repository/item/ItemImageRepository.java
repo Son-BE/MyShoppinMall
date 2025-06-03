@@ -5,7 +5,9 @@ import org.springframework.stereotype.Repository;
 import zerobase.MyShoppingMall.domain.ItemImage;
 
 import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface ItemImageRepository extends JpaRepository<ItemImage, Long> {
-    List<ItemImage> findByItemId(Long itemId);
+    List<ItemImage> findAllByItemId(Long itemId);
 }

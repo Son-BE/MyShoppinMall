@@ -1,6 +1,7 @@
 package zerobase.MyShoppingMall.dto.item;
 
 import lombok.*;
+import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.ItemCategory;
 import zerobase.MyShoppingMall.type.ItemSubCategory;
 
@@ -17,6 +18,7 @@ public class ItemRequestDto {
     private int quantity;
     private ItemCategory category;
     private ItemSubCategory subCategory;
+    private Gender gender;
 
 
 }

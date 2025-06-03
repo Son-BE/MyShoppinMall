@@ -56,4 +56,7 @@ public class CustomUserDetails implements UserDetails {
     }
 
 
+    public Member getMember() {
+        return member;
+    }
 }

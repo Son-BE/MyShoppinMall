@@ -2,6 +2,8 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <title>상품 수정</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
 </head>
@@ -63,7 +65,7 @@
 
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">관리자 대시보드</a>
+        <a class="navbar-brand" href="/dashboard">관리자 대시보드</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarNav" aria-controls="navbarNav"
                 aria-expanded="false" aria-label="Toggle navigation">
@@ -84,7 +86,7 @@
 
 <div class="container mt-4">
     <h2>상품 수정</h2>
-    <form id="editForm">
+    <form id="editForm" enctype="multipart/form-data">
         <input type="hidden" id="itemId" th:value="${item.id}"/>
 
         <div class="mb-3">
@@ -108,12 +110,27 @@
             <input type="number" class="form-control" id="quantity" th:value="${item.quantity}"/>
         </div>
         <div class="mb-3">
+            <label for="gender" class="form-label">성별</label>
+            <select class="form-select" id="gender">
+                <option value="">성별 선택</option>
+                <option value="MALE" th:selected="${item.gender == 'MALE'}">남성</option>
+                <option value="FEMALE" th:selected="${item.gender == 'FEMALE'}">여성</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
             <label for="category" class="form-label">카테고리</label>
             <input type="text" class="form-control" id="category" th:value="${item.category}"/>
+        </div>
+        <div>
+
         </div>
         <div class="mb-3">
             <label for="subCategory" class="form-label">하위 카테고리</label>
             <input type="text" class="form-control" id="subCategory" th:value="${item.subCategory}"/>
+        </div>
+        <div>
+
         </div>
         <button type="submit" class="btn btn-warm" onclick="updateItem()">수정 완료</button>
         <a href="javascript:history.back()" class="btn btn-secondary ms-2">뒤로가기</a>
@@ -122,13 +139,16 @@
 
 <script>
     function updateItem() {
+        event.preventDefault();
+
         const itemId = document.getElementById('itemId').value;
 
         const formData = new FormData();
         formData.append('itemName', document.getElementById('itemName').value);
         formData.append('itemComment', document.getElementById('itemComment').value);
-        formData.append('price', (document.getElementById('price').value));
-        formData.append('quantity', (document.getElementById('quantity').value));
+        formData.append('price', document.getElementById('price').value);
+        formData.append('quantity', document.getElementById('quantity').value);
+        formData.append('gender', document.getElementById('gender').value);
         formData.append('category', document.getElementById('category').value);
         formData.append('subCategory', document.getElementById('subCategory').value);
 
@@ -137,8 +157,14 @@
             formData.append('imageFile', imageFile);
         }
 
-        fetch('/api/items/' + itemId, {
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        fetch('/admin/items/' + itemId, {
             method: 'PUT',
+            headers: {
+                [csrfHeader]: csrfToken
+            },
             body: formData
         })
             .then(response => {

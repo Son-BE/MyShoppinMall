@@ -65,7 +65,7 @@
 
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">관리자 대시보드</a>
+        <a class="navbar-brand" href="/dashboard">관리자 대시보드</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarNav" aria-controls="navbarNav"
                 aria-expanded="false" aria-label="Toggle navigation">
@@ -109,20 +109,44 @@
             <input type="number" class="form-control" id="stock" th:field="*{quantity}" required/>
         </div>
         <div class="mb-3">
-            <label for="category" class="form-label">카테고리</label>
-            <select class="form-select" id="category" th:field="*{category}">
-                <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}">카테고리</option>
+            <label for="gender" class="form-label">성별</label>
+            <select class="form-select" id="gender" th:field="*{gender}" required>
+                <option value="">성별 선택</option>
+                <option value="MALE">남성</option>
+                <option value="FEMALE">여성</option>
             </select>
         </div>
-        <div class="mb-3">
-            <label for="category" class="form-label">하위 카테고리</label>
-            <select class="form-select" id="subCategory" th:field="*{subCategory}">
-                <option th:each="sub : ${subCategories}" th:value="${sub}" th:text="${sub}">하위 카테고리</option>
-            </select>
-        </div>
+        <label for="category">카테고리</label>
+        <select id="category" name="category" onchange="updateSubCategories()" class="form-select">
+            <option value="">카테고리 선택</option>
+            <option th:each="cat : ${categories}" th:value="${cat.name()}" th:text="${cat.getDisplayName()}"></option>
+        </select>
+        <label for="subCategory">하위 카테고리</label>
+        <select id="subCategory" name="subCategory" class="form-select">
+            <option value="">하위 카테고리 선택</option>
+        </select>
         <button type="submit" class="btn btn-warm">등록</button>
         <a href="javascript:history.back()" class="btn btn-secondary ms-2">뒤로가기</a>
     </form>
 </div>
+<script th:inline="javascript">
+    let subCategoryData = /*[[${subCategories}]]*/ {};
+
+    function updateSubCategories() {
+        let category = document.getElementById("category").value;
+        let subCategorySelect = document.getElementById("subCategory");
+
+        subCategorySelect.innerHTML = '<option value="">하위 카테고리 선택</option>';
+
+        if (subCategoryData[category]) {
+            subCategoryData[category].forEach(subCat => {
+                let option = document.createElement('option');
+                option.value = subCat;
+                option.text = subCat;
+                subCategorySelect.appendChild(option);
+            });
+        }
+    }
+</script>
 </body>
 </html>

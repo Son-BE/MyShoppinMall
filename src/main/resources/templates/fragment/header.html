@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="header">
+    <header style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: #ffe5d0; color: #4e342e;">
+        <h2><i class="fa-solid fa-store"></i> 병의's 쇼핑몰</h2>
+        <div class="user-info" style="font-size: 0.9rem; color: #6d4c41;">
+            <span th:if="${#authorization.expression('isAuthenticated()')}"
+                  th:text="${#authentication.name} + '님'">
+                  <i class="fa-solid fa-user"></i> 사용자</span>
+            <a th:if="${!#authorization.expression('isAuthenticated()')}" href="/login" style="color:#6d4c41; text-decoration:none;">
+                <i class="fa-solid fa-right-to-bracket"></i> 로그인
+            </a>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" style="margin-left: 10px; background:none; border:none; color:#6d4c41; cursor:pointer;">
+                    <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <nav style="padding: 1rem; background-color: #ffe5d0;">
+        <a href="/mainPage" style="margin-right: 1rem; text-decoration: none; color: #6d4c41;">
+            <i class="fa-solid fa-house"></i> Home
+        </a>
+        <a href="/cart" style="margin-right: 1rem; text-decoration: none; color: #6d4c41;">
+            <i class="fa-solid fa-cart-shopping"></i> ItemCart
+        </a>
+        <a href="/wishlist" style="text-decoration: none; color: #6d4c41;">
+            <i class="fa-solid fa-heart"></i> WishList
+        </a>
+    </nav>
+</div>
+</body>
+</html>
