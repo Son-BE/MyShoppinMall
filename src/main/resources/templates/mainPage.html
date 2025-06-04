@@ -2,6 +2,8 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <title>병의's 쇼핑몰</title>
 
     <!-- Font Awesome 6 -->
@@ -85,7 +87,7 @@
         .product-card img {
             width: 100%;
             height: auto;
-            max-height: 150px;
+            max-height: 250px;
             object-fit: cover;
             border-radius: 4px;
             margin-bottom: 0.8rem;
@@ -126,7 +128,7 @@
 <nav>
     <a href="/mainPage"><i class="fa-solid fa-house"></i> Home</a>
     <a href="/user/cart"><i class="fa-solid fa-cart-shopping"></i> ItemCart</a>
-    <a href="/wishList"><i class="fa-solid fa-heart"></i> WishList</a>
+    <a href="/user/wishList"><i class="fa-solid fa-heart"></i> WishList</a>
 </nav>
 
 <div class="controls">
@@ -172,17 +174,18 @@
     }
 
     function createCard(item) {
-        const imageUrl = item.imagePath && item.imagePath.length > 0
+        const imageUrl = (item.imagePath && item.imagePath.length > 0)
             ? item.imagePath[0]
-            : '/images/default.jpg';
+            : '/images/default-image.png';
 
         return `
-            <a href="/detail/${item.id}" class="product-card">
-                <img src="${imageUrl}" alt="상품 이미지" />
-                <p><strong>${item.itemName}</strong></p>
-                <p>₩${item.price.toLocaleString()}</p>
-            </a>
-        `;
+        <a href="/detail/${item.id}" class="product-card">
+            <img src="${imageUrl}" alt="상품 이미지" onerror="this.onerror=null;this.src='/images/default-image.png';" />
+
+            <p><strong>${item.itemName}</strong></p>
+            <p>₩${item.price.toLocaleString()}</p>
+        </a>
+    `;
     }
 
     function loadItems() {

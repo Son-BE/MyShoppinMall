@@ -44,20 +44,22 @@ public class CartService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다."));
 
-        CartItem cartItem = cartItemRepository.findByCartAndItem(cart, item)
-                .orElse(CartItem.builder()
-                        .cart(cart)
-                        .item(item)
-                        .quantity(quantity)
-                        .build());
+        CartItem existingCartItem = cartItemRepository.findByCartAndItem(cart, item).orElse(null);
 
-        cartItem.setQuantity(cartItem.getQuantity() + quantity);
-        cartItemRepository.save(cartItem);
-
-        if(!cart.getCartItems().contains(cartItem)) {
-            cart.getCartItems().add(cartItem);
+        if (existingCartItem != null) {
+            existingCartItem.setQuantity(existingCartItem.getQuantity() + quantity);
+            cartItemRepository.save(existingCartItem);
+        } else {
+            CartItem newCartItem = CartItem.builder()
+                    .cart(cart)
+                    .item(item)
+                    .quantity(quantity)
+                    .build();
+            cartItemRepository.save(newCartItem);
+            cart.getCartItems().add(newCartItem);
         }
     }
+
 
     // 회원의 장바구니 아이템 리스트 조회
     @Transactional()
@@ -82,6 +84,11 @@ public class CartService {
         Cart cart = getOrCreateCart(memberId);
         cart.getCartItems().clear();
         cartItemRepository.deleteAll(cart.getCartItems());
+    }
+
+    // 특정 장바구니 아이템 삭제
+    public void deleteCartItem(Long cartItemId) {
+        cartItemRepository.deleteById(cartItemId);
     }
 
 }

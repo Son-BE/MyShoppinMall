@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>찜 목록</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #fff8f3;
+      color: #4e342e;
+      margin: 0;
+      padding: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid #d7ccc8;
+      padding: 0.8rem;
+      text-align: center;
+    }
+
+    th {
+      background-color: #ffe5d0;
+      color: #4e342e;
+    }
+
+    td img {
+      width: 150px;
+      height: 190px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .wish-toggle {
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+    }
+    .icon-button {
+      color: #00a2a2;
+      border: none;
+      padding: 0.5rem 0.7rem;
+      border-radius: 6px;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .icon-button:hover {
+      background-color: #ffb74d;
+    }
+  </style>
+</head>
+<body>
+
+<div th:insert="~{fragment/header :: header}"></div>
+
+<h2>찜한 상품 목록</h2>
+<div th:if="${#lists.isEmpty(wishList)}">
+  <p>찜한 상품이 없습니다.</p>
+</div>
+
+<table th:if="${not #lists.isEmpty(wishList)}">
+  <thead>
+  <tr>
+    <th></th>
+    <th>이미지</th>
+    <th>상품명</th>
+    <th>가격</th>
+    <th>장바구니에 담기</th>
+    <th>삭제</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="item : ${wishList}">
+    <td>
+      <span class="wish-toggle"
+            th:id="'wish-toggle-' + ${item.itemId}"
+            th:onclick="'toggleWish(' + ${item.itemId} + ')'"
+            th:text="${item.isWished} ? '❤️' : '🤍'"></span>
+    </td>
+    <td>
+      <img th:src="@{${item.itemImagePath}}" alt="상품 이미지"
+           onerror="this.onerror=null;this.src='/images/default-image.png';" />
+    </td>
+    <td th:text="${item.itemName}"></td>
+    <td th:text="${item.formattedPrice}"></td>
+    <td>
+      <div class="actions">
+        <form id="addCartForm"
+              th:action="@{/carts/add}"
+              method="post"
+              onsubmit="return confirmAddToCart(event)">
+          <input type="hidden" name="itemId" th:value="${item.itemId}"/>
+          <input type="hidden" id="quantity" name="quantity" min="1" value="1">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button type="submit" class="icon-button" title="장바구니에 담기">
+            <i class="fa-solid fa-cart-plus"></i>
+          </button>
+        </form>
+      </div>
+    </td>
+    <td>
+      <form th:action="@{'/api/wishlist/remove/' + ${item.itemId}}" method="post">
+        <input type="hidden" name="_method" value="delete"/>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="icon-button danger" title="삭제하기">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </form>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<div th:insert="~{fragment/footer :: footer}"></div>
+
+<script>
+  function formatPrice(num) {
+    return '₩' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function toggleWish(itemId) {
+    fetch(`/wish-list/toggle/${itemId}`, {
+      method: 'POST'
+    })
+            .then(res => res.json())
+            .then(data => {
+              const icon = document.getElementById(`wish-toggle-${itemId}`);
+              icon.textContent = data.isWished ? '❤️' : '🤍';
+            })
+            .catch(err => console.error('찜 토글 실패:', err));
+  }
+</script>
+
+</body>
+</html>

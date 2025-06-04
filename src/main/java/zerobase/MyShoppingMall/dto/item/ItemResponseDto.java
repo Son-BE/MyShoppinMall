@@ -67,4 +67,7 @@ public class ItemResponseDto {
 
         return dto;
     }
+    public String getFormattedPrice() {
+        return String.format("₩%,d", this.price);
+    }
 }

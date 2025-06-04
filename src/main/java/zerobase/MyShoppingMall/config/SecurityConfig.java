@@ -40,6 +40,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/members/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/members/**").permitAll()
 
+
+
                         .requestMatchers("/", "/login", "/signup", "/logout", "register-form", "/css/**", "/js/**", "/create-item").permitAll()
 
                         //관리자만 접근 가능
