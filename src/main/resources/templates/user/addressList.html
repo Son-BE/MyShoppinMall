@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>내 주소 목록</title>
+</head>
+<body>
+<h2>내 주소 목록</h2>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>수신인</th>
+        <th>주소</th>
+        <th>상세 주소</th>
+        <th>전화번호</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="address : ${addresses}">
+        <td th:text="${address.receiverName}">홍길동</td>
+        <td th:text="${address.addr}">서울특별시 ...</td>
+        <td th:text="${address.addrDetail}">101동 101호</td>
+        <td th:text="${address.receiverPhone}">010-1234-5678</td>
+    </tr>
+    </tbody>
+</table>
+
+<a href="user/address/new">주소 추가하기</a>
+</body>
+</html>

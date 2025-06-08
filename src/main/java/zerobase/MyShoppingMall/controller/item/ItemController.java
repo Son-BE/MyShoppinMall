@@ -1,77 +1,67 @@
 package zerobase.MyShoppingMall.controller.item;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import zerobase.MyShoppingMall.dto.item.ItemResponseDto;
-import zerobase.MyShoppingMall.repository.item.ItemRepository;
 import zerobase.MyShoppingMall.service.item.ItemService;
 import zerobase.MyShoppingMall.type.Gender;
-import zerobase.MyShoppingMall.type.SortType;
+import zerobase.MyShoppingMall.type.ItemSubCategory;
 
 import java.util.List;
 
-@Slf4j
-@RestController
-@RequestMapping("/api/items")
+
+@Controller
+@RequestMapping("/items")
 @RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
-    private final ItemRepository itemRepository;
 
     @GetMapping
-    public ResponseEntity<List<ItemResponseDto>> getAllItems() {
-        List<ItemResponseDto> response = itemService.getAllItems();
-        return ResponseEntity.ok(response);
-    }
+    public String getItemsPage(
+            @RequestParam(value = "gender", required = false) String gender,
+            @RequestParam(value = "sort", required = false, defaultValue = "latest") String sort,
+            @RequestParam(value = "category", required = false) String subCategory,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            Model model) {
 
-    @GetMapping("/filter")
-    public ResponseEntity<List<ItemResponseDto>> getItemsByGender(
-            @RequestParam("category") String category) {
-        try {
-            Gender genderType = Gender.valueOf(category.toUpperCase());
-            List<ItemResponseDto> items = itemService.getItemsByGender(genderType);
-            return ResponseEntity.ok(items);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(List.of());
+        Gender genderEnum = null;
+        if (gender != null && !gender.isEmpty()) {
+            try {
+                genderEnum = Gender.valueOf(gender.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                genderEnum = null;  // 기본값 또는 무시
+            }
         }
-    }
 
-    @GetMapping("/latest/gender")
-    public ResponseEntity<List<ItemResponseDto>> getLatestItemsByGender(
-            @RequestParam("gender") String gender) {
-        try {
-            Gender genderType = Gender.valueOf(gender.toUpperCase());
-            List<ItemResponseDto> items = itemService.getLatestItemsByGender(genderType, 9);
-            return ResponseEntity.ok(items);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(List.of());
-        }
-    }
+        Page<ItemResponseDto> itemPage = itemService.findItems(genderEnum, sort, subCategory, page, 12);
 
-    @GetMapping("/sorted")
-    public ResponseEntity<List<ItemResponseDto>> getSortedItemsByGender(
-            @RequestParam("gender") String gender,
-            @RequestParam("sort") String sort) {
+        model.addAttribute("items", itemPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", itemPage.getTotalPages());
+        model.addAttribute("selectedGender", gender);
+        model.addAttribute("selectedSort", sort);
+        model.addAttribute("selectedCategory", subCategory);
 
-        try {
-            Gender genderType = Gender.valueOf(gender.toUpperCase());
-            SortType sortType = SortType.valueOf(sort.toUpperCase());
-
-            List<ItemResponseDto> items = itemService.getSortedItemsByGender(genderType, sortType.name());
-            return ResponseEntity.ok(items);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(List.of());
-        }
+        return "/mainPage";
     }
 
     @GetMapping("/detail/{id}")
     public String getItemDetail(@PathVariable Long id, Model model) {
         ItemResponseDto item = itemService.getItem(id);
         model.addAttribute("item", item);
-        return "item/detail";
+        return "/user/detail";
     }
 
+//    @GetMapping("/filter")
+//    public String filterBySubCategory(@RequestParam("subcategory") ItemSubCategory subCategory, Model model) {
+//        List<ItemResponseDto> items = itemService.findBy(subCategory);
+//        model.addAttribute("items", items);
+//        return "/mainPage";
+//    }
 }

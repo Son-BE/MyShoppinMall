@@ -39,15 +39,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/items/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/members/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/members/**").permitAll()
-
-
-
                         .requestMatchers("/", "/login", "/signup", "/logout", "register-form", "/css/**", "/js/**", "/create-item").permitAll()
 
                         //관리자만 접근 가능
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         //로그인 시 접근 가능
                         .requestMatchers("/user/**").authenticated()
+                        .requestMatchers("/order/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
@@ -93,7 +91,7 @@ public class SecurityConfig {
                     }
                 }
                 log.info("로그인 성공");
-                response.sendRedirect("/mainPage");
+                response.sendRedirect("/items");
             }
         };
     }

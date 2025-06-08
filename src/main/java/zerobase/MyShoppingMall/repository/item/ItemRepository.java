@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import zerobase.MyShoppingMall.domain.Item;
 import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.ItemCategory;
+import zerobase.MyShoppingMall.type.ItemSubCategory;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Optional<Item> findById(Long itemId);
 
     Page<Item> findByCategory(ItemCategory category, Pageable pageable);
+    Page<Item> findByGenderAndSubCategory(Gender gender, ItemSubCategory subCategory, Pageable pageable);
+    Page<Item> findBySubCategory(ItemSubCategory subCategory, Pageable pageable);
     @EntityGraph(attributePaths = "itemImages")
     List<Item> findAll();
     Page<Item> findByGender(Gender gender, Pageable pageable);

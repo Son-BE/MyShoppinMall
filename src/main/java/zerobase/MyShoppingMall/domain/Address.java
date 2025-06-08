@@ -25,6 +25,9 @@ public class Address {
     @Column(nullable = false)
     private String addr;
 
+    @Column(name = "postal_code")
+    private String postalCode;
+
     @Column(name = "addr_detail", nullable = false)
     private String addrDetail;
 

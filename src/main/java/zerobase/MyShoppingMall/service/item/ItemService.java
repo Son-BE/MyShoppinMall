@@ -17,8 +17,10 @@ import zerobase.MyShoppingMall.repository.cart.CartItemRepository;
 import zerobase.MyShoppingMall.repository.cart.CartRepository;
 import zerobase.MyShoppingMall.repository.item.ItemImageRepository;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
+import zerobase.MyShoppingMall.repository.wishList.WishListRepository;
 import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.ItemCategory;
+import zerobase.MyShoppingMall.type.ItemSubCategory;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +37,7 @@ public class ItemService {
     private final ItemImageService itemImageService;
     private final ItemImageRepository itemImageRepository;
     private final CartItemRepository cartItemRepository;
-//    private final WishListRepository wishListRepository;
+    private final WishListRepository wishListRepository;
 
     //상품 생성
     public ItemResponseDto createItem(ItemRequestDto dto, MultipartFile imageFile) {
@@ -92,10 +94,8 @@ public class ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("상품이 존재하지 않습니다. id=" + itemId));
 
-        // 1. ItemImage 여러 개 조회
         List<ItemImage> itemImages = itemImageRepository.findAllByItemId(itemId);
 
-        // 2. 이미지 파일 및 DB 삭제
         for (ItemImage itemImage : itemImages) {
             if (itemImage.getItemPath() != null) {
                 File file = new File(itemImage.getItemPath());
@@ -106,10 +106,8 @@ public class ItemService {
             itemImageRepository.delete(itemImage);
         }
 
-        // 3. CartItem, WishList 명시적 삭제
         cartItemRepository.deleteById(itemId);
-//        wishListRepository.deleteById(itemId);
-        // 4. 실제 아이템 삭제
+        wishListRepository.deleteById(itemId);
         itemRepository.delete(item);
     }
 
@@ -135,6 +133,7 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
+    //관리자 페이지 카테고리화
     @Transactional
     public Page<ItemResponseDto> getItemsByCategory(ItemCategory category, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
@@ -142,44 +141,28 @@ public class ItemService {
                 .map(ItemResponseDto::fromEntity);
     }
 
-    @Transactional
-    public List<ItemResponseDto> getItemsByGender(Gender gender) {
-        return itemRepository.findAll().stream()
-                .filter(item -> item.getDeleteType() == 'N')
-                .filter(item -> item.getCategory().getGender() == gender)
-                .map(ItemResponseDto::fromEntity)
-                .collect(Collectors.toList());
-
-    }
-
+    //관리자 페이지 페이징처리
     public Page<ItemResponseDto> getAllItemsPageable(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<Item> itemsPage = itemRepository.findAll(pageable);
         return itemsPage.map(ItemResponseDto::fromEntity);
     }
 
-    public List<ItemResponseDto> getLatestItemsByGender(Gender gender, int limit) {
-        Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return itemRepository.findByGender(gender, pageable).stream()
-                .map(ItemResponseDto::fromEntity)
-                .toList();
-    }
 
-
-    public List<ItemResponseDto> getSortedItemsByGender(Gender gender, String sortType) {
+    public Page<ItemResponseDto> findItems(Gender gender, String sortType, String itemSubCategory, int page, int size) {
         Sort sort;
 
         switch (sortType.toLowerCase()) {
-            case "pricelow":
+            case "price low":
                 sort = Sort.by(Sort.Direction.ASC, "price");
                 break;
-            case "pricehigh":
+            case "price high":
                 sort = Sort.by(Sort.Direction.DESC, "price");
                 break;
-            case "scorehigh":
+            case "score high":
                 sort = Sort.by(Sort.Direction.DESC, "rating");
                 break;
-            case "mostreviews":
+            case "most reviews":
                 sort = Sort.by(Sort.Direction.DESC, "reviewCount");
                 break;
             case "popular":
@@ -191,11 +174,32 @@ public class ItemService {
                 break;
         }
 
-        Pageable pageable = PageRequest.of(0, 100, sort); // 첫 페이지, 최대 100개 항목
-        Page<Item> itemPage = itemRepository.findByGender(gender, pageable);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Item> itemsPage;
 
-        return itemPage.getContent().stream()
-                .map(ItemResponseDto::fromEntity)
-                .collect(Collectors.toList());
+        ItemSubCategory subCategory = null;
+        if (itemSubCategory != null && !itemSubCategory.isEmpty()) {
+            try {
+                subCategory = ItemSubCategory.valueOf("M_" + itemSubCategory.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("카테고리 파싱 오류");
+            }
+        }
+
+        if (gender != null && subCategory != null) {
+            itemsPage = itemRepository.findByGenderAndSubCategory(gender, subCategory, pageable);
+        } else if (gender != null) {
+            itemsPage = itemRepository.findByGender(gender, pageable);
+        } else if (subCategory != null) {
+            itemsPage = itemRepository.findBySubCategory(subCategory, pageable);
+        } else {
+            itemsPage = itemRepository.findAll(pageable);
+        }
+
+        return itemsPage.map(ItemResponseDto::fromEntity);
     }
+
+
+
+
 }

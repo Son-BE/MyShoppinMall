@@ -2,15 +2,10 @@ package zerobase.MyShoppingMall.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.Role;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 @Entity

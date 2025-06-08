@@ -6,7 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import zerobase.MyShoppingMall.service.member.MemberService;
-import zerobase.MyShoppingMall.service.order.OrderService;
+//import zerobase.MyShoppingMall.service.order.OrderService;
 
 @Controller
 @RequiredArgsConstructor
@@ -14,7 +14,7 @@ import zerobase.MyShoppingMall.service.order.OrderService;
 public class AdminController {
     private final AdminService adminService;
     private final MemberService memberService;
-    private final OrderService orderService;
+//    private final OrderService orderService;
 
 
     @GetMapping("/dashboard")

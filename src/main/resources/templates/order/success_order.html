@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>주문 완료</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #f0f8ff;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .checkmark {
+            font-size: 60px;
+            color: #4CAF50;
+            margin-bottom: 1rem;
+        }
+
+        .summary {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .summary p {
+            margin: 0.4rem 0;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            margin-top: 2rem;
+            display: inline-block;
+            padding: 0.7rem 1.4rem;
+            background: #0077cc;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #005fa3;
+        }
+    </style>
+</head>
+<body>
+<div th:insert="~{fragment/header :: header}"></div>
+
+<div class="container">
+    <div class="checkmark">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    <h1>주문이 완료되었습니다!</h1>
+    <p>소중한 주문 감사합니다. 빠르게 준비하여 배송해드리겠습니다.</p>
+
+    <div class="summary">
+        <p><strong>주문자:</strong> <span th:text="${receiverName}"></span></p>
+        <p><strong>연락처:</strong> <span th:text="${receiverPhone}"></span></p>
+        <p><strong>배송지:</strong> <span th:text="${receiverAddress}"></span></p>
+        <p><strong>결제 금액:</strong> <span th:text="'₩' + ${#numbers.formatInteger(totalPrice, 3, 'COMMA')}"></span></p>
+        <p><strong>결제 수단:</strong> <span th:text="${paymentMethod}"></span></p>
+    </div>
+
+    <div style="margin-top: 2rem;">
+        <a href="/" class="btn" style="margin-right: 1rem;">홈으로 가기</a>
+        <a th:href="@{/orders/detail/{orderId}(orderId=${orderId})}" class="btn">주문 내역 보기</a>
+    </div>
+</div>
+
+<div th:insert="~{fragment/footer :: footer}"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

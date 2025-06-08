@@ -1,28 +1,34 @@
 package zerobase.MyShoppingMall.controller.cart;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import zerobase.MyShoppingMall.domain.CartItem;
 import zerobase.MyShoppingMall.domain.Member;
 import zerobase.MyShoppingMall.dto.cart.CartItemResponseDto;
 import zerobase.MyShoppingMall.service.cart.CartService;
+import zerobase.MyShoppingMall.service.member.CustomUserDetails;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
-@RequestMapping("/carts")
+@Slf4j
+@Controller
+@RequestMapping("/user/cart")
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
 
-    // 로그인 회원의 장바구니 목록 조회
     @GetMapping
-    public ResponseEntity<List<CartItemResponseDto>> getCartItems(@AuthenticationPrincipal zerobase.MyShoppingMall.service.member.CustomUserDetails userDetails) {
+    public String getCartItems(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Member member = userDetails.getMember();
         List<CartItem> cartItems = cartService.getCartItems(member.getId());
+        for(CartItem cartItem : cartItems) {
+            log.info("CartItem: itemId={}, name={}, price={}", cartItem.getId());
+        }
 
         List<CartItemResponseDto> response = cartItems.stream().map(item -> {
             String imagePath = null;
@@ -40,39 +46,43 @@ public class CartController {
                     .build();
         }).collect(Collectors.toList());
 
-        return ResponseEntity.ok(response);
+        int totalPrice = response.stream()
+                .mapToInt(item -> item.getPrice() * item.getQuantity())
+                .sum();
+
+        model.addAttribute("cartItems", response);
+        model.addAttribute("totalPrice", totalPrice);
+
+        return "user/cart";
     }
 
-    // 장바구니에 아이템 추가
     @PostMapping("/add")
-    public ResponseEntity<String> addItemToCart(@AuthenticationPrincipal zerobase.MyShoppingMall.service.member.CustomUserDetails userDetails,
-                                                @RequestParam Long itemId,
-                                                @RequestParam int quantity) {
+    public String addItemToCart(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                @RequestParam Long itemId,
+                                @RequestParam int quantity) {
         Member member = userDetails.getMember();
         cartService.addItemToCart(member.getId(), itemId, quantity);
-        return ResponseEntity.ok("장바구니에 추가되었습니다.");
+        return "redirect:/mainPage?added=true"; // 장바구니 추가 후 메인 페이지로 이동
     }
 
-    // 장바구니 아이템 수량 변경
-    @PutMapping("/update/{cartItemId}")
-    public ResponseEntity<String> updateQuantity(@PathVariable Long cartItemId,
-                                                 @RequestParam int quantity) {
+    @PostMapping("/update")
+    public String updateQuantity(@RequestParam Long cartItemId,
+                                 @RequestParam int quantity) {
         cartService.updateItemQuantity(cartItemId, quantity);
-        return ResponseEntity.ok("수량이 변경되었습니다.");
+        return "redirect:/user/cart";
     }
 
-    // 장바구니 아이템 삭제
-    @DeleteMapping("/remove/{cartItemId}")
-    public ResponseEntity<String> removeItem(@PathVariable Long cartItemId) {
+    @PostMapping("/remove")
+    public String removeItem(@RequestParam Long cartItemId) {
         cartService.deleteCartItem(cartItemId);
-        return ResponseEntity.ok("장바구니 아이템이 삭제되었습니다.");
+        return "redirect:/user/cart";
     }
 
-    // 장바구니 비우기
-    @DeleteMapping("/clear")
-    public ResponseEntity<String> clearCart(@AuthenticationPrincipal zerobase.MyShoppingMall.service.member.CustomUserDetails userDetails) {
+    @PostMapping("/clear")
+    public String clearCart(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Member member = userDetails.getMember();
         cartService.clearCart(member.getId());
-        return ResponseEntity.ok("장바구니가 비워졌습니다.");
+        return "redirect:/user/cart";
     }
+
 }

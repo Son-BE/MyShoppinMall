@@ -3,13 +3,20 @@ package zerobase.MyShoppingMall.type;
 public enum ItemSubCategory {
     //남성 상의
     M_HOODIE("후드티", ItemCategory.MENS_TOP),
-    M_COAT("코트", ItemCategory.MENS_OUTER),
+    M_SWEATSHIRT("맨투맨", ItemCategory.MENS_TOP),
     M_TSHIRT("티셔츠", ItemCategory.MENS_TOP),
+    M_WINDBREAKER("바람막이", ItemCategory.MENS_OUTER),
+    M_COAT("코트", ItemCategory.MENS_OUTER),
+    M_PADDING("패딩", ItemCategory.MENS_OUTER),
+
 
     //여성 상의
     W_HOODIE("후드티", ItemCategory.WOMENS_TOP),
-    W_COAT("코트", ItemCategory.WOMENS_OUTER),
+    W_SWEATSHIRT("맨투맨", ItemCategory.WOMENS_TOP),
     W_TSHIRT("티셔츠", ItemCategory.WOMENS_TOP),
+    W_COAT("코트", ItemCategory.WOMENS_OUTER),
+    W_WINDBREAKER("바람막이", ItemCategory.WOMENS_OUTER),
+    W_PADDING("패딩", ItemCategory.WOMENS_OUTER),
 
     //남성 하의
     M_JOGGER_PANTS("조거팬츠", ItemCategory.MENS_BOTTOM),

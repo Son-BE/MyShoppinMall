@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>주문정보 입력</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #f5f7fa;
+            padding: 2rem;
+        }
+
+        form {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.4rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .btn {
+            margin-top: 1.5rem;
+            background: #0077cc;
+            color: white;
+            border: none;
+            padding: 1rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: block;
+            margin: auto;
+        }
+
+        .btn:hover {
+            background: #005fa3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        th, td {
+            border-bottom: 1px solid #d7ccc8;
+            padding: 0.8rem;
+            text-align: center;
+        }
+
+        th {
+            background-color: #e1f0ff;
+            color: #2c3e50;
+        }
+
+        td img {
+            width: 150px;
+            height: 190px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+<div th:insert="~{fragment/header :: header}"></div>
+<h2 style="text-align: center;">주문 / 결제</h2>
+
+<form method="post" th:action="@{/orders/confirm}">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+    <label for="receiverName">수령인 이름</label>
+    <input type="text" id="receiverName" name="receiverName" required/>
+
+    <label for="receiverPhone">연락처</label>
+    <input type="text" id="receiverPhone" name="receiverPhone" required placeholder="010-1234-5678"/>
+
+    <label for="receiverAddress">배송지 주소</label>
+    <input type="text" id="receiverAddress" name="receiverAddress" required/>
+
+    <label for="receiverAddress">우편 번호</label>
+    <input type="text" id="postalCode" name="postalCode" required/>
+
+    <label for="receiverAddress">배송 시 요청 사항</label>
+    <input type="text" id="deliveryRequest" name="deliveryRequest" required/>
+
+    <label for="paymentMethod">결제 수단</label>
+    <select id="paymentMethod" name="paymentMethod" required>
+        <option value="CARD">카드 결제</option>
+        <option value="BANK_TRANSFER">자동 이체</option>
+        <option value="MOBILE">모바일 결제</option>
+        <option value="POINT">포인트 결제</option>
+    </select>
+
+    <input type="hidden" name="memberId" th:value="${memberId}"/>
+    <input type="hidden" name="totalPrice" th:value="${totalPrice}"/>
+
+    <div th:each="item, iterStat : ${cartItems}">
+        <input type="hidden" name="orderDetails[__${iterStat.index}__].itemId" th:value="${item.itemId}"/>
+        <input type="hidden" name="orderDetails[__${iterStat.index}__].quantity" th:value="${item.quantity}"/>
+        <input type="hidden" name="orderDetails[__${iterStat.index}__].price" th:value="${item.price}"/>
+    </div>
+    <div>
+
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th></th>
+            <th>상품명</th>
+            <th>가격</th>
+            <th>수량</th>
+            <th>합계</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${cartItems}">
+            <td>
+                <img th:src="${item.imagePath != null} ? ${item.imagePath} : '/images/default-item.png'" alt="상품 이미지"/>
+            </td>
+            <td th:text="${item.itemName}">상품명</td>
+            <td th:text="${#numbers.formatInteger(item.price, 3, 'COMMA')} + '₩'">0₩</td>
+            <td th:text="${item.quantity}">수량</td>
+            <td th:text="${#numbers.formatInteger(item.price * item.quantity, 3, 'COMMA')} + '₩'">0₩</td>
+        </tr>
+        </tbody>
+    </table>
+    <button type="submit" class="btn">결제 하기</button>
+</form>
+<div th:insert="~{fragment/footer :: footer}"></div>
+</body>
+</html>
