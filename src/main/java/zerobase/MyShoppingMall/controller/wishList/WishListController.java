@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import zerobase.MyShoppingMall.domain.Member;
 import zerobase.MyShoppingMall.dto.wishlist.WishListDto;
 import zerobase.MyShoppingMall.service.member.CustomUserDetails;
@@ -33,10 +34,16 @@ public class WishListController {
     //찜목록 상품 추가
     @PostMapping("/add")
     public String addWishList(@AuthenticationPrincipal CustomUserDetails userDetails,
-                              @RequestParam Long itemId) {
+                              @RequestParam Long itemId, RedirectAttributes redirectAttributes) {
         Member member = userDetails.getMember();
-        wishListService.addToWishList(member.getId(), itemId);
-        return "redirect:/mainPage?added=true";
+        try{
+            wishListService.addToWishList(member.getId(), itemId);
+            redirectAttributes.addFlashAttribute("message", "찜목록에 상품이 추가되었습니다!");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("message", e.getMessage());
+        }
+
+        return "redirect:/user/wishList";
     }
 
     // 찜목록 상품 삭제

@@ -1,6 +1,7 @@
 package zerobase.MyShoppingMall.dto.user;
 
 import lombok.*;
+import zerobase.MyShoppingMall.domain.Address;
 import zerobase.MyShoppingMall.domain.Member;
 import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.Role;
@@ -34,5 +35,6 @@ public class MemberResponseDto {
         this.deleteType = member.getDeleteType();
         this.createdAt = member.getCreatedAt();
         this.updatedAt = member.getUpdatedAt();
+
     }
 }

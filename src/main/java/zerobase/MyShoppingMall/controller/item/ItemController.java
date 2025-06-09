@@ -39,7 +39,7 @@ public class ItemController {
             }
         }
 
-        Page<ItemResponseDto> itemPage = itemService.findItems(genderEnum, sort, subCategory, page, 12);
+        Page<ItemResponseDto> itemPage = itemService.findItems(genderEnum, sort, subCategory, page, 16);
 
         model.addAttribute("items", itemPage.getContent());
         model.addAttribute("currentPage", page);

@@ -25,12 +25,15 @@ public class Address {
     @Column(nullable = false)
     private String addr;
 
-    @Column(name = "postal_code")
-    private String postalCode;
-
     @Column(name = "addr_detail", nullable = false)
     private String addrDetail;
 
+    @Column(name = "postal_code")
+    private String postalCode;
+
     @Column(name = "receiver_phone", nullable = false)
     private String receiverPhone;
+
+    @Column(name = "is_default", nullable = false)
+    private boolean isDefault; // 기본 배송지
 }

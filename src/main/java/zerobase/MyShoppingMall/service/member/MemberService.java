@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import zerobase.MyShoppingMall.domain.Address;
 import zerobase.MyShoppingMall.domain.Member;
 import zerobase.MyShoppingMall.dto.user.MemberRequestDto;
 import zerobase.MyShoppingMall.dto.user.MemberResponseDto;
+import zerobase.MyShoppingMall.repository.address.AddressRepository;
 import zerobase.MyShoppingMall.repository.member.MemberRepository;
 import zerobase.MyShoppingMall.type.Role;
 
@@ -26,7 +28,6 @@ public class MemberService {
         if (memberRepository.existsByNickName(memberRequestDto.getNickName())) {
             throw new IllegalStateException("이미 존재하는 닉네임입니다.");
         }
-
 
         Member member = Member.builder()
                 .email(memberRequestDto.getEmail())

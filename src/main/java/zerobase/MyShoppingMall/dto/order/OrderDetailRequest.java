@@ -5,8 +5,10 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OrderDetailRequest {
     private Long itemId;
-    private int quantity;
     private int price;
+    private int quantity;
 }

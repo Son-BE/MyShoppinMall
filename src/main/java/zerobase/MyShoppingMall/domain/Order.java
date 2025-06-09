@@ -6,6 +6,7 @@ import zerobase.MyShoppingMall.type.OrderStatus;
 import zerobase.MyShoppingMall.type.PaymentMethod;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,43 +17,40 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Order {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", nullable = false)
     private Address address;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member member;
+
     @Embedded
     private OrderAddress orderAddress;
 
-    @Column(name = "total_price", nullable = false)
-    private int totalPrice;
-
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private OrderStatus status;
-
-    @Column
-    private String reason;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", nullable = false)
     private PaymentMethod paymentMethod;
 
-    @Column(name = "created_at", nullable = false)
+    private int totalPrice;
+
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "order")
-    private List<OrderDetail> orderDetails;
+    @Builder.Default
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> orderDetails = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public void addOrderDetail(OrderDetail detail) {
+        detail.setOrder(this);
+        orderDetails.add(detail);
+    }
+
 }

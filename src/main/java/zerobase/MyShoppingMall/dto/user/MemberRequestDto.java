@@ -20,4 +20,5 @@ public class MemberRequestDto {
     private String deleteType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
 }

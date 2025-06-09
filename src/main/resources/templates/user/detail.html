@@ -150,7 +150,7 @@
 
     <div class="actions">
         <!-- 장바구니 등록 -->
-        <form th:action="@{/user/cart/add}" method="post">
+        <form th:action="@{/user/cart/add}" method="post" onsubmit="return confirmAddToCart()">
             <input type="hidden" name="itemId" th:value="${item.id}" />
             <label>수량:
                 <input type="number" name="quantity" min="1" th:attr="max=${item.quantity}" value="1"
@@ -163,7 +163,7 @@
         </form>
 
         <!-- 찜 등록 -->
-        <form th:action="@{/wishList/add}" method="post">
+        <form th:action="@{/wishList/add}" method="post" onsubmit="return confirmAddToWishlist()">
             <input type="hidden" name="itemId" th:value="${item.id}"/>
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <button type="submit" th:disabled="${item.quantity == 0}" class="wish-btn">
@@ -174,5 +174,19 @@
 </div>
 
 <div th:insert="~{fragment/footer :: footer}"></div>
+
+<script th:if="${message != null}">
+    alert('[[${message}]]');
+</script>
+<script>
+    function confirmAddToCart() {
+        return confirm("장바구니에 추가하시겠습니까?");
+    }
+
+    function confirmAddToWishlist() {
+        return confirm("찜목록 에 추가하시겠습니까?");
+    }
+</script>
+
 </body>
 </html>

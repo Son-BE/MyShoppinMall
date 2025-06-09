@@ -48,6 +48,10 @@ public class WishListService {
         if(wishListRepository.findByMemberIdAndItemId(memberId, itemId).isPresent()) {
             throw new IllegalArgumentException("이미 찜한 상품입니다");
         }
+        int currentItemCount = wishListRepository.countByMemberId(memberId);
+        if(currentItemCount >= 10) {
+            throw new IllegalArgumentException("찜목록은 최대 10개 까지 등록하실 수 있습니다.");
+        }
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 ID가 존재하지 않습니다."));

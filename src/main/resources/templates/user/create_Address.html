@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>주소 등록</title>
+</head>
+<body>
+<h2>주소 등록</h2>
+
+<form th:action="@{/address/create}" method="post">
+  <div>
+    <label for="recipientName">수령인</label>
+    <input type="text" id="recipientName" name="recipientName" required />
+  </div>
+  <br/>
+
+  <div>
+    <label for="postalCode">우편번호</label>
+    <input type="text" id="postalCode" name="postalCode" />
+  </div>
+  <br/>
+
+  <div>
+    <label for="addressLine1">주소</label>
+    <input type="text" id="addressLine1" name="addressLine1" required />
+  </div>
+  <br/>
+
+  <div>
+    <label for="addressLine2">상세 주소</label>
+    <input type="text" id="addressLine2" name="addressLine2" />
+  </div>
+  <br/>
+
+  <div>
+    <label for="recipientPhone">전화번호</label>
+    <input type="text" id="recipientPhone" name="recipientPhone" required />
+  </div>
+  <br/>
+
+  <div>
+    <button type="submit">등록</button>
+    <a th:href="@{/address/list}">취소</a>
+  </div>
+</form>
+
+</body>
+</html>

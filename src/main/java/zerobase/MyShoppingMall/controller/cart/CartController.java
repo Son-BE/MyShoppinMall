@@ -56,13 +56,45 @@ public class CartController {
         return "user/cart";
     }
 
+    @GetMapping("/order")
+    public String orderForm(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Member member = userDetails.getMember();
+        List<CartItem> cartItems = cartService.getCartItems(member.getId());
+
+        List<CartItemResponseDto> response = cartItems.stream().map(item -> {
+            String imagePath = null;
+            if (item.getItem().getItemImages() != null && !item.getItem().getItemImages().isEmpty()) {
+                imagePath = item.getItem().getItemImages().get(0).getImagePath();
+            }
+
+            return CartItemResponseDto.builder()
+                    .cartItemId(item.getId())
+                    .itemId(item.getItem().getId())
+                    .itemName(item.getItem().getItemName())
+                    .quantity(item.getQuantity())
+                    .price(item.getItem().getPrice())
+                    .imagePath(imagePath)
+                    .build();
+        }).collect(Collectors.toList());
+
+        int totalPrice = response.stream()
+                .mapToInt(item -> item.getPrice() * item.getQuantity())
+                .sum();
+
+        model.addAttribute("cartItems", response);
+        model.addAttribute("totalPrice", totalPrice);
+        model.addAttribute("memberId", member.getId());
+
+        return "order/input_order";
+    }
+
     @PostMapping("/add")
     public String addItemToCart(@AuthenticationPrincipal CustomUserDetails userDetails,
                                 @RequestParam Long itemId,
                                 @RequestParam int quantity) {
         Member member = userDetails.getMember();
         cartService.addItemToCart(member.getId(), itemId, quantity);
-        return "redirect:/mainPage?added=true"; // 장바구니 추가 후 메인 페이지로 이동
+        return "redirect:/items";
     }
 
     @PostMapping("/update")
