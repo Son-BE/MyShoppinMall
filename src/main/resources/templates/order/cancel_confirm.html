@@ -1,0 +1,8 @@
+<h2>정말 주문을 취소하시겠습니까?</h2>
+<form th:action="@{'/orders/' + ${orderId} + '/cancel'}" method="post">
+  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+  <label>취소 사유:
+    <input type="text" name="reason">
+  </label>
+  <button type="submit">주문 취소</button>
+</form>

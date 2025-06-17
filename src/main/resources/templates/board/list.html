@@ -1,0 +1,9 @@
+<h1>게시판</h1>
+<a href="/board/write">글쓰기</a>
+<ul>
+    <li th:each="board : ${boards}">
+        <a th:href="@{/board/{id}(id=${board.id})}" th:text="${board.title}">제목</a>
+        <span th:text="${board.user.username}">작성자</span>
+        <span th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+    </li>
+</ul>
