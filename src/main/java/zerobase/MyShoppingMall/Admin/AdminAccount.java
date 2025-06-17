@@ -27,7 +27,7 @@ public class AdminAccount {
                     .nickName("관리자")
                     .gender(Gender.MALE)
                     .role(Role.ADMIN)
-                    .phoneNumber("01000000000")
+                    .phoneNumber("010-5037-3271")
                     .deleteType("F")
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())

@@ -1,10 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<script src="https://cdn.iamport.kr/js/iamport.js"></script>
+<script>
+  const IMP = window.IMP;
+  IMP.init("가맹점 식별코드");
+
+  function requestPay() {
+    IMP.request_pay({
+      pg: "kakaopay",
+      pay_method: "card",
+      merchant_uid: "order_" + new Date().getTime(),
+      name: "상품명",
+      amount: 10
+        ,
+      buyer_email: "test@example.com",
+      buyer_name: "홍길동",
+      buyer_tel: "01012345678"
+    }, function (rsp) {
+      if (rsp.success) {
+        // 결제 검증
+        fetch("/api/payment/verify", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            impUid: rsp.imp_uid,
+            merchantUid: rsp.merchant_uid,
+            amount: 10
+          })
+        })
+                .then(res => res.text())
+                .then(data => alert(data));
+      } else {
+        alert("결제 실패: " + rsp.error_msg);
+      }
+    });
+  }
+</script>
+
+<button onclick="requestPay()">결제하기</button>

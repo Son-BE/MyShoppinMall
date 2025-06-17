@@ -1,13 +1,16 @@
 package zerobase.MyShoppingMall.service.member;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import zerobase.MyShoppingMall.domain.Member;
+import zerobase.MyShoppingMall.type.Role;
 
 import java.util.Collection;
 import java.util.List;
 
+@Getter
 public class CustomUserDetails implements UserDetails {
     private final Member member;
 
@@ -23,6 +26,10 @@ public class CustomUserDetails implements UserDetails {
 
     public String getNickname() {
         return member.getNickName();
+    }
+
+    public Role hasRole(String role) {
+        return member.getRole();
     }
 
     @Override
@@ -56,7 +63,4 @@ public class CustomUserDetails implements UserDetails {
     }
 
 
-    public Member getMember() {
-        return member;
-    }
 }

@@ -35,6 +35,15 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
+
+    @Column(unique = true)
+    private String merchantUid; // 아임포트 사용 고유번호
+
+    @Column(name = "total_amount", nullable = false)
+    private int totalAmount;
+
     private int totalPrice;
 
     private LocalDateTime createdAt;
@@ -45,7 +54,7 @@ public class Order {
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now();
+
     }
 
     public void addOrderDetail(OrderDetail detail) {
@@ -53,4 +62,14 @@ public class Order {
         orderDetails.add(detail);
     }
 
+    public void setPaymentUid(String impUid) {
+    }
+
+    public void setImpUid(String impUid) {
+
+    }
+
+    public String getImpUid() {
+        return null;
+    }
 }

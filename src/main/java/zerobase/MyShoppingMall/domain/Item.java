@@ -44,6 +44,10 @@ public class Item {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    private String review;
+
+    private int itemRating;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
@@ -70,4 +74,6 @@ public class Item {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemSubCategory subCategory;
+
+
 }

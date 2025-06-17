@@ -12,11 +12,13 @@ import java.util.List;
 @Builder
 public class OrderCreateRequest {
     private Long memberId;
+    private Long addressId;
     private String recipientName;
     private String recipientPhone;
     private String postalCode;
     private String addressLine1;
     private String addressLine2;
+    private String deliveryRequest;
     private String paymentMethod;
     private int totalPrice;
     private List<OrderDetailRequest> orderDetails;

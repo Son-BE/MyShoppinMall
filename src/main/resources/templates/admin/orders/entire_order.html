@@ -1,10 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <title>전체 주문 리스트</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .pagination a {
+            margin: 0 4px;
+            text-decoration: none;
+            color: blue;
+        }
+        .pagination .current {
+            font-weight: bold;
+            color: black;
+        }
+    </style>
 </head>
 <body>
-$END$
+<h1>전체 주문 리스트</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>주문 ID</th>
+        <th>주문자명</th>
+        <th>수취인명</th>
+        <th>총 가격</th>
+        <th>주문 상태</th>
+        <th>주문 날짜</th>
+        <th>상태 변경</th>
+        <th>상세 보기</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="order : ${ordersPage.content}">
+        <td th:text="${order.orderId}">1</td>
+        <td th:text="${order.memberName}">홍길동</td>
+        <td th:text="${order.receiverName}">김수령</td>
+        <td th:text="${order.totalPrice}">10000</td>
+        <td th:text="${order.orderStatus}">WAITING</td>
+        <td th:text="${#dates.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">2025-06-17 14:00</td>
+
+        <!-- 상태 변경 폼 -->
+        <td>
+            <form th:action="@{'/admin/orders/' + ${order.orderId} + '/status'}" method="post">
+                <select name="status">
+                    <option th:selected="${order.orderStatus == T(zerobase.MyShoppingMall.type.OrderStatus).WAITING}"
+                            th:value="WAITING">대기</option>
+                    <option th:selected="${order.orderStatus == T(zerobase.MyShoppingMall.type.OrderStatus).ORDERED}"
+                            th:value="ORDERED">주문완료</option>
+                    <option th:selected="${order.orderStatus == T(zerobase.MyShoppingMall.type.OrderStatus).CANCELLED}"
+                            th:value="CANCELLED">취소</option>
+                    <option th:selected="${order.orderStatus == T(zerobase.MyShoppingMall.type.OrderStatus).RETURNED}"
+                            th:value="RETURNED">환불요청</option>
+                </select>
+                <button type="submit">변경</button>
+            </form>
+        </td>
+
+        <td>
+            <a th:href="@{'/admin/orders/' + ${order.orderId}}">상세보기</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- 페이지네이션 -->
+<div class="pagination" style="margin-top: 20px;">
+    <span th:if="${ordersPage.hasPrevious()}">
+        <a th:href="@{/admin/orders/entire_order(page=${ordersPage.number - 1})}">이전</a>
+    </span>
+
+    <span th:each="i : ${#numbers.sequence(0, ordersPage.totalPages - 1)}">
+        <a th:if="${i != ordersPage.number}"
+           th:href="@{/admin/orders/entire_order(page=${i})}"
+           th:text="${i + 1}">1</a>
+        <span th:if="${i == ordersPage.number}"
+              th:text="${i + 1}"
+              class="current">1</span>
+    </span>
+
+    <span th:if="${ordersPage.hasNext()}">
+        <a th:href="@{/admin/orders/entire_order(page=${ordersPage.number + 1})}">다음</a>
+    </span>
+</div>
+
 </body>
 </html>

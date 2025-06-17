@@ -20,6 +20,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
+//    private final JwtTokenProvider jwtTokenProvider;
 
     //회원가입
     @PostMapping("/register")
@@ -31,6 +32,22 @@ public class MemberController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+//    @PostMapping("/register")
+//    public ResponseEntity<?> register(@RequestBody MemberRequestDto memberRequestDto) {
+//        try {
+//            MemberResponseDto responseDto = memberService.registerMember(memberRequestDto);
+//            String token = jwtTokenProvider.createToken(responseDto.getEmail());
+//
+//            return ResponseEntity.ok(Map.of(
+//                    "user", responseDto,
+//                    "token", token
+//            ));
+//        } catch (IllegalStateException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
+
 
     //로그아웃
     @GetMapping("/logout")

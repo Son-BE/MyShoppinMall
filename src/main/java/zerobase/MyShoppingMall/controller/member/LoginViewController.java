@@ -1,5 +1,6 @@
 package zerobase.MyShoppingMall.controller.member;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,14 +9,11 @@ import zerobase.MyShoppingMall.dto.user.MemberRequestDto;
 import zerobase.MyShoppingMall.service.member.MemberService;
 
 @Controller
+@RequiredArgsConstructor
 public class LoginViewController {
     private MemberService memberService;
 
-    public LoginViewController(MemberService memberService) {
-        this.memberService = memberService;
-    }
-
-    @GetMapping
+    @GetMapping("/")
     public String initPage() {
         return "login";
     }

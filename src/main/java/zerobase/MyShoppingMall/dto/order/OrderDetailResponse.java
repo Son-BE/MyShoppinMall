@@ -11,13 +11,13 @@ public class OrderDetailResponse {
     private Long itemId;
     private int price;
     private int quantity;
+    private String itemName;
 
-    public static OrderDetailResponse fromEntity(zerobase.MyShoppingMall.domain.OrderDetail detail) {
-        return OrderDetailResponse.builder()
-                .itemId(detail.getItem().getId())
-                .price(detail.getPrice())
-                .quantity(detail.getQuantity())
-                .build();
+    public OrderDetailResponse(String itemName, int price, int quantity) {
+        this.itemName = itemName;
+        this.price = price;
+        this.quantity = quantity;
     }
+
 }
 

@@ -27,7 +27,7 @@ public class CartController {
         Member member = userDetails.getMember();
         List<CartItem> cartItems = cartService.getCartItems(member.getId());
         for(CartItem cartItem : cartItems) {
-            log.info("CartItem: itemId={}, name={}, price={}", cartItem.getId());
+            log.info("CartItem: itemId={}, name={}, price={}", cartItem.getId(), cartItem.getItem().getItemName(), cartItem.getItem().getPrice());
         }
 
         List<CartItemResponseDto> response = cartItems.stream().map(item -> {
