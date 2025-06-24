@@ -3,14 +3,20 @@ package zerobase.MyShoppingMall.controller.member;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import zerobase.MyShoppingMall.dto.user.MemberRequestDto;
 import zerobase.MyShoppingMall.dto.user.MemberResponseDto;
+import zerobase.MyShoppingMall.dto.user.MemberUpdateDto;
+import zerobase.MyShoppingMall.service.member.CustomUserDetails;
 import zerobase.MyShoppingMall.service.member.MemberService;
 
 import java.util.Map;
@@ -32,21 +38,6 @@ public class MemberController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
-//    @PostMapping("/register")
-//    public ResponseEntity<?> register(@RequestBody MemberRequestDto memberRequestDto) {
-//        try {
-//            MemberResponseDto responseDto = memberService.registerMember(memberRequestDto);
-//            String token = jwtTokenProvider.createToken(responseDto.getEmail());
-//
-//            return ResponseEntity.ok(Map.of(
-//                    "user", responseDto,
-//                    "token", token
-//            ));
-//        } catch (IllegalStateException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
 
 
     //로그아웃
@@ -88,6 +79,7 @@ public class MemberController {
         return ResponseEntity.ok(Map.of("exists", exists));
     }
 
+
     // ID로 회원 조회
     @GetMapping("/{id}")
     public ResponseEntity<MemberResponseDto> getById(@PathVariable Long id) {
@@ -116,6 +108,40 @@ public class MemberController {
         );
         return ResponseEntity.noContent().build();
     }
+
+    //프로필 정보
+    @GetMapping("/profile")
+    public ResponseEntity<MemberResponseDto> getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 인증 실패
+        }
+        MemberResponseDto dto = memberService.getProfile(userDetails.getMember().getId());
+        return ResponseEntity.ok(dto);
+    }
+
+    //프로필 수정
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                           @RequestBody MemberUpdateDto dto) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        try {
+            memberService.updateMemberProfile(userDetails.getMember().getId(), dto);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    //포인트 불러오기
+    @GetMapping("/point")
+    public ResponseEntity<Long> getPoint(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long point = userDetails.getMember().getPoint();
+        return ResponseEntity.ok(point);
+    }
+
+
 
 
 }

@@ -105,7 +105,7 @@
         <h2><i class="fa-solid fa-store"></i> 병의's 쇼핑몰</h2>
         <div class="user-info">
             <span th:if="${#authorization.expression('isAuthenticated()')}">
-    <a th:href="@{/address/create}" style="color: #ffffff; text-decoration: none;">
+    <a href="/members/profile" class="btn btn-primary">내 정보 보기</a>
         <i class="fa-solid fa-user"></i>
         <span th:text="${#authentication.name} + '님'"></span>
     </a>

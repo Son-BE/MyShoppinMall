@@ -1,7 +1,8 @@
 package zerobase.MyShoppingMall.dto.order;
 
 import lombok.*;
-import zerobase.MyShoppingMall.domain.Address;
+import zerobase.MyShoppingMall.entity.Address;
+import zerobase.MyShoppingMall.type.PaymentMethod;
 
 import java.util.List;
 
@@ -19,9 +20,11 @@ public class OrderCreateRequest {
     private String addressLine1;
     private String addressLine2;
     private String deliveryRequest;
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
+    private Long usePoint;
     private int totalPrice;
     private List<OrderDetailRequest> orderDetails;
+
 
     public Address toAddress() {
         Address address = new Address();

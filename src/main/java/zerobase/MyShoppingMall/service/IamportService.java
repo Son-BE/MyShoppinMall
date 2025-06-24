@@ -80,7 +80,7 @@ public class IamportService {
             body.put("amount", amount);
         }
 
-        return webClient.post()
+        JsonNode response = webClient.post()
                 .uri("https://api.iamport.kr/payments/cancel")
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -90,6 +90,11 @@ public class IamportService {
                         clientResponse.bodyToMono(String.class).map(RuntimeException::new))
                 .bodyToMono(JsonNode.class)
                 .block();
+
+        // 응답 출력
+        System.out.println("아임포트 결제 취소 응답: " + response.toPrettyString());
+
+        return response;
     }
 
 

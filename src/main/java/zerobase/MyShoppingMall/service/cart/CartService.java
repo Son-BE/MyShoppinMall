@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import zerobase.MyShoppingMall.domain.Cart;
-import zerobase.MyShoppingMall.domain.CartItem;
-import zerobase.MyShoppingMall.domain.Item;
-import zerobase.MyShoppingMall.domain.Member;
+import zerobase.MyShoppingMall.entity.Cart;
+import zerobase.MyShoppingMall.entity.CartItem;
+import zerobase.MyShoppingMall.entity.Item;
+import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.repository.cart.CartItemRepository;
 import zerobase.MyShoppingMall.repository.cart.CartRepository;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
@@ -92,5 +92,6 @@ public class CartService {
     public void deleteCartItem(Long cartItemId) {
         cartItemRepository.deleteById(cartItemId);
     }
+
 
 }

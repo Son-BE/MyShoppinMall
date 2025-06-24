@@ -1,4 +1,4 @@
-package zerobase.MyShoppingMall.domain;
+package zerobase.MyShoppingMall.entity;
 
 import jakarta.persistence.Embeddable;
 import lombok.*;

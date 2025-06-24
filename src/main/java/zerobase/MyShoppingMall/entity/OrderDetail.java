@@ -1,25 +1,30 @@
-package zerobase.MyShoppingMall.domain;
+package zerobase.MyShoppingMall.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "wish_list")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class WishList {
+public class OrderDetail {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = false)
     private Item item;
+
+    private int price;
+    private int quantity;
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 }

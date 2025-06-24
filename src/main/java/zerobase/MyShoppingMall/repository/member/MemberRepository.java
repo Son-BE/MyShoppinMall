@@ -2,8 +2,9 @@ package zerobase.MyShoppingMall.repository.member;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import zerobase.MyShoppingMall.domain.Member;
+import zerobase.MyShoppingMall.entity.Member;
 
+import java.util.List;
 import java.util.Optional;
 
 //이메일 기반 조회, 중복확인
@@ -14,4 +15,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     long count();
 
     boolean existsByNickName(String nickName);
+
+    List<Member> findByNickNameContaining(String nickName);
 }

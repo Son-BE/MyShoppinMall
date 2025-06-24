@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-import zerobase.MyShoppingMall.domain.Member;
+import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.repository.member.MemberRepository;
 import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.Role;

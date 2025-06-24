@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>기본 배송지 등록</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #f5f7fa;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #0077cc;
+    }
+    form {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin: 1rem 0 0.5rem;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="tel"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .button {
+      margin-top: 1.5rem;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-size: 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #005fa3;
+    }
+  </style>
+</head>
+<body>
+
+<h1>기본 배송지 등록</h1>
+<form th:action="@{/address/save}" method="post">
+  <label>수령인</label>
+  <input type="text" name="receiverName" required>
+
+  <label>주소</label>
+  <input type="text" id="addr" name="addr" placeholder="주소 검색 클릭" readonly required onclick="execDaumPostcode()">
+
+  <label>상세주소</label>
+  <input type="text" name="addrDetail" required>
+
+  <label>우편번호</label>
+  <input type="text" id="postalCode" name="postalCode" readonly required>
+
+  <label>수령인 전화번호</label>
+  <input type="tel" name="receiverPhone" required>
+
+  <button class="button" type="submit">저장하기</button>
+</form>
+
+<!-- 다음 주소 API -->
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+  function execDaumPostcode() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        document.getElementById("addr").value = data.address;
+        document.getElementById("postalCode").value = data.zonecode;
+      }
+    }).open();
+  }
+</script>
+
+</body>
+</html>

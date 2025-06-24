@@ -1,14 +1,14 @@
 package zerobase.MyShoppingMall.service.member;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zerobase.MyShoppingMall.domain.Address;
-import zerobase.MyShoppingMall.domain.Member;
+import zerobase.MyShoppingMall.dto.user.MemberUpdateDto;
+import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.dto.user.MemberRequestDto;
 import zerobase.MyShoppingMall.dto.user.MemberResponseDto;
-import zerobase.MyShoppingMall.repository.address.AddressRepository;
 import zerobase.MyShoppingMall.repository.member.MemberRepository;
 import zerobase.MyShoppingMall.type.Role;
 
@@ -101,4 +101,24 @@ public class MemberService {
         return memberRepository.count();
     }
 
+    public MemberResponseDto getMemberProfile(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new UsernameNotFoundException("회원 정보를 찾을 수 없습니다."));
+        return new MemberResponseDto(member);
+    }
+
+    public void updateMemberProfile(Long memberId, MemberUpdateDto dto) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new UsernameNotFoundException("회원 정보를 찾을 수 없습니다."));
+        member.setNickName(dto.getNickName());
+        member.setPhoneNumber(dto.getPhoneNumber());
+        memberRepository.save(member);
+    }
+
+
+    public MemberResponseDto getProfile(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보 없음"));
+        return MemberResponseDto.fromEntity(member);
+    }
 }

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>내 정보 수정</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f5f7fa;
+            color: #2c3e50;
+            margin: 0 auto;
+            max-width: 600px;
+            padding: 2rem 1rem;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #0077cc;
+            margin-bottom: 2rem;
+        }
+        .container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        form {
+            margin-bottom: 3rem;
+        }
+        label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            margin-top: 0.3rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        button[type="submit"] {
+            margin-top: 1.8rem;
+            width: 100%;
+            background-color: #0077cc;
+            border: none;
+            color: white;
+            padding: 0.75rem 0;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button[type="submit"]:hover {
+            background-color: #005fa3;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #0077cc;
+            padding-bottom: 0.3rem;
+        }
+        .message {
+            max-width: 100%;
+            margin: 0 auto 1rem auto;
+            text-align: center;
+            font-weight: 600;
+            color: #27ae60;
+        }
+        .error {
+            color: #e74c3c;
+        }
+        .btn-check-nick {
+            background-color: #0077cc;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 119, 204, 0.3);
+            user-select: none;
+        }
+
+        .btn-check-nick:hover {
+            background-color: #005fa3;
+            box-shadow: 0 4px 10px rgba(0, 95, 163, 0.5);
+        }
+
+        .btn-check-nick:active {
+            background-color: #004678;
+            box-shadow: 0 2px 5px rgba(0, 70, 120, 0.7);
+        }
+
+        .btn-check-nick:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.5);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>내 정보 수정</h2>
+
+    <div id="message" class="message"></div>
+
+    <!-- 회원정보 수정 폼 -->
+    <form id="profileForm" onsubmit="event.preventDefault(); updateProfile();">
+        <div class="section-title">기본 정보</div>
+
+        <label for="nickName">닉네임:</label>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="nickName" name="nickName" required style="flex: 1;" />
+            <button type="button" id="checkNickBtn" class="btn-check-nick">중복확인</button>
+        </div>
+        <div id="nickCheckMessage" style="margin-top: 0.3rem; font-weight: 600;"></div>
+
+        <label for="phoneNumber">전화번호:</label>
+        <input type="text" id="phoneNumber" name="phoneNumber" required />
+
+        <button type="submit">정보 수정하기</button>
+    </form>
+
+    <!-- 비밀번호 변경 폼 -->
+    <form id="passwordForm" onsubmit="event.preventDefault(); updatePassword();">
+        <div class="section-title">비밀번호 변경</div>
+
+        <label for="currentPassword">현재 비밀번호:</label>
+        <input type="password" id="currentPassword" name="currentPassword" required />
+
+        <label for="newPassword">새 비밀번호:</label>
+        <input type="password" id="newPassword" name="newPassword" required minlength="8" />
+
+        <label for="confirmPassword">새 비밀번호 확인:</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required minlength="8" />
+
+        <button type="submit">비밀번호 변경하기</button>
+    </form>
+</div>
+
+<script>
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+
+
+    function showMessage(text, isError = false) {
+        const messageDiv = document.getElementById('message');
+        messageDiv.textContent = text;
+        messageDiv.className = isError ? 'message error' : 'message';
+        setTimeout(() => { messageDiv.textContent = ''; }, 5000);
+    }
+
+    async function fetchProfile() {
+        try {
+            const res = await fetch('/api/members/profile', {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error('내 정보 조회 실패');
+
+            const data = await res.json();
+
+            document.getElementById('nickName').value = data.nickName || '';
+            document.getElementById('phoneNumber').value = data.phoneNumber || '';
+        } catch (err) {
+            showMessage(err.message, true);
+        }
+    }
+
+    async function updateProfile() {
+        const nickName = document.getElementById('nickName').value.trim();
+        const phoneNumber = document.getElementById('phoneNumber').value.trim();
+
+        try {
+            const res = await fetch('/api/members/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                credentials: 'include',
+                body: JSON.stringify({ nickName, phoneNumber })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || '정보 수정 실패');
+            }
+
+            showMessage('회원 정보가 수정되었습니다.');
+        } catch (err) {
+            showMessage(err.message, true);
+        }
+    }
+
+    async function updatePassword() {
+        const currentPassword = document.getElementById('currentPassword').value.trim();
+        const newPassword = document.getElementById('newPassword').value.trim();
+        const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+        if (newPassword !== confirmPassword) {
+            showMessage('새 비밀번호와 확인이 일치하지 않습니다.', true);
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/member/password', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                credentials: 'include',
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || '비밀번호 변경 실패');
+            }
+
+            showMessage('비밀번호가 성공적으로 변경되었습니다.');
+            document.getElementById('passwordForm').reset();
+        } catch (err) {
+            showMessage(err.message, true);
+        }
+    }
+
+    window.onload = fetchProfile;
+</script>
+<script>
+    const checkNickBtn = document.getElementById('checkNickBtn');
+    const nickCheckMessage = document.getElementById('nickCheckMessage');
+
+    checkNickBtn.addEventListener('click', async () => {
+        const nickName = document.getElementById('nickName').value.trim();
+        if (!nickName) {
+            nickCheckMessage.textContent = '닉네임을 입력하세요.';
+            nickCheckMessage.style.color = 'red';
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/members/check-nickname?nickName=${encodeURIComponent(nickName)}`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                credentials: 'include'
+            });
+            const data = await res.json();
+
+            if (data.exists) {
+                nickCheckMessage.textContent = '이미 사용 중인 닉네임입니다.';
+                nickCheckMessage.style.color = 'red';
+            } else {
+                nickCheckMessage.textContent = '사용 가능한 닉네임입니다.';
+                nickCheckMessage.style.color = 'green';
+            }
+        } catch (error) {
+            nickCheckMessage.textContent = '닉네임 확인 중 오류가 발생했습니다.';
+            nickCheckMessage.style.color = 'red';
+        }
+    });
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@ package zerobase.MyShoppingMall.repository.member;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import zerobase.MyShoppingMall.domain.UserBoard;
+import zerobase.MyShoppingMall.entity.UserBoard;
 import zerobase.MyShoppingMall.type.BoardCategory;
 
 import java.util.List;

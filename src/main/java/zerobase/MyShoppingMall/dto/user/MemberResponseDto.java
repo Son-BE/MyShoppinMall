@@ -1,8 +1,8 @@
 package zerobase.MyShoppingMall.dto.user;
 
 import lombok.*;
-import zerobase.MyShoppingMall.domain.Address;
-import zerobase.MyShoppingMall.domain.Member;
+import zerobase.MyShoppingMall.entity.Address;
+import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.Role;
 
@@ -24,6 +24,8 @@ public class MemberResponseDto {
     private String deleteType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Address defaultAddress;
+    private Long point;
 
     public MemberResponseDto(Member member) {
         this.id = member.getId();
@@ -35,6 +37,28 @@ public class MemberResponseDto {
         this.deleteType = member.getDeleteType();
         this.createdAt = member.getCreatedAt();
         this.updatedAt = member.getUpdatedAt();
+        this.point = member.getPoint();
+        this.defaultAddress = member.getAddresses().stream()
+                .filter(Address::isDefault)
+                .findFirst()
+                .orElse(null);
 
+    }
+
+    public static MemberResponseDto fromEntity(Member member) {
+        Address defaultAddress = member.getAddresses().stream()
+                .filter(Address::isDefault)
+                .findFirst()
+                .orElse(null);
+
+        return MemberResponseDto.builder()
+                .id(member.getId())
+                .email(member.getEmail())
+                .nickName(member.getNickName())
+                .phoneNumber(member.getPhoneNumber())
+                .createdAt(member.getCreatedAt())
+                .defaultAddress(defaultAddress)
+                .point(member.getPoint())
+                .build();
     }
 }

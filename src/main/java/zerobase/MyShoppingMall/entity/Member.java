@@ -1,4 +1,4 @@
-package zerobase.MyShoppingMall.domain;
+package zerobase.MyShoppingMall.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,6 +48,9 @@ public class Member {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    private Long point = 0L;
+    private int usedPoint;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @ToString.Exclude

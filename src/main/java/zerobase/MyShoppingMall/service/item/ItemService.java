@@ -8,13 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import zerobase.MyShoppingMall.domain.Item;
-import zerobase.MyShoppingMall.domain.ItemImage;
-import zerobase.MyShoppingMall.domain.WishList;
+import zerobase.MyShoppingMall.entity.Item;
+import zerobase.MyShoppingMall.entity.ItemImage;
 import zerobase.MyShoppingMall.dto.item.ItemRequestDto;
 import zerobase.MyShoppingMall.dto.item.ItemResponseDto;
 import zerobase.MyShoppingMall.repository.cart.CartItemRepository;
-import zerobase.MyShoppingMall.repository.cart.CartRepository;
 import zerobase.MyShoppingMall.repository.item.ItemImageRepository;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
 import zerobase.MyShoppingMall.repository.wishList.WishListRepository;
@@ -24,10 +22,8 @@ import zerobase.MyShoppingMall.type.ItemSubCategory;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

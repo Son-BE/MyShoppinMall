@@ -6,14 +6,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import zerobase.MyShoppingMall.domain.Member;
+import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.dto.wishlist.WishListDto;
 import zerobase.MyShoppingMall.service.member.CustomUserDetails;
 import zerobase.MyShoppingMall.service.wishList.WishListService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/wishList")

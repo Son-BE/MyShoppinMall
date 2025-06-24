@@ -1,4 +1,4 @@
-package zerobase.MyShoppingMall.domain;
+package zerobase.MyShoppingMall.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,4 +36,20 @@ public class Address {
 
     @Column(name = "is_default", nullable = false)
     private boolean isDefault; // 기본 배송지
+
+    public void setDefaultAddress(boolean isDefault) {
+        this.isDefault = isDefault;
+    }
+
+    public boolean isDefaultAddress() {
+        return this.isDefault;
+    }
+
+    public String getAddressLine1() {
+        return this.addr;
+    }
+
+    public String getAddressLine2() {
+        return this.addrDetail;
+    }
 }

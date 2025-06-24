@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import zerobase.MyShoppingMall.domain.Item;
-import zerobase.MyShoppingMall.domain.ItemImage;
+import zerobase.MyShoppingMall.entity.Item;
+import zerobase.MyShoppingMall.entity.ItemImage;
 import zerobase.MyShoppingMall.repository.item.ItemImageRepository;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
 
@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

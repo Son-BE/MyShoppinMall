@@ -1,7 +1,7 @@
 package zerobase.MyShoppingMall.repository.member;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import zerobase.MyShoppingMall.domain.Comment;
+import zerobase.MyShoppingMall.entity.Comment;
 
 import java.util.List;
 

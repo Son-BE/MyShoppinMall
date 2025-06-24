@@ -2,9 +2,9 @@ package zerobase.MyShoppingMall.service.member;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import zerobase.MyShoppingMall.domain.Comment;
-import zerobase.MyShoppingMall.domain.Member;
-import zerobase.MyShoppingMall.domain.UserBoard;
+import zerobase.MyShoppingMall.entity.Comment;
+import zerobase.MyShoppingMall.entity.Member;
+import zerobase.MyShoppingMall.entity.UserBoard;
 import zerobase.MyShoppingMall.repository.member.CommentRepository;
 
 import java.time.LocalDateTime;

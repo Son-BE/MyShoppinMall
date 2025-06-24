@@ -1,4 +1,4 @@
-package zerobase.MyShoppingMall.domain;
+package zerobase.MyShoppingMall.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -7,7 +7,6 @@ import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.ItemCategory;
 import zerobase.MyShoppingMall.type.ItemSubCategory;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 

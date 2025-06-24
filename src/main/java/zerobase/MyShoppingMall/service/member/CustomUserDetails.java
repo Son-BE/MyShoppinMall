@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import zerobase.MyShoppingMall.domain.Member;
+import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.type.Role;
 
 import java.util.Collection;
@@ -18,6 +18,10 @@ public class CustomUserDetails implements UserDetails {
         this.member = member;
     }
 
+    public Long getPoint() {
+        System.out.println("로그인 사용자의 포인트: " + member.getPoint());
+        return member.getPoint();
+    }
 
     @Override
     public String getUsername() {

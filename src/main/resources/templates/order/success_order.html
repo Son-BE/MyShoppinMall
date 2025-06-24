@@ -109,12 +109,12 @@
         <p>소중한 주문 감사합니다. 빠르게 준비하여 배송해드리겠습니다.</p>
 
         <div class="summary">
-            <p><strong>주문자:</strong> <span th:text="${receiverName}"></span></p>
-            <p><strong>연락처:</strong> <span th:text="${receiverPhone}"></span></p>
-            <p><strong>배송주소:</strong> <span th:text="${receiverAddress}"></span></p>
-            <p><strong>배송상세주소:</strong> <span th:text="${receiverDetailAddress}"></span></p>
-            <p><strong>결제 금액:</strong> <span th:text="'₩' + ${#numbers.formatInteger(totalPrice, 3, 'COMMA')}"></span></p>
-            <p><strong>결제 수단:</strong> <span th:text="${paymentMethod}"></span></p>
+            <p><strong>주문자:</strong> <span th:text="${order.receiverName}"></span></p>
+            <p><strong>연락처:</strong> <span th:text="${order.receiverPhone}"></span></p>
+            <p><strong>배송주소:</strong> <span th:text="${order.receiverAddress}"></span></p>
+            <p><strong>배송상세주소:</strong> <span th:text="${order.receiverDetailAddress}"></span></p>
+            <p><strong>결제 금액:</strong> <span th:text="'₩' + ${#numbers.formatInteger(order.totalPrice, 3, 'COMMA')}"></span></p>
+            <p><strong>결제 수단:</strong> <span th:text="${order.paymentMethod}"></span></p>
         </div>
 
         <div style="margin-top: 2rem;">

@@ -136,9 +136,9 @@
                         <i class="fas fa-box"></i> 주문 관리
                     </a>
                     <div class="collapse ps-3" id="orderSub">
-                        <a class="nav-link" href="/admin/orders/entire_order"><i class="fas fa-list-alt"></i> 전체 주문</a>
+                        <a class="nav-link" href="/admin/orders/entire"><i class="fas fa-list-alt"></i> 전체 주문</a>
                         <a class="nav-link" href="/admin/orders/waiting_order"><i class="fas fa-clock"></i> 배송 대기 주문</a>
-                        <a class="nav-link" href="/admin/orders/refund_order"><i class="fas fa-rotate-back"></i> 환불 요청</a>
+                        <a class="nav-link" href="/admin/orders/cancel_requests"><i class="fas fa-rotate-back"></i> 취소 요청</a>
                     </div>
                 </li>
 
@@ -153,6 +153,24 @@
                         <a class="nav-link" href="/admin/items"><i class="fas fa-list-ul"></i> 상품 목록</a>
                     </div>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/points/grant" th:classappend="${uri != null and uri.startsWith('/admin/points')} ? ' active'">
+                        <i class="fas fa-coins"></i> 포인트 관리
+                    </a>
+                </li>
+
+                <!-- 정산 시스템 -->
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#settlementSub" role="button" aria-expanded="false"
+                       aria-controls="settlementSub">
+                        <i class="fas fa-money-bill-wave"></i> 정산 시스템
+                    </a>
+                    <div class="collapse ps-3" id="settlementSub">
+                        <a class="nav-link" href="/admin/settlements"><i class="fas fa-plus-square"></i> 정산 목록</a>
+                    </div>
+                </li>
+
             </ul>
         </nav>
 

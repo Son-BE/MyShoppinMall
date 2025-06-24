@@ -3,9 +3,11 @@ package zerobase.MyShoppingMall.service.order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zerobase.MyShoppingMall.domain.Address;
-import zerobase.MyShoppingMall.domain.Member;
+import zerobase.MyShoppingMall.dto.order.AddressSaveRequest;
+import zerobase.MyShoppingMall.entity.Address;
+import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.repository.address.AddressRepository;
+import zerobase.MyShoppingMall.repository.member.MemberRepository;
 
 import java.util.List;
 
@@ -14,22 +16,7 @@ import java.util.List;
 public class AddressService {
 
     private final AddressRepository addressRepository;
-
-//    public void createAddress(OrderAddress orderAddress, Member member) {
-//        Address address = Address.builder()
-//                .receiverName(orderAddress.getRecipientName())
-//                .addr(orderAddress.getAddressLine1())
-//                .addrDetail(orderAddress.getAddressLine2())
-//                .receiverPhone(orderAddress.getRecipientPhone())
-//                .member(member)
-//                .build();
-//
-//        addressRepository.save(address);
-//    }
-
-    public List<Address> getAddressByMember(Member member) {
-        return addressRepository.findByMember(member);
-    }
+    private final MemberRepository memberRepository;
 
     public void deleteAddress(Long addressId, Member member) {
         Address address = addressRepository.findById(addressId)
@@ -42,27 +29,46 @@ public class AddressService {
         addressRepository.delete(address);
     }
 
-
-    public Address getAddressByIdAndMember(Long id, Member member) {
-        Address address = addressRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("주소를 찾을 수 없습니다."));
-
-        if (!address.getMember().equals(member)) {
-            throw new SecurityException("본인의 주소만 찾을 수 있습니다.");
-        }
-
-        addressRepository.save(address);
-        return address;
+    public Address  findDefaultAddressByMemberId(Long memberId) {
+        return addressRepository.findByMemberIdAndIsDefaultTrue(memberId)
+                .orElseThrow(() -> new IllegalArgumentException(("디폴트 주소 없음")));
     }
 
-//    @Transactional
-//    public void updateAddress(Long addressId, OrderAddress orderAddress, Member member) {
-//        Address address = getAddressByIdAndMember(addressId, member);
-//        address.setReceiverName(orderAddress.getRecipientName());
-//        address.setAddr(orderAddress.getAddressLine1());
-//        address.setAddrDetail(orderAddress.getAddressLine2());
-//        address.setReceiverPhone(orderAddress.getRecipientPhone());
-//        address.setPostalCode(orderAddress.getPostalCode());
-//        addressRepository.save(address);
-//    }
+    @Transactional
+    public void saveDefaultAddress(AddressSaveRequest request, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("회원 없음"));
+
+        Address address = new Address();
+        address.setReceiverName(request.getReceiverName());
+        address.setAddr(request.getAddr());
+        address.setAddrDetail(request.getAddrDetail());
+        address.setPostalCode(request.getPostalCode());
+        address.setReceiverPhone(request.getReceiverPhone());
+        address.setDefaultAddress(true);
+        address.setMember(member);
+
+        addressRepository.save(address);
+
+        List<Address> addresses = addressRepository.findAllByMemberId(memberId);
+        for (Address a : addresses) {
+            if (!a.equals(address) && a.isDefaultAddress()) {
+                a.setDefaultAddress(false);
+            }
+        }
+    }
+
+    @Transactional
+    public void setDefaultAddress(Member member, Long newDefaultAddressId) {
+        // 기존 기본 배송지 false 처리
+        addressRepository.findByMemberAndIsDefaultTrue(member)
+                .ifPresent(addr -> addr.setDefaultAddress(false));
+
+        // 새로운 기본 배송지 true 처리
+        Address newDefault = addressRepository.findById(newDefaultAddressId)
+                .orElseThrow(() -> new IllegalArgumentException("주소가 존재하지 않습니다."));
+        newDefault.setDefaultAddress(true);
+    }
+
+
 }

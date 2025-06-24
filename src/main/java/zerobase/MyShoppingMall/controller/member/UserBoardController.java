@@ -2,13 +2,12 @@ package zerobase.MyShoppingMall.controller.member;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import zerobase.MyShoppingMall.domain.Comment;
-import zerobase.MyShoppingMall.domain.UserBoard;
+import zerobase.MyShoppingMall.entity.Comment;
+import zerobase.MyShoppingMall.entity.UserBoard;
 import zerobase.MyShoppingMall.repository.member.UserBoardRepository;
 import zerobase.MyShoppingMall.service.member.CommentService;
 import zerobase.MyShoppingMall.service.member.CustomUserDetails;

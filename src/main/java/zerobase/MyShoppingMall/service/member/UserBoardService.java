@@ -3,8 +3,8 @@ package zerobase.MyShoppingMall.service.member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zerobase.MyShoppingMall.domain.Member;
-import zerobase.MyShoppingMall.domain.UserBoard;
+import zerobase.MyShoppingMall.entity.Member;
+import zerobase.MyShoppingMall.entity.UserBoard;
 import zerobase.MyShoppingMall.repository.member.UserBoardRepository;
 import zerobase.MyShoppingMall.type.BoardCategory;
 

@@ -11,7 +11,7 @@ import zerobase.MyShoppingMall.service.member.MemberService;
 @Controller
 @RequiredArgsConstructor
 public class LoginViewController {
-    private MemberService memberService;
+    private final MemberService memberService;
 
     @GetMapping("/")
     public String initPage() {

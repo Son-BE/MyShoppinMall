@@ -1,4 +1,4 @@
-package zerobase.MyShoppingMall.domain;
+package zerobase.MyShoppingMall.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,10 +41,14 @@ public class Order {
     @Column(unique = true)
     private String merchantUid; // 아임포트 사용 고유번호
 
+    @Column(unique = true)
+    private String impUid;// 아임포트 결제 고유번호
+
     @Column(name = "total_amount", nullable = false)
     private int totalAmount;
 
     private int totalPrice;
+    private Long usedPoint;
 
     private LocalDateTime createdAt;
 
@@ -52,9 +56,12 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
+
     @PrePersist
     public void prePersist() {
-
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 
     public void addOrderDetail(OrderDetail detail) {
@@ -62,14 +69,13 @@ public class Order {
         orderDetails.add(detail);
     }
 
-    public void setPaymentUid(String impUid) {
-    }
-
     public void setImpUid(String impUid) {
-
+        this.impUid = impUid;
     }
 
     public String getImpUid() {
-        return null;
+        return this.impUid;
     }
+
+
 }

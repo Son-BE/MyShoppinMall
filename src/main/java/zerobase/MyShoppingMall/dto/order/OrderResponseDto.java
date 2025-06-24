@@ -25,11 +25,12 @@ public class OrderResponseDto {
     private List<String> itemNames;
     private LocalDateTime orderDate;
     private String merchantUid;
+    private String impUid;
     private OrderStatus orderStatus;
 
     private List<OrderDetailResponse> orderDetails;
 
-    public static OrderResponseDto from(zerobase.MyShoppingMall.domain.Order order) {
+    public static OrderResponseDto from(zerobase.MyShoppingMall.entity.Order order) {
         List<String> itemNames = order.getOrderDetails().stream()
                 .map(detail -> detail.getItem().getItemName())
                 .collect(Collectors.toList());
@@ -55,10 +56,14 @@ public class OrderResponseDto {
                 .itemNames(itemNames)
                 .orderDate(order.getCreatedAt())
                 .merchantUid(order.getMerchantUid())
+                .impUid(order.getImpUid())
                 .orderStatus(order.getOrderStatus())
                 .orderDetails(orderDetails)
                 .build();
     }
 
 
+    public String getImpUid() {
+        return this.impUid;
+    }
 }
