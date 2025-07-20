@@ -1,5 +1,6 @@
 package zerobase.MyShoppingMall.dto.order;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import zerobase.MyShoppingMall.entity.Address;
 import zerobase.MyShoppingMall.type.PaymentMethod;
@@ -16,6 +17,7 @@ public class OrderCreateRequest {
     private Long addressId;
     private String recipientName;
     private String recipientPhone;
+    @JsonProperty("postcode")
     private String postalCode;
     private String addressLine1;
     private String addressLine2;

@@ -1,5 +1,6 @@
 package zerobase.MyShoppingMall.dto.payment;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
@@ -8,6 +9,7 @@ public class IamportPaymentResponse {
     private String message;
     private PaymentData response;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     public static class PaymentData {
         private String imp_uid;

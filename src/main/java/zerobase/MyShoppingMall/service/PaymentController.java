@@ -48,30 +48,6 @@ public class PaymentController {
 }
 
 
-//    @PostMapping("/verify")
-//    public Mono<ResponseEntity<Map<String, Object>>> verifyPayment(
-//            @RequestBody Map<String, String> request) {
-//        String impUid = request.get("impUid");
-//        String merchantUid = request.get("merchantUid");
-//
-//        if (impUid == null || merchantUid == null) {
-//            return Mono.just(ResponseEntity.badRequest().body(
-//                    Map.of("success", false, "message", "impUid 또는 merchantUid가 누락되었습니다.")
-//            ));
-//        }
-//
-//        return iamportService.verifyPayment(impUid).map(paymentInfo -> {
-//            int paidAmount = paymentInfo.get("amount").asInt();
-//            String status = paymentInfo.get("status").asText();
-//            int expectedAmount = orderService.getOrderAmountByMerchantUid(merchantUid);
-//
-//            if (paidAmount == expectedAmount && "paid".equals(status)) {
-//                orderService.markOrderAsPaid(merchantUid);
-//                return ResponseEntity.ok(Map.of("success", true));
-//            } else {
-//                return ResponseEntity.ok(Map.of("success", false));
-//            }
-//        });
-//    }
+
 
 
