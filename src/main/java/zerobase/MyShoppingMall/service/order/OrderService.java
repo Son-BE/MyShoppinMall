@@ -31,85 +31,6 @@ public class OrderService {
     private final CartService cartService;
     private final IamportService iamportService;
 
-
-//    @Transactional
-//    public Long createOrder(OrderCreateRequest request) {
-//        Member member = memberRepository.findById(request.getMemberId())
-//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원"));
-//
-//        if (request.getAddressLine1() == null || request.getAddressLine1().isBlank()) {
-//            throw new IllegalArgumentException("기본 주소는 필수 입력값");
-//        }
-//
-//        //주소 저장 -> 영속 상태
-//        Address address;
-//        if (request.getAddressId() != null) {
-//            address = addressRepository.findById(request.getAddressId())
-//                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주소"));
-//        } else {
-//            address = Address.builder()
-//                    .receiverName(request.getRecipientName())
-//                    .receiverPhone(request.getRecipientPhone())
-//                    .postalCode(request.getPostalCode())
-//                    .addr(request.getAddressLine1())
-//                    .addrDetail(request.getAddressLine2())
-//                    .member(member)
-//                    .build();
-//            addressRepository.save(address);
-//        }
-//
-//        String merchantUid = "order_no_" + System.currentTimeMillis();
-//        int totalAmount = request.getOrderDetails().stream()
-//                .mapToInt(detail -> detail.getPrice() * detail.getQuantity())
-//                .sum();
-//
-//        // 포인트 결제
-//        Long usePoint = request.getUsePoint();
-//        if (request.getPaymentMethod() == PaymentMethod.POINT) {
-//            if (member.getPoint() < usePoint) {
-//                throw new IllegalArgumentException("포인트 부족");
-//            }
-//            // 포인트 차감
-//            member.setPoint(member.getPoint() - usePoint);
-//            memberRepository.save(member);
-//        }
-//
-//
-//        //주문 생성
-//        Order order = Order.builder()
-//                .member(member)
-//                .address(address)
-//                .merchantUid(merchantUid)
-//                .orderAddress(OrderAddress.builder()
-//                        .recipientName(request.getRecipientName())
-//                        .recipientPhone(request.getRecipientPhone())
-//                        .postalCode(request.getPostalCode())
-//                        .addressLine1(request.getAddressLine1())
-//                        .addressLine2(request.getAddressLine2())
-//                        .build())
-//                .paymentMethod(request.getPaymentMethod())
-//                .totalPrice(request.getTotalPrice())
-//                .totalAmount(totalAmount)
-//                .orderStatus(OrderStatus.WAITING)
-//                .build();
-//
-//        //주문 상세
-//        for (OrderDetailRequest detailRequest : request.getOrderDetails()) {
-//            Item item = itemRepository.findById(detailRequest.getItemId())
-//                    .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없음"));
-//            OrderDetail detail = OrderDetail.builder()
-//                    .order(order)
-//                    .item(item)
-//                    .price(detailRequest.getPrice())
-//                    .quantity(detailRequest.getQuantity())
-//                    .build();
-//            order.addOrderDetail(detail);
-//        }
-//        Order savedOrder = orderRepository.save(order);
-//        cartService.clearCart(member.getId());
-//        return savedOrder.getId();
-//    }
-
     @Transactional
     public OrderCreateResponse createOrder(OrderCreateRequest request) {
         Member member = memberRepository.findById(request.getMemberId())
@@ -137,9 +58,13 @@ public class OrderService {
         }
 
         // 총 결제금액 계산 (상품 가격 * 수량 합계)
-        int totalAmount = request.getOrderDetails().stream()
+        int finalAmount = request.getOrderDetails().stream()
                 .mapToInt(detail -> detail.getPrice() * detail.getQuantity())
                 .sum();
+        int totalAmount = request.getOrderDetails().stream()
+                .mapToInt(detail -> detail.getQuantity())
+                .sum();
+
 
         // 사용 포인트: null일 경우 0으로 처리
         Long usePoint = request.getUsePoint() != null ? request.getUsePoint() : 0L;
@@ -153,8 +78,8 @@ public class OrderService {
         }
 
         // 포인트 사용 최대 한도는 총 결제금액
-        if (usePoint > totalAmount) {
-            usePoint = (long) totalAmount;
+        if (usePoint > finalAmount) {
+            usePoint = (long) finalAmount;
         }
 
         // 포인트 차감
@@ -163,7 +88,7 @@ public class OrderService {
             memberRepository.save(member);
         }
 
-        int remainingAmount = totalAmount - usePoint.intValue();
+        int remainingAmount = finalAmount - usePoint.intValue();
 
         // merchantUid 생성
         String merchantUid = "order_no_" + System.currentTimeMillis();
@@ -181,7 +106,7 @@ public class OrderService {
                         .addressLine2(request.getAddressLine2())
                         .build())
                 .paymentMethod(request.getPaymentMethod())
-                .totalPrice(request.getTotalPrice())
+                .totalPrice(finalAmount)
                 .totalAmount(totalAmount)
                 .usedPoint((long) usePoint.intValue())  // 주문에 사용 포인트 기록
                 .orderStatus(OrderStatus.WAITING)
@@ -224,7 +149,9 @@ public class OrderService {
                 .map(detail -> new OrderDetailResponse(
                         detail.getItem().getItemName(),
                         detail.getPrice(),
-                        detail.getQuantity()
+                        detail.getQuantity(),
+                        detail.getTotalPrice()
+
                 ))
                 .collect(Collectors.toList());
 
@@ -253,12 +180,6 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public List<OrderResponseDto> getAllOrders() {
-        return orderRepository.findAll().stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-    }
 
     private OrderResponseDto mapToDto(Order order) {
         List<OrderDetailResponse> detailResponses = order.getOrderDetails().stream()
@@ -339,7 +260,6 @@ public class OrderService {
         return false;
     }
 
-
     @Transactional
     public boolean requestCancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
@@ -353,5 +273,13 @@ public class OrderService {
         orderRepository.save(order);
         return true;
     }
+
+    //    @Transactional(readOnly = true)
+//    public List<OrderResponseDto> getAllOrders() {
+//        return orderRepository.findAll().stream()
+//                .map(this::mapToDto)
+//                .collect(Collectors.toList());
+//    }
+
 }
 

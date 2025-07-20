@@ -157,20 +157,5 @@
     });
 </script>
 
-<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<script>
-    function execDaumPostcode() {
-        new daum.Postcode({
-            oncomplete: function(data) {
-                // 우편번호와 주소 값을 폼에 넣기
-                document.getElementById('postcode').value = data.zonecode;
-                document.getElementById('address').value = data.address;
-                // 상세주소는 직접 입력
-                document.getElementById('detailAddress').focus();
-            }
-        }).open();
-    }
-</script>
-
 </body>
 </html>

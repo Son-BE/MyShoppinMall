@@ -12,6 +12,7 @@ import zerobase.MyShoppingMall.repository.cart.CartItemRepository;
 import zerobase.MyShoppingMall.repository.cart.CartRepository;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
 import zerobase.MyShoppingMall.repository.member.MemberRepository;
+import zerobase.MyShoppingMall.type.AddToCartResult;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class CartService {
     }
 
     //장바구니에 상품 추가
-    public void addItemToCart(Long memberId, Long itemId, int quantity) {
+    public AddToCartResult addItemToCart(Long memberId, Long itemId, int quantity) {
         if(quantity <= 0) throw new IllegalArgumentException("수량은 1개 이상이어야 합니다.");
 
         Cart cart = getOrCreateCart(memberId);
@@ -48,8 +49,9 @@ public class CartService {
         CartItem existingCartItem = cartItemRepository.findByCartAndItem(cart, item).orElse(null);
 
         if (existingCartItem != null) {
-            existingCartItem.setQuantity(existingCartItem.getQuantity() + quantity);
-            cartItemRepository.save(existingCartItem);
+            return AddToCartResult.ALREADY_EXISTS;
+//            existingCartItem.setQuantity(existingCartItem.getQuantity() + quantity);
+//            cartItemRepository.save(existingCartItem);
         } else {
             CartItem newCartItem = CartItem.builder()
                     .cart(cart)
@@ -59,6 +61,7 @@ public class CartService {
             cartItemRepository.save(newCartItem);
             cart.getCartItems().add(newCartItem);
         }
+        return AddToCartResult.ADDED;
     }
 
 

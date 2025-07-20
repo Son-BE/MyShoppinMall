@@ -11,4 +11,5 @@ public class OrderDetailRequest {
     private Long itemId;
     private int price;
     private int quantity;
+    private int totalPrice;
 }

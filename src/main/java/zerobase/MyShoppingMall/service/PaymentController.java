@@ -20,7 +20,6 @@ import java.util.Map;
 public class PaymentController {
 
     private final IamportService iamportService;
-    private final OrderService orderService;
 
     @PostMapping("/verify")
     public ResponseEntity<?> verifyPayment(@RequestBody PaymentVerifyRequest request) {

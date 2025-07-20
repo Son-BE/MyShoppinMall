@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.dto.wishlist.WishListDto;
-import zerobase.MyShoppingMall.service.member.CustomUserDetails;
+
+import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.service.wishList.WishListService;
 
 import java.util.List;

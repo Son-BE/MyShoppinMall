@@ -448,6 +448,10 @@
                         alert("포인트 결제가 완료되었습니다!");
                         window.location.href = `/orders/complete-view?orderId=${orderId}`;
                         return; // PG 결제 호출 없이 종료
+                    } else if(paymentMethod === "CARD_DISCOUNT_BY_POINT") {
+                        alert("포인트 결제가 완료되었습니다!");
+                        window.location.href = `/orders/complete-view?orderId=${orderId}`;
+                        return;
                     }
 
                     // 3. PG 결제 진행 (포인트 결제가 아닐 경우)

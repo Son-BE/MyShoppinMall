@@ -25,7 +25,6 @@ public class AdminAccount {
                     .email(adminProperties.getEmail())
                     .password(bCryptPasswordEncoder.encode(adminProperties.getPassword()))
                     .nickName("관리자")
-                    .gender(Gender.MALE)
                     .role(Role.ADMIN)
                     .phoneNumber("010-5037-3271")
                     .deleteType("F")

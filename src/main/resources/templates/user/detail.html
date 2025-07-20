@@ -131,7 +131,7 @@
 <div class="container">
     <div class="image-section">
         <img th:src="${item.imagePath}" alt="상품 이미지"
-             onerror="this.onerror=null;this.src='/images/default-image.png';"/>
+             onerror="this.onerror=null;this.src='/images/default.png';"/>
     </div>
 
     <div class="info-section">
@@ -162,6 +162,7 @@
             </button>
         </form>
 
+
         <!-- 찜 등록 -->
         <form th:action="@{/wishList/add}" method="post" onsubmit="return confirmAddToWishlist()">
             <input type="hidden" name="itemId" th:value="${item.id}"/>
@@ -175,9 +176,7 @@
 
 <div th:insert="~{fragment/footer :: footer}"></div>
 
-<script th:if="${message != null}">
-    alert('[[${message}]]');
-</script>
+
 <script>
     function confirmAddToCart() {
         return confirm("장바구니에 추가하시겠습니까?");
@@ -187,6 +186,13 @@
         return confirm("찜목록 에 추가하시겠습니까?");
     }
 </script>
+<script th:if="${successMessage}">
+    alert('[[${successMessage}]]');
+</script>
+<script th:if="${errorMessage}">
+    alert('[[${errorMessage}]]');
+</script>
+
 
 </body>
 </html>

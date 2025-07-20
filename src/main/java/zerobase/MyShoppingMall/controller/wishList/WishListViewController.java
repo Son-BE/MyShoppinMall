@@ -6,7 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import zerobase.MyShoppingMall.dto.wishlist.WishListDto;
-import zerobase.MyShoppingMall.service.member.CustomUserDetails;
+import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.service.wishList.WishListService;
 
 import java.util.List;

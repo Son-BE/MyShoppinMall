@@ -8,25 +8,26 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import zerobase.MyShoppingMall.dto.user.MemberRequestDto;
 import zerobase.MyShoppingMall.dto.user.MemberResponseDto;
 import zerobase.MyShoppingMall.dto.user.MemberUpdateDto;
-import zerobase.MyShoppingMall.service.member.CustomUserDetails;
+import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
+import zerobase.MyShoppingMall.oAuth2.JwtTokenProvider;
+import zerobase.MyShoppingMall.redis.RedisTokenService;
 import zerobase.MyShoppingMall.service.member.MemberService;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/members")
+@RequestMapping("/api/members")
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
-//    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTokenService redisTokenService;
 
     //회원가입
     @PostMapping("/register")
@@ -39,24 +40,39 @@ public class MemberController {
         }
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        String token = jwtTokenProvider.resolveToken(request);
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            jwtTokenProvider.blacklistToken(token);
+        }
+        new SecurityContextLogoutHandler().logout(
+                request,
+                null,
+                SecurityContextHolder.getContext().getAuthentication()
+        );
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/is-blacklisted")
+    public ResponseEntity<?> isBlacklisted(@RequestParam String token) {
+        boolean result = redisTokenService.isBlacklisted(token);
+        return ResponseEntity.ok(Map.of("blacklisted", result));
+    }
+
 
     //로그아웃
     @GetMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
+        String token = jwtTokenProvider.resolveToken(request);
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            jwtTokenProvider.blacklistToken(token);
+        }
         new SecurityContextLogoutHandler().logout(request, response,
                 SecurityContextHolder.getContext().getAuthentication());
         return "redirect:/login";
     }
 
-    @PostMapping("/register-form")
-    public ResponseEntity<?> registerForm(MemberRequestDto memberRequestDto) {
-        try {
-            MemberResponseDto responseDto = memberService.registerMember(memberRequestDto);
-            return ResponseEntity.ok(responseDto);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
     //이메일로 회원 조회
     @GetMapping("/by-email")
@@ -111,23 +127,33 @@ public class MemberController {
 
     //프로필 정보
     @GetMapping("/profile")
-    public ResponseEntity<MemberResponseDto> getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 인증 실패
+    public ResponseEntity<MemberResponseDto> getProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        if (customUserDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        MemberResponseDto dto = memberService.getProfile(userDetails.getMember().getId());
+
+        if (customUserDetails.getMember() == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+
+        Long memberId = customUserDetails.getMember().getId();
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+
+        MemberResponseDto dto = memberService.getProfile(memberId);
         return ResponseEntity.ok(dto);
     }
 
     //프로필 수정
     @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<?> updateProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                            @RequestBody MemberUpdateDto dto) {
-        if (userDetails == null) {
+        if (customUserDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         try {
-            memberService.updateMemberProfile(userDetails.getMember().getId(), dto);
+            memberService.updateMemberProfile(customUserDetails.getMember().getId(), dto);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -136,8 +162,8 @@ public class MemberController {
 
     //포인트 불러오기
     @GetMapping("/point")
-    public ResponseEntity<Long> getPoint(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long point = userDetails.getMember().getPoint();
+    public ResponseEntity<Long> getPoint(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long point = customUserDetails.getMember().getPoint();
         return ResponseEntity.ok(point);
     }
 

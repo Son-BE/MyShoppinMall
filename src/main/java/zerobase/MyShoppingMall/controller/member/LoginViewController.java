@@ -1,7 +1,10 @@
 package zerobase.MyShoppingMall.controller.member;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -18,8 +21,16 @@ public class LoginViewController {
         return "login";
     }
 
+//    @GetMapping("/login")
+//    public String loginPage() {
+//        return "login";
+//    }
     @GetMapping("/login")
-    public String loginPage() {
+    public String loginPage(HttpServletRequest request, Model model) {
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
         return "login";
     }
 
@@ -28,10 +39,10 @@ public class LoginViewController {
         return "signup";
     }
 
-    @GetMapping("/mainPage")
-    public String mainPage() {
-        return "mainPage";
-    }
+//    @GetMapping("/mainPage")
+//    public String mainPage() {
+//        return "mainPage";
+//    }
 
     @PostMapping("/register-form")
     public String registerForm(MemberRequestDto memberRequestDto, RedirectAttributes redirectAttributes) {

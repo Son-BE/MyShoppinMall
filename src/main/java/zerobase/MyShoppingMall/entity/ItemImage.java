@@ -16,10 +16,10 @@ public class ItemImage {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = false)
+    @JoinColumn(name = "item_id")
     private Item item;
 
-    @Column(name = "item_path", nullable = false)
+    @Column(name = "item_path")
     private String itemPath;
 
     public String getImagePath() {

@@ -35,7 +35,7 @@ public class ItemController {
             try {
                 genderEnum = Gender.valueOf(gender.toUpperCase());
             } catch (IllegalArgumentException e) {
-                genderEnum = null;  // 기본값 또는 무시
+                genderEnum = null;
             }
         }
 
@@ -48,20 +48,14 @@ public class ItemController {
         model.addAttribute("selectedSort", sort);
         model.addAttribute("selectedCategory", subCategory);
 
-        return "/mainPage";
+        return "mainPage";
     }
 
     @GetMapping("/detail/{id}")
     public String getItemDetail(@PathVariable Long id, Model model) {
-        ItemResponseDto item = itemService.getItem(id);
+        ItemResponseDto item = itemService.getItemWithCache(id);
         model.addAttribute("item", item);
-        return "/user/detail";
+        return "user/detail";
     }
 
-//    @GetMapping("/filter")
-//    public String filterBySubCategory(@RequestParam("subcategory") ItemSubCategory subCategory, Model model) {
-//        List<ItemResponseDto> items = itemService.findBy(subCategory);
-//        model.addAttribute("items", items);
-//        return "/mainPage";
-//    }
 }

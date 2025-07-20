@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: shop-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: hi092787!!!
+      MYSQL_DATABASE: SonStar
+      MYSQL_USER: SonStar
+      MYSQL_PASSWORD: hi092787!!!
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - shop-network
+
+  redis:
+    image: redis:7.0
+    container_name: shop-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - shop-network
+
+  springboot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: myshop-app
+    container_name: shop-app
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://shop-mysql:3306/SonStar
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: hi092787!!!
+      SPRING_DATA_REDIS_HOST: shop-redis
+      SPRING_DATA_REDIS_PORT: "6379"
+    networks:
+      - shop-network
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  shop-network:
+    name: shop-network
+    driver: bridge

@@ -1,17 +1,23 @@
 package zerobase.MyShoppingMall.service.item;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import zerobase.MyShoppingMall.entity.Item;
-import zerobase.MyShoppingMall.entity.ItemImage;
 import zerobase.MyShoppingMall.dto.item.ItemRequestDto;
 import zerobase.MyShoppingMall.dto.item.ItemResponseDto;
+import zerobase.MyShoppingMall.entity.Item;
+import zerobase.MyShoppingMall.entity.ItemImage;
 import zerobase.MyShoppingMall.repository.cart.CartItemRepository;
 import zerobase.MyShoppingMall.repository.item.ItemImageRepository;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
@@ -24,8 +30,10 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemService {
@@ -34,6 +42,50 @@ public class ItemService {
     private final ItemImageRepository itemImageRepository;
     private final CartItemRepository cartItemRepository;
     private final WishListRepository wishListRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
+
+    private static final String ITEM_CACHE_PREFIX = "item:";
+
+    // 캐시 저장
+    private void cacheItem(ItemResponseDto itemDto) {
+        String key = ITEM_CACHE_PREFIX + itemDto.getId();
+        redisTemplate.opsForValue().set(key, itemDto, 30, TimeUnit.MINUTES);
+        log.info("아이템 캐시에 저장 완료, key: {}", key);
+    }
+
+    // 캐시 조회
+    public ItemResponseDto getCachedItem(Long itemId) {
+        String key = ITEM_CACHE_PREFIX + itemId;
+        Object cached = redisTemplate.opsForValue().get(key);
+
+        try {
+            if (cached != null) {
+                if (cached instanceof ItemResponseDto) {
+                    log.info("캐시에서 아이템 조회 성공, itemId: {}", itemId);
+                    return (ItemResponseDto) cached;
+                } else {
+                    ItemResponseDto dto = objectMapper.convertValue(cached, ItemResponseDto.class);
+                    log.info("캐시에서 아이템 조회 성공 (ObjectMapper 변환), itemId: {}", itemId);
+                    return dto;
+                }
+            }
+
+            log.info("캐시에 아이템 없음, DB에서 조회 itemId: {}", itemId);
+            ItemResponseDto itemDto = getItem(itemId);
+            cacheItem(itemDto);
+            return itemDto;
+        } catch (Exception e) {
+            log.error("getCachedItem() 실패 - itemId: {}, 예외: {}", itemId, e.getMessage(), e);
+            throw new RuntimeException("아이템 조회 중 오류 발생", e);
+        }
+    }
+
+    private void evictCache(Long itemId) {
+        String key = ITEM_CACHE_PREFIX + itemId;
+        redisTemplate.delete(key);
+    }
+
 
     //상품 생성
     public ItemResponseDto createItem(ItemRequestDto dto, MultipartFile imageFile) {
@@ -58,8 +110,11 @@ public class ItemService {
             }
         }
 
-        return ItemResponseDto.fromEntity(item);
+        ItemResponseDto responseDto = ItemResponseDto.fromEntity(item);
+        cacheItem(responseDto); // 생성 후 캐싱
+        return responseDto;
     }
+
 
     //상품 수정
     @Transactional
@@ -81,7 +136,9 @@ public class ItemService {
             itemImageService.saveItemImage(item.getId(), imageFile);
         }
 
-        return ItemResponseDto.fromEntity(item);
+        ItemResponseDto updatedDto = ItemResponseDto.fromEntity(item);
+        cacheItem(updatedDto); // 수정 후 캐싱 갱신
+        return updatedDto;
     }
 
     //상품 삭제
@@ -105,9 +162,11 @@ public class ItemService {
         cartItemRepository.deleteById(itemId);
         wishListRepository.deleteById(itemId);
         itemRepository.delete(item);
+
+        evictCache(itemId); // 삭제 후 캐시 제거
     }
 
-    //상품 조회
+    //상품 조회 (DB 직접 조회, 캐시 x)
     public ItemResponseDto getItem(Long itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("상품이 존재하지 않습니다. id=" + itemId));
@@ -117,7 +176,20 @@ public class ItemService {
         return ItemResponseDto.fromEntity(item);
     }
 
-    //전체 목록 조회
+    // 상품 조회 (캐시 우선 조회)
+    public ItemResponseDto getItemWithCache(Long itemId) {
+        try {
+            ItemResponseDto dto = getCachedItem(itemId);
+            log.info("getItemWithCache() → itemId: {} 정상 조회 완료", itemId);
+            return dto;
+        } catch (Exception e) {
+            log.error("getItemWithCache() → itemId: {} 조회 중 예외 발생: {}", itemId, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+
+    //상품 전체 조회 (캐싱 없이 DB 직접 조회)
     public List<ItemResponseDto> getAllItems() {
         List<Item> items = itemRepository.findAll()
                 .stream()
@@ -176,9 +248,11 @@ public class ItemService {
         ItemSubCategory subCategory = null;
         if (itemSubCategory != null && !itemSubCategory.isEmpty()) {
             try {
-                subCategory = ItemSubCategory.valueOf("M_" + itemSubCategory.toUpperCase());
+                String enumKey = "M_" + itemSubCategory.toUpperCase();
+                subCategory = ItemSubCategory.valueOf(enumKey);
             } catch (IllegalArgumentException e) {
-                System.out.println("카테고리 파싱 오류");
+                System.err.println("[ItemService] 잘못된 서브카테고리: " + itemSubCategory);
+                e.printStackTrace();
             }
         }
 
@@ -194,8 +268,6 @@ public class ItemService {
 
         return itemsPage.map(ItemResponseDto::fromEntity);
     }
-
-
 
 
 }

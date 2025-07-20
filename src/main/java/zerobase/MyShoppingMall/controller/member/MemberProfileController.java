@@ -12,8 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import zerobase.MyShoppingMall.dto.user.MemberResponseDto;
 import zerobase.MyShoppingMall.dto.user.MemberUpdateDto;
 import zerobase.MyShoppingMall.entity.Address;
-import zerobase.MyShoppingMall.entity.Member;
-import zerobase.MyShoppingMall.service.member.CustomUserDetails;
+import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.service.member.MemberService;
 import zerobase.MyShoppingMall.service.order.AddressService;
 
@@ -27,6 +26,10 @@ public class MemberProfileController {
 
     @GetMapping("/profile")
     public String showProfile(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return "redirect:/items";
+        }
+
         Long memberId = userDetails.getMember().getId();
 
         // 회원 정보

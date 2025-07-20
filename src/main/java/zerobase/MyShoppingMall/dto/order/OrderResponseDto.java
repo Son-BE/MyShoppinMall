@@ -22,13 +22,17 @@ public class OrderResponseDto {
     private String paymentMethod;
 
     private int totalPrice;
+    private int actualPrice;
+    private int usedPoint;
+
     private List<String> itemNames;
     private LocalDateTime orderDate;
     private String merchantUid;
     private String impUid;
     private OrderStatus orderStatus;
 
-    private List<OrderDetailResponse> orderDetails;
+    private List<
+            OrderDetailResponse> orderDetails;
 
     public static OrderResponseDto from(zerobase.MyShoppingMall.entity.Order order) {
         List<String> itemNames = order.getOrderDetails().stream()
@@ -41,6 +45,7 @@ public class OrderResponseDto {
                         .itemName(detail.getItem().getItemName())
                         .price(detail.getPrice())
                         .quantity(detail.getQuantity())
+                        .totalPrice(detail.getTotalPrice())
                         .build())
                 .collect(Collectors.toList());
 
@@ -53,6 +58,8 @@ public class OrderResponseDto {
                 .receiverDetailAddress(order.getOrderAddress().getAddressLine2())
                 .paymentMethod(order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null)
                 .totalPrice(order.getTotalPrice())
+                .actualPrice(order.getTotalPrice())
+//                .usedPoint(Math.toIntExact(order.getUsedPoint()))
                 .itemNames(itemNames)
                 .orderDate(order.getCreatedAt())
                 .merchantUid(order.getMerchantUid())
@@ -66,4 +73,5 @@ public class OrderResponseDto {
     public String getImpUid() {
         return this.impUid;
     }
+
 }

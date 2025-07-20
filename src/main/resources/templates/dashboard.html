@@ -80,9 +80,10 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#" th:text="${#authentication.name}">관리자</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">로그아웃</a>
-                </li>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-link nav-link">로그아웃</button>
+                </form>
+
             </ul>
         </div>
     </div>
@@ -177,12 +178,13 @@
         <!-- 메인 콘텐츠 -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <h1 class="mt-4">대시보드</h1>
+
             <div class="row my-4">
                 <div class="col-md-4">
                     <div class="card" th:style="'background-color:#ffe0b2;'">
                         <div class="card-body">
                             <h5 class="card-title">총 회원 수</h5>
-                            <p class="card-text fs-2" th:text="${memberCount}">10</p>
+                            <p><span th:text="${totalMembers}"></span></p>
                         </div>
                     </div>
                 </div>
@@ -190,12 +192,38 @@
                     <div class="card bg-success mb-3">
                         <div class="card" th:style="'background-color:#ffe0b2;'">
                             <div class="card-body">
-                                <h5 class="card-title">총 주문 수</h5>
-                                <p class="card-text fs-2" th:text="${orderCount}">0</p>
+                                <h5 class="card-title">신규 회원 가입 수(최근 7일)</h5>
+                                <p><span th:text="${newMembers}"></span></p>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="card bg-success mb-3">
+                        <div class="card" th:style="'background-color:#ffe0b2;'">
+                            <div class="card-body">
+                                <h5 class="card-title">남성 회원 수</h5>
+                                <p><span th:text="${maleMembers}"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div><div class="col-md-4">
+                <div class="card bg-success mb-3">
+                    <div class="card" th:style="'background-color:#ffe0b2;'">
+                        <div class="card-body">
+                            <h5 class="card-title">여성 회원 수</h5>
+                            <p><span th:text="${femaleMembers}"></span></p>
+                        </div>
+                    </div>
+                </div><div class="card bg-success mb-3">
+                    <div class="card" th:style="'background-color:#ffe0b2;'">
+                        <div class="card-body">
+                            <h5 class="card-title">최근 1개월 가입자</h5>
+                            <p><span th:text="${monthlyNewMembers}"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             </div>
         </main>
     </div>

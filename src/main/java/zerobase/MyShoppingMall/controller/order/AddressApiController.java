@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import zerobase.MyShoppingMall.dto.order.AddressDto;
 import zerobase.MyShoppingMall.entity.Address;
-import zerobase.MyShoppingMall.service.member.CustomUserDetails;
+import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.service.order.AddressService;
 
 @RestController

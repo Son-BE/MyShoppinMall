@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import zerobase.MyShoppingMall.dto.order.OrderCreateRequest;
 import zerobase.MyShoppingMall.dto.order.OrderResponseDto;
 import zerobase.MyShoppingMall.dto.payment.PaymentCompleteRequest;
-import zerobase.MyShoppingMall.service.member.CustomUserDetails;
+import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.service.order.OrderService;
 
 import java.util.HashMap;

@@ -16,25 +16,15 @@ public class Address {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(name = "receiver_name", nullable = false)
     private String receiverName;
-
-    @Column(nullable = false)
     private String addr;
-
-    @Column(name = "addr_detail", nullable = false)
     private String addrDetail;
-
-    @Column(name = "postal_code")
     private String postalCode;
-
-    @Column(name = "receiver_phone", nullable = false)
     private String receiverPhone;
 
-    @Column(name = "is_default", nullable = false)
     private boolean isDefault; // 기본 배송지
 
     public void setDefaultAddress(boolean isDefault) {

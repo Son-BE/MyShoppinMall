@@ -3,20 +3,23 @@ package zerobase.MyShoppingMall.service.member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zerobase.MyShoppingMall.dto.user.MemberUpdateDto;
-import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.dto.user.MemberRequestDto;
 import zerobase.MyShoppingMall.dto.user.MemberResponseDto;
+import zerobase.MyShoppingMall.dto.user.MemberUpdateDto;
+import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.repository.member.MemberRepository;
+import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.Role;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class MemberService {
+public class MemberService implements  UserService{
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -97,8 +100,32 @@ public class MemberService {
         memberRepository.delete(member);
     }
 
-    public long countMembers() {
+
+    public long getTotalMemberCount() {
         return memberRepository.count();
+    }
+
+    public long getNewMemberCount() {
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusDays(7);
+        System.out.println("oneWeekAgo: " + oneWeekAgo);
+        return memberRepository.countByCreatedAtAfter(oneWeekAgo);
+    }
+
+    public long getNewMemberCountInDays(int days) {
+        LocalDateTime date = LocalDateTime.now().minusDays(days);
+        System.out.println("date: " + date);
+        return memberRepository.countByCreatedAtAfter(date);
+    }
+
+    public long getMemberCountByGender(Gender gender) {
+        System.out.println("gender: " + gender);
+        return memberRepository.countByGender(gender);
+    }
+
+    public long getMemberCountInRange(LocalDateTime start, LocalDateTime end) {
+        System.out.println("start: " + start);
+        System.out.println("end: " + end);
+        return memberRepository.countByCreatedAtBetween(start, end);
     }
 
     public MemberResponseDto getMemberProfile(Long memberId) {
@@ -121,4 +148,5 @@ public class MemberService {
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보 없음"));
         return MemberResponseDto.fromEntity(member);
     }
+
 }

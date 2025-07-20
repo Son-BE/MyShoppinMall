@@ -9,7 +9,8 @@ import zerobase.MyShoppingMall.dto.order.AddressSaveRequest;
 import zerobase.MyShoppingMall.entity.Address;
 import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.entity.OrderAddress;
-import zerobase.MyShoppingMall.service.member.CustomUserDetails;
+
+import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.service.order.AddressService;
 
 import java.util.List;

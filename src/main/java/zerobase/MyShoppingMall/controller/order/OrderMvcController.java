@@ -3,19 +3,15 @@ package zerobase.MyShoppingMall.controller.order;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import zerobase.MyShoppingMall.dto.order.OrderCreateRequest;
 import zerobase.MyShoppingMall.dto.order.OrderResponseDto;
-import zerobase.MyShoppingMall.entity.Address;
-import zerobase.MyShoppingMall.entity.Member;
+import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.repository.member.MemberRepository;
 import zerobase.MyShoppingMall.service.cart.CartService;
-import zerobase.MyShoppingMall.service.member.CustomUserDetails;
-import zerobase.MyShoppingMall.service.member.MemberService;
 import zerobase.MyShoppingMall.service.order.AddressService;
 import zerobase.MyShoppingMall.service.order.OrderService;
 
@@ -46,6 +42,7 @@ public class OrderMvcController {
         Long memberId = userDetails.getMember().getId();
         List<OrderResponseDto> orders = orderService.getOrdersByMember(memberId);
         model.addAttribute("orders", orders);
+
         return "order/details_order";
     }
 
@@ -54,6 +51,9 @@ public class OrderMvcController {
     public String showOrderDetails(@PathVariable Long orderId, Model model) {
         OrderResponseDto order = orderService.getOrder(orderId);
         model.addAttribute("order", order);
+        model.addAttribute("actualPrice", order.getActualPrice());
+        model.addAttribute("usedPoint", order.getUsedPoint());
+
         return "order/details_order";
     }
 

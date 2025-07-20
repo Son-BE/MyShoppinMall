@@ -48,26 +48,6 @@ public class AdminOrderController {
         return "admin/orders/waiting_order";
     }
 
-
-//    // 환불 요청
-//    @GetMapping("/refund_order")
-//    public String getRefundOrdersForm(Model model,
-//                                      @RequestParam(defaultValue = "0") int page) {
-//        Page<OrderResponseDto> ordersPage = adminOrderService.getOrderDtosByStatus(OrderStatus.RETURNED, PageRequest.of(page, PAGE_SIZE));
-//        model.addAttribute("ordersPage", ordersPage);
-//        model.addAttribute("pageTitle", "환불 요청 주문");
-//        return "admin/orders/refund_request";
-//    }
-
-    // 주문 상세
-//    @GetMapping("/{orderId}")
-//    public String orderDetail(@PathVariable Long orderId, Model model) {
-//        OrderResponseDto order = adminOrderService.getOrderDetail(orderId);
-//        model.addAttribute("order", order);
-//        return "admin/orders/order_detail";
-//    }
-
-
     // 주문 상태 변경
     @PostMapping("/{orderId}/status")
     public String changeOrderStatus(@PathVariable Long orderId,
@@ -86,17 +66,27 @@ public class AdminOrderController {
     }
 
     @PostMapping("/{orderId}/approve-cancel")
-    public ResponseEntity<?> approveCancelOrder(@PathVariable Long orderId,
-                                                @RequestParam(required = false) String reason) {
-        try {
-            boolean cancelled = adminOrderService.approveCancelOrder(orderId, reason);
-            if (cancelled) {
-                return ResponseEntity.ok("주문이 성공적으로 취소되었습니다.");
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("주문 취소에 실패했습니다.");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+    public String approveCancelOrder(@PathVariable Long orderId,
+                                     @RequestParam(required = false) String reason) {
+        adminOrderService.approveCancelOrder(orderId, reason);
+        return "redirect:/admin/orders/cancel_requests?success=true";
     }
+
+    //    // 환불 요청
+//    @GetMapping("/refund_order")
+//    public String getRefundOrdersForm(Model model,
+//                                      @RequestParam(defaultValue = "0") int page) {
+//        Page<OrderResponseDto> ordersPage = adminOrderService.getOrderDtosByStatus(OrderStatus.RETURNED, PageRequest.of(page, PAGE_SIZE));
+//        model.addAttribute("ordersPage", ordersPage);
+//        model.addAttribute("pageTitle", "환불 요청 주문");
+//        return "admin/orders/refund_request";
+//    }
+
+    // 주문 상세
+//    @GetMapping("/{orderId}")
+//    public String orderDetail(@PathVariable Long orderId, Model model) {
+//        OrderResponseDto order = adminOrderService.getOrderDetail(orderId);
+//        model.addAttribute("order", order);
+//        return "admin/orders/order_detail";
+//    }
 }

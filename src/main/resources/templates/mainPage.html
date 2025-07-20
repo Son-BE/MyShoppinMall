@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
 
+
     <title>병의's 쇼핑몰</title>
 
     <!-- Font Awesome 6 -->
@@ -14,8 +15,6 @@
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
 
     <style>
-
-
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
 
         html, body {
@@ -55,12 +54,12 @@
             color: #e67e22;
         }
 
-        .user-info {
-            color: white;
-            float: right;
-            font-size: 0.9rem;
-            color: white;
-        }
+        /*.user-info {*/
+        /*    color: white;*/
+        /*    float: right;*/
+        /*    font-size: 0.9rem;*/
+        /*    color: white;*/
+        /*}*/
 
         form {
             display: flex;
@@ -95,45 +94,45 @@
         }
 
         .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1.5rem;
-            padding: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem 2rem;
         }
 
         .product-card {
-            border: 1px solid #eee;
+            width: 320px;
             background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             text-align: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            padding-bottom: 1rem;
         }
 
         .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            transform: translateY(-6px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
         .product-card img {
             width: 100%;
-            height: auto;
-            max-height: 220px;
+            height: 220px;
             object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 1rem;
         }
 
         .product-card h3 {
             font-size: 1.1rem;
-            margin-bottom: 0.5rem;
+            margin: 1rem 0 0.5rem;
+            color: #1e1e2f;
         }
 
         .product-card p {
-            color: #e67e22;
-            font-weight: bold;
+            color: #ff6b6b;
+            font-weight: 600;
             margin: 0;
+            font-size: 0.95rem;
         }
 
         footer {
@@ -150,25 +149,49 @@
                 align-items: flex-start;
             }
         }
-         .pagination a.active {
-             background-color: #34495e;
-             color: white !important;
-             font-weight: bold;
-         }
+        .pagination {
+            text-align: center;
+            margin: 30px 0;
+        }
 
+        .pagination ul {
+            list-style: none;
+            display: inline-flex;
+            gap: 10px;
+            padding: 0;
+        }
+
+        .pagination a {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #1e1e2f;
+            transition: background 0.3s, color 0.3s;
+        }
+
+
+        .pagination a.active,
         .pagination a:hover {
-            background-color: #34495e;
+            background-color: #1e1e2f;
             color: white !important;
+            font-weight: bold;
         }
     </style>
-    </style>
+
+
+
 </head>
 <body>
 <div class="wrapper">
     <div class="container">
         <div th:insert="~{fragment/header :: header}"></div>
 
-        </header>
+
+        <div th:if="${param.expired}" class="alert alert-warning text-center" role="alert">
+            토큰이 만료되었습니다. 다시 로그인해주세요.
+        </div>
 
         <form method="get" action="/items">
             <div>
@@ -208,7 +231,7 @@
                     </optgroup>
                     <optgroup label="신발">
                         <option value="sneakers" th:selected="${selectedCategory == 'sneakers'}">스니커즈</option>
-                        <option value="sports" th:selected="${selectedCategory == 'sports'}">운동화</option>
+                        <option value="running_shoes" th:selected="${selectedCategory == 'running_shoes'}">운동화</option>
                         <option value="boots" th:selected="${selectedCategory == 'boots'}">구두</option>
                     </optgroup>
                     <optgroup label="악세서리">
@@ -226,7 +249,7 @@
             <div th:if="${#lists.isEmpty(items)}">상품이 없습니다.</div>
             <div th:each="item : ${items}" class="product-card">
                 <a th:href="@{/items/detail/{id}(id=${item.id})}">
-                    <img th:src="${item.imagePath}" th:alt="${item.itemName}">
+                    <img th:src="${item.imagePath}" onerror="this.src='/images/default.png'" th:alt="${item.itemName}">
                     <h3 th:text="${item.itemName}"></h3>
                     <p th:text="${#numbers.formatInteger(item.price, 3, 'COMMA')} + '원'"></p>
                 </a>
@@ -259,5 +282,23 @@
     </div>
     <div th:insert="~{fragment/footer :: footer}"></div>
 </div>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const alertBox = document.querySelector('.alert');
+        if (alertBox) {
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000);
+        }
+    });
+    setInterval(() => {
+        fetch('/ping', { credentials: 'include' })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            });
+    }, 30000);
+</script>
 </body>
 </html>

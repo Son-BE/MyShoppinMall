@@ -1,5 +1,6 @@
 package zerobase.MyShoppingMall.dto.item;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import zerobase.MyShoppingMall.entity.Item;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ItemResponseDto {
     private Long id;
     private String itemName;

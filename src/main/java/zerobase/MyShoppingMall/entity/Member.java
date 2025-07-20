@@ -2,10 +2,16 @@ package zerobase.MyShoppingMall.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import zerobase.MyShoppingMall.type.Gender;
+import zerobase.MyShoppingMall.type.LoginType;
 import zerobase.MyShoppingMall.type.Role;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -22,55 +28,48 @@ public class Member {
 
     @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(nullable = false)
+    private String name;
     private String password;
+    private String phoneNumber;
+    private String deleteType;
+    private Long point;
+    private Long usedPoint;
 
-    @Column(name = "nick_name", nullable = false)
+    @Column(name = "nick_name", unique = true)
     private String nickName;
 
-    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Role role;
 
-    @Column(name = "phone_number", nullable = false)
-    private String phoneNumber;
+    @Enumerated(EnumType.STRING)
+    private LoginType loginType;
 
-    @Column(name = "delete_type", columnDefinition = "CHAR(1) DEFAULT 'N'")
-    private String deleteType;
-
-    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    private Long point = 0L;
-    private int usedPoint;
+
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private List<Address> addresses;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private List<Order> orders;
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private Cart cart;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private List<WishList> wishLists;
+
+    public Member(String email) {
+        this.email = email;
+    }
 
     @PrePersist
     public void prePersist() {
@@ -82,6 +81,10 @@ public class Member {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.getKey()));
     }
 
 }

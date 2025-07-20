@@ -13,11 +13,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import zerobase.MyShoppingMall.oAuth2.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -28,113 +31,90 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CustomOAuth2UserService oAuth2UserService;
+    private final CustomOidcUserService oidcUserService;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationSuccessHandler jwtSuccessHandler;
+    private static final String[] STATIC_RESOURCES = {
+            "/images/**", "/css/**", "/js/**", "/favicon.ico"
+    };
 
+    /**
+     * /api/** 경로 전용
+     * CSRF 비활성화, 세션 사용 안 함 (STATELESS), 폼 로그인/HTTP Basic 비활성화
+     * 일부 /api/members/** 및 /api/cart/** 요청은 모두 허용
+     * 나머지 /api/** 요청은 JWT 인증 필터를 통해 인증 필요
+     * jwtAuthenticationFilter를 Spring Security 필터 체인에 등록
+     * 토큰 기반 인증 처리
+     */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-//                .csrf(csrf -> csrf.disable())
+                .securityMatcher("/api/**")
+                .csrf(csrf -> csrf.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(form -> form.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 공용 접근 허용
-
-                        .requestMatchers(HttpMethod.GET, "/api/items/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/items/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/items/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/members/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/members/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/payment/**").permitAll()
-                        .requestMatchers("/", "/login", "/signup", "/logout", "register-form", "/css/**", "/js/**", "/create-item").permitAll()
-
-                        //게시판 관련 권한 설정
-                        .requestMatchers(HttpMethod.GET, "/board", "/board/", "/board/{id:[\\d]+}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/board/write", "/board/edit/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/board/write", "/board/edit/**", "/board/delete/**").authenticated()
-
-                        //관리자만 접근 가능
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        //로그인 시 접근 가능
-                        .requestMatchers("/user/**").authenticated()
-                        .requestMatchers("/members/**").authenticated()
-                        .requestMatchers("/order/**").authenticated()
-                        .requestMatchers("/board/write", "/board/edit/**", "/board/delete/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/members/join", "/api/members/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/members/check-email").permitAll()
+                        .requestMatchers("/api/members/**").authenticated()
+                        .requestMatchers("/api/cart/**").authenticated()
+                        .requestMatchers("/api/wishList/**").authenticated()
+                        .requestMatchers(STATIC_RESOURCES).permitAll()
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-                        })
-                )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .successHandler(customLoginSuccessHandler())
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/login")
-                        .invalidateHttpSession(true)
-                        .permitAll()
-                );
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
-//    // --- 1. REST API용 JWT 인증 필터 체인 ---
-//    @Bean
-//    @Order(1)
-//    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .securityMatcher("/api/**") // /api/** 경로만 적용
-//                .csrf(csrf -> csrf.disable()) // API라면 보통 CSRF 비활성화
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(HttpMethod.POST, "/api/members/**").permitAll() // 회원가입 등 공개 API
-//                        .requestMatchers("/api/public/**").permitAll() // 공개 API 경로
-//                        .anyRequest().authenticated()
-//                )
-//                .addFilterBefore(jwtAuthenticationFilter,
-//                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
-//                .sessionManagement(session -> session.sessionCreationPolicy(
-//                        org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
-//        ;
-//        return http.build();
-//    }
-//
-//    // --- 2. 웹 폼 로그인용 필터 체인 ---
-//    @Bean
-//    @Order(2)
-//    public SecurityFilterChain formLoginSecurityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .securityMatcher("/**") // 나머지 모든 경로
-//                .authorizeHttpRequests(auth -> auth
-//                        // 공용 접근 허용
-//                        .requestMatchers(HttpMethod.GET, "/api/items/**").permitAll()
-//                        .requestMatchers(HttpMethod.DELETE, "/api/items/**").permitAll()
-//                        .requestMatchers(HttpMethod.PUT, "/api/items/**").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/payment/**").permitAll()
-//                        .requestMatchers("/", "/login", "/signup", "/logout", "/register-form", "/css/**", "/js/**", "/create-item").permitAll()
-//
-//                        // 게시판 관련 권한 설정
-//                        .requestMatchers(HttpMethod.GET, "/board", "/board/", "/board/{id:[\\d]+}").permitAll()
-//                        .requestMatchers(HttpMethod.GET, "/board/write", "/board/edit/**").authenticated()
-//                        .requestMatchers(HttpMethod.POST, "/board/write", "/board/edit/**", "/board/delete/**").authenticated()
-//
-//                        // 관리자만 접근 가능
-//                        .requestMatchers("/admin/**").hasRole("ADMIN")
-//                        // 로그인 시 접근 가능
-//                        .requestMatchers("/user/**", "/order/**").authenticated()
-//                        .anyRequest().authenticated()
-//                )
-//                .formLogin(form -> form
-//                        .loginPage("/login")
-//                        .successHandler(customLoginSuccessHandler())
-//                        .permitAll()
-//                )
-//                .logout(logout -> logout
-//                        .logoutSuccessUrl("/login")
-//                        .invalidateHttpSession(true)
-//                        .permitAll()
-//                )
-//        ;
-//        return http.build();
-//    }
+    /**
+     * /, /login, /signup, /register-form, /oauth2/**, 정적 리소스 → 모두 허용
+     * /board/**, /order/**, /user/cart/**, /user/wishList → 로그인 필요
+     * /admin/** → ADMIN 권한 필요
+     * /members/** → USER 권한 필요
+     * OAuth2 사용자 정보는 CustomOAuth2UserService와 CustomOidcUserService로 처리
+     * 로그인 성공 시 JWT 성공 핸들러로 처리
+     * 로그아웃 성공 시 사용자 정의 핸들러 사용
+     * 세션 무효화
+     */
+    @Bean
+    @Order(2)
+    public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/login", "/signup", "/register-form", "/oauth2/**").permitAll()
+                        .requestMatchers(STATIC_RESOURCES).permitAll()
+                        .requestMatchers("/board/**", "/order/**", "/user/cart/**", "/user/wishList").authenticated()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/members/**").hasRole("USER")
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .successHandler(roleBasedLoginSuccessHandler())
+                        .permitAll()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oAuth2UserService)
+                                .oidcUserService(oidcUserService)
+                        )
+                        .successHandler(jwtSuccessHandler)
+                )
+                .logout(logout -> logout
+                        .logoutSuccessHandler(customLogoutSuccessHandler)
+                        .invalidateHttpSession(true)
+                        .permitAll()
+                );
+
+        return http.build();
+    }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -147,21 +127,25 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationSuccessHandler customLoginSuccessHandler() {
+    public AuthenticationSuccessHandler roleBasedLoginSuccessHandler() {
         return new AuthenticationSuccessHandler() {
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                                 Authentication authentication) throws IOException, ServletException {
                 Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-                for (GrantedAuthority authority : authorities) {
-                    if ("ROLE_ADMIN".equals(authority.getAuthority())) {
-                        response.sendRedirect("/dashboard");
-                        return;
-                    }
+
+                boolean isAdmin = authorities.stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+                if (isAdmin) {
+                    log.info("관리자 로그인 성공");
+                    response.sendRedirect("/dashboard");
+                } else {
+                    log.info("일반 사용자 로그인 성공");
+                    jwtSuccessHandler.onAuthenticationSuccess(request, response, authentication);
                 }
-                log.info("로그인 성공");
-                response.sendRedirect("/items");
             }
         };
     }
+
 }

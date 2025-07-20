@@ -23,6 +23,7 @@ public class OrderDetail {
 
     private int price;
     private int quantity;
+    private int totalPrice;
 
     public void setOrder(Order order) {
         this.order = order;

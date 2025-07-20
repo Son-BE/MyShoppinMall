@@ -29,9 +29,11 @@ public class AddressService {
         addressRepository.delete(address);
     }
 
-    public Address  findDefaultAddressByMemberId(Long memberId) {
-        return addressRepository.findByMemberIdAndIsDefaultTrue(memberId)
-                .orElseThrow(() -> new IllegalArgumentException(("디폴트 주소 없음")));
+    public Address findDefaultAddressByMemberId(Long memberId) {
+        return addressRepository.findAllByMemberId(memberId).stream()
+                .filter(Address::isDefault)
+                .findFirst()
+                .orElse(null);
     }
 
     @Transactional
