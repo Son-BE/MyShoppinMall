@@ -2,11 +2,16 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
+    <title>장바구니</title>
+
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+    <!-- CSRF 토큰 메타 -->
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-    <title>장바구니</title>
+
     <style>
         html, body {
             height: 100%;
@@ -25,110 +30,186 @@
 
         .container {
             flex: 1;
-            padding: 0rem;
+            padding: 1rem 2rem;
         }
 
+        /* 테이블 */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 1.5rem;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
-        th, td {
+        thead th {
+            background-color: #e1f0ff;
+            color: #2c3e50;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 2px solid #b0d4ff;
+        }
+
+        tbody td {
             border-bottom: 1px solid #d7ccc8;
             padding: 0.8rem;
             text-align: center;
+            vertical-align: middle;
         }
 
-        th {
-            background-color: #e1f0ff;
-            color: #2c3e50;
+        tbody tr:last-child td {
+            border-bottom: none;
         }
 
-        td img {
-            width: 150px;
-            height: 190px;
-            object-fit: cover;
+        tbody td img {
+            width: 120px;
+            height: 160px;
+            object-fit: contain; /* 또는 cover */
+            background-color: #fafafa;
+            border: 1px solid #eee;
             border-radius: 6px;
         }
 
+        /* 수량 입력창 */
         .quantity-input {
-            width: 50px;
-            text-align: center;
+            width: 60px;
             padding: 0.4rem;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: border-color 0.3s ease;
         }
 
+        .quantity-input:focus {
+            border-color: #0077cc;
+            outline: none;
+        }
+
+        /* 버튼 기본 스타일 */
         .btn {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: #0077cc;
-            color: white;
-            border: none;
-            padding: 0.4rem 0.8rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn:hover {
-            background-color: #005fa3;
-        }
-
-        .clear-btn,
-        .order-btn {
-            font-family: 'Noto Sans KR', sans-serif;
-            display: block;
-            width: 100%;
-            max-width: 200px;
-            background-color: #e1f0ff;
-            color: #2c3e50;
-            padding: 0.8rem;
-            border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 1.1rem;
-            text-align: center;
-            text-decoration: none;
             transition: background-color 0.3s ease;
+            border: none;
+            font-weight: 600;
         }
 
-        .clear-btn:hover,
-        .order-btn:hover {
-            background-color: #c5e0f7;
-        }
-
+        /* 아이콘 삭제 버튼 */
         .icon-button {
             color: #e74c3c;
             background-color: transparent;
             border: none;
             padding: 0.5rem 0.7rem;
+            font-size: 1.3rem;
             border-radius: 6px;
-            font-size: 1.2rem;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-
         .icon-button:hover {
             background-color: #fceae9;
         }
 
+        /* 전체 주문, 비우기 버튼 */
+        .order-btn {
+            background-color: #0077cc;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .order-btn:hover {
+            background-color: #005fa3;
+        }
+
+        .clear-btn {
+            background-color: #e1f0ff;
+            color: #2c3e50;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .clear-btn:hover {
+            background-color: #c5e0f7;
+        }
+
+        /* 총 합계 */
         .total {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin: 1rem 0;
+            font-size: 1.3rem;
+            font-weight: 700;
             text-align: right;
+            margin-bottom: 1.5rem;
+            color: #1e1e2f;
         }
 
-        nav a {
-            margin-right: 1rem;
-            text-decoration: none;
-            color: #34495e;
-            font-weight: 500;
-        }
+        /*nav a {*/
+        /*    margin-right: 1rem;*/
+        /*    text-decoration: none;*/
+        /*    color: #34495e;*/
+        /*    font-weight: 500;*/
+        /*}*/
 
-        nav a:hover {
-            color: #e67e22;
+        /*nav a:hover {*/
+        /*    color: #e67e22;*/
+        /*}*/
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tbody tr {
+                margin-bottom: 1rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                background-color: #fff;
+                padding: 1rem;
+            }
+
+            tbody td {
+                border: none;
+                padding: 0.5rem 0;
+                text-align: right;
+                position: relative;
+            }
+
+            tbody td::before {
+                position: absolute;
+                left: 0;
+                width: 50%;
+                padding-left: 1rem;
+                font-weight: 600;
+                color: #555;
+                white-space: nowrap;
+                content: attr(data-label);
+                text-align: left;
+            }
+
+            tbody td img {
+                width: 100%;
+                height: auto;
+                object-fit: contain;
+                margin-bottom: 0.5rem;
+            }
+
+            .quantity-input {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -151,41 +232,43 @@
             </thead>
             <tbody>
             <tr th:each="item : ${cartItems}">
-                <td>
-                    <img th:src="${item.imagePath}" alt="상품 이미지"
-                         onerror="this.onerror=null;this.src='/images/default.png';"/>
+                <td data-label="상품 이미지">
+                    <!-- 이미지가 있는 경우 -->
+                    <img th:if="${item.imagePath != null and !item.imagePath.isEmpty()}"
+                         th:src="${item.imagePath}" alt="상품 이미지" />
+
+                    <!-- 없는 경우 기본 이미지 -->
+                    <img th:unless="${item.imagePath != null and !item.imagePath.isEmpty()}"
+                         src="/images/default.png" alt="기본 이미지" />
+
                 </td>
-                <td th:text="${item.itemName}">상품명</td>
-                <td th:text="'₩' + ${#numbers.formatInteger(item.price, 3, 'COMMA')}">0₩</td>
-                <td>
+                <td data-label="상품명" th:text="${item.itemName}">상품명</td>
+                <td data-label="가격" th:text="'₩' + ${#numbers.formatInteger(item.price, 3, 'COMMA')}">0₩</td>
+                <td data-label="수량">
                     <input type="number" min="1" th:value="${item.quantity}" class="quantity-input"
                            th:attr="onchange=|updateQuantity(${item.cartItemId}, this.value)|"/>
                 </td>
-                <td th:text="'₩' + ${#numbers.formatInteger(item.price * item.quantity, 3, 'COMMA')}">0₩</td>
-                <td>
-                    <button class="icon-button" th:attr="onclick=|removeCartItem(${item.cartItemId})|">
+                <td data-label="소계" th:text="'₩' + ${#numbers.formatInteger(item.price * item.quantity, 3, 'COMMA')}">0₩</td>
+                <td data-label="삭제">
+                    <button class="icon-button" th:attr="onclick=|removeCartItem(${item.cartItemId})|"
+                            aria-label="상품 삭제">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </td>
-
             </tr>
             </tbody>
         </table>
 
-        <!-- 총 합계 -->
         <div class="total">
             총 합계:
             <span th:text="'₩' + ${#numbers.formatInteger(totalPrice, 3, 'COMMA')}">0₩</span>
         </div>
 
-        <!-- 주문/비우기 버튼 영역 -->
-        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-            <!-- 전체 주문 -->
-            <form th:action="@{/user/cart/order}" method="get">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: flex-end;">
+            <form th:action="@{/user/cart/order}" method="get" style="margin: 0;">
                 <button type="submit" class="btn order-btn">전체 주문</button>
             </form>
 
-            <!-- 장바구니 비우기 -->
             <button type="button" class="btn clear-btn" onclick="clearCart()">장바구니 비우기</button>
         </div>
     </div>
@@ -195,11 +278,16 @@
     function getCsrfToken() {
         const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
         const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-        return { token, header };
+        return {token, header};
     }
 
     function updateQuantity(cartItemId, quantity) {
-        const { token, header } = getCsrfToken();
+        if (quantity < 1) {
+            alert('수량은 1 이상이어야 합니다.');
+            return;
+        }
+
+        const {token, header} = getCsrfToken();
 
         fetch("/api/cart/update", {
             method: "POST",
@@ -223,7 +311,7 @@
     function removeCartItem(cartItemId) {
         if (!confirm("정말로 삭제하시겠습니까?")) return;
 
-        const { token, header } = getCsrfToken();
+        const {token, header} = getCsrfToken();
 
         fetch("/api/cart/remove", {
             method: "POST",
@@ -246,7 +334,7 @@
     function clearCart() {
         if (!confirm("정말 장바구니를 비우시겠습니까?")) return;
 
-        const { token, header } = getCsrfToken();
+        const {token, header} = getCsrfToken();
 
         fetch("/api/cart/clear", {
             method: "POST",

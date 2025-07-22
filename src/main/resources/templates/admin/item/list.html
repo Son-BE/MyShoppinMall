@@ -103,10 +103,10 @@
             <tr th:each="item : ${items}">
                 <td th:text="${item.itemName}">이름</td>
                 <td>
-                    <img th:if="${item.imagePath != null and item.imagePath != ''}"
-                         th:src="@{${item.imagePath}}"
+                    <img th:if="${item.imageUrl != null and item.imageUrl != ''}"
+                         th:src="${item.imageUrl}"
                          alt="상품 이미지" style="width: 100px;" />
-                    <img th:unless="${item.imagePath != null and item.imagePath != ''}"
+                    <img th:unless="${item.imageUrl != null and item.imageUrl != ''}"
                          src="/images/default.jpg"
                          alt="기본 이미지" style="width: 100px;" />
                 </td>
@@ -119,7 +119,6 @@
                 <td>
                     <a th:href="@{/admin/items/edit/{id}(id=${item.id})}" class="btn btn-primary btn-sm">수정</a>
                     <button class="btn btn-danger btn-sm" th:onclick="'deleteItem(' + ${item.id} + ')'">삭제</button>
-
                 </td>
             </tr>
             </tbody>

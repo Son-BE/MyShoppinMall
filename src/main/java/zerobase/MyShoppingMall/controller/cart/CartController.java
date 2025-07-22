@@ -12,6 +12,7 @@ import zerobase.MyShoppingMall.entity.CartItem;
 import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.service.cart.CartService;
+import zerobase.MyShoppingMall.service.item.S3UploadService;
 import zerobase.MyShoppingMall.type.AddToCartResult;
 
 
@@ -31,17 +32,13 @@ public class CartController {
         List<CartItem> cartItems = cartService.getCartItems(memberId);
 
         return cartItems.stream().map(item -> {
-            String imagePath = null;
-            if (item.getItem().getItemImages() != null && !item.getItem().getItemImages().isEmpty()) {
-                imagePath = item.getItem().getItemImages().get(0).getImagePath();
-            }
+
             return CartItemResponseDto.builder()
                     .cartItemId(item.getId())
                     .itemId(item.getItem().getId())
                     .itemName(item.getItem().getItemName())
                     .quantity(item.getQuantity())
                     .price(item.getItem().getPrice())
-                    .imagePath(imagePath)
                     .build();
         }).collect(Collectors.toList());
     }

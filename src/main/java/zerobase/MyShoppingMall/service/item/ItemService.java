@@ -4,9 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,16 +14,13 @@ import org.springframework.web.multipart.MultipartFile;
 import zerobase.MyShoppingMall.dto.item.ItemRequestDto;
 import zerobase.MyShoppingMall.dto.item.ItemResponseDto;
 import zerobase.MyShoppingMall.entity.Item;
-import zerobase.MyShoppingMall.entity.ItemImage;
 import zerobase.MyShoppingMall.repository.cart.CartItemRepository;
-import zerobase.MyShoppingMall.repository.item.ItemImageRepository;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
 import zerobase.MyShoppingMall.repository.wishList.WishListRepository;
 import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.ItemCategory;
 import zerobase.MyShoppingMall.type.ItemSubCategory;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,8 +32,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemService {
     private final ItemRepository itemRepository;
-    private final ItemImageService itemImageService;
-    private final ItemImageRepository itemImageRepository;
+//    private final ItemImageService itemImageService;
+//    private final ItemImageRepository itemImageRepository;
+    private final S3UploadService s3UploadService;
     private final CartItemRepository cartItemRepository;
     private final WishListRepository wishListRepository;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -88,7 +83,13 @@ public class ItemService {
 
 
     //상품 생성
-    public ItemResponseDto createItem(ItemRequestDto dto, MultipartFile imageFile) {
+//    public ItemResponseDto createItem(ItemRequestDto dto, MultipartFile imageFile) {
+    public ItemResponseDto createItem(ItemRequestDto dto) throws IOException {
+        String imageUrl = null;
+        if (dto.getImageFile() != null && !dto.getImageFile().isEmpty()) {
+            imageUrl = s3UploadService.uploadFile(dto.getImageFile());
+        }
+
         Item item = Item.builder()
                 .itemName(dto.getItemName())
                 .itemComment(dto.getItemComment())
@@ -99,16 +100,17 @@ public class ItemService {
                 .category(dto.getCategory())
                 .subCategory(dto.getSubCategory())
                 .gender(dto.getGender())
+                .imageUrl(imageUrl)
                 .build();
         itemRepository.save(item);
 
-        if (imageFile != null && !imageFile.isEmpty()) {
-            try {
-                itemImageService.saveItemImage(item.getId(), imageFile);
-            } catch (IOException e) {
-                throw new RuntimeException("이미지 저장 중 오류 발생", e);
-            }
-        }
+//        if (imageFile != null && !imageFile.isEmpty()) {
+//            try {
+//                itemImageService.saveItemImage(item.getId(), imageFile);
+//            } catch (IOException e) {
+//                throw new RuntimeException("이미지 저장 중 오류 발생", e);
+//            }
+//        }
 
         ItemResponseDto responseDto = ItemResponseDto.fromEntity(item);
         cacheItem(responseDto); // 생성 후 캐싱
@@ -132,9 +134,14 @@ public class ItemService {
         item.setSubCategory(dto.getSubCategory());
 
         if (imageFile != null && !imageFile.isEmpty()) {
-            itemImageService.deleteItemImage(item.getId());
-            itemImageService.saveItemImage(item.getId(), imageFile);
+            String imageUrl = s3UploadService.uploadFile(imageFile);
+            item.setImageUrl(imageUrl);
         }
+
+//        if (imageFile != null && !imageFile.isEmpty()) {
+//            itemImageService.deleteItemImage(item.getId());
+//            itemImageService.saveItemImage(item.getId(), imageFile);
+//        }
 
         ItemResponseDto updatedDto = ItemResponseDto.fromEntity(item);
         cacheItem(updatedDto); // 수정 후 캐싱 갱신
@@ -147,17 +154,17 @@ public class ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("상품이 존재하지 않습니다. id=" + itemId));
 
-        List<ItemImage> itemImages = itemImageRepository.findAllByItemId(itemId);
-
-        for (ItemImage itemImage : itemImages) {
-            if (itemImage.getItemPath() != null) {
-                File file = new File(itemImage.getItemPath());
-                if (file.exists()) {
-                    file.delete();
-                }
-            }
-            itemImageRepository.delete(itemImage);
-        }
+//        List<ItemImage> itemImages = itemImageRepository.findAllByItemId(itemId);
+//
+//        for (ItemImage itemImage : itemImages) {
+//            if (itemImage.getItemPath() != null) {
+//                File file = new File(itemImage.getItemPath());
+//                if (file.exists()) {
+//                    file.delete();
+//                }
+//            }
+//            itemImageRepository.delete(itemImage);
+//        }
 
         cartItemRepository.deleteById(itemId);
         wishListRepository.deleteById(itemId);

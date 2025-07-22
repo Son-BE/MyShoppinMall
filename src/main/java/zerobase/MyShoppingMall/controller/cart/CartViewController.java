@@ -32,9 +32,10 @@ public class CartViewController {
 
         List<CartItemResponseDto> response = cartItems.stream().map(item -> {
             String imagePath = null;
-            if (item.getItem().getItemImages() != null && !item.getItem().getItemImages().isEmpty()) {
-                imagePath = item.getItem().getItemImages().get(0).getImagePath();
+            if (item.getItem().getImageUrl() != null && !item.getItem().getImageUrl().isEmpty()) {
+                imagePath = item.getItem().getImageUrl();  // S3 URL 사용
             }
+
             return CartItemResponseDto.builder()
                     .cartItemId(item.getId())
                     .itemId(item.getItem().getId())
@@ -62,9 +63,13 @@ public class CartViewController {
 
         List<CartItemResponseDto> response = cartItems.stream().map(item -> {
             String imagePath = null;
-            if (item.getItem().getItemImages() != null && !item.getItem().getItemImages().isEmpty()) {
-                imagePath = item.getItem().getItemImages().get(0).getImagePath();
+
+            if (item.getItem().getImageUrl() != null && !item.getItem().getImageUrl().isEmpty()) {
+                imagePath = item.getItem().getImageUrl();  // S3 URL 사용
             }
+//            if (item.getItem().getItemImages() != null && !item.getItem().getItemImages().isEmpty()) {
+//                imagePath = item.getItem().getItemImages().get(0).getImagePath();
+//            }
 
             return CartItemResponseDto.builder()
                     .cartItemId(item.getId())

@@ -2,21 +2,16 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
-
-
     <title>병의's 쇼핑몰</title>
 
-    <!-- Font Awesome 6 -->
+    <!-- Font Awesome -->
     <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-          integrity="sha512-dx1+2FovCWPKixmYk3xE6WKw54bo1tDUX6sZtyDPiH65JL2+lImN0YGK5wCw8uYmL5Y8ZDU3iGn8+yS+jc5URw=="
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
-
         html, body {
             height: 100%;
             margin: 0;
@@ -34,7 +29,7 @@
 
         .container {
             flex: 1;
-            padding: 0rem;
+            padding: 1rem;
         }
 
         header, nav, footer {
@@ -54,14 +49,7 @@
             color: #e67e22;
         }
 
-        /*.user-info {*/
-        /*    color: white;*/
-        /*    float: right;*/
-        /*    font-size: 0.9rem;*/
-        /*    color: white;*/
-        /*}*/
-
-        form {
+        form.filter-form {
             display: flex;
             gap: 1rem;
             align-items: center;
@@ -72,7 +60,7 @@
             flex-wrap: wrap;
         }
 
-        form label {
+        form.filter-form label {
             font-weight: 500;
         }
 
@@ -97,14 +85,15 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 2rem 2rem;
+            gap: 2rem;
+            margin-top: 2rem;
         }
 
         .product-card {
             width: 320px;
             background-color: #fff;
             border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             text-align: center;
@@ -113,7 +102,7 @@
 
         .product-card:hover {
             transform: translateY(-6px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         .product-card img {
@@ -143,12 +132,6 @@
             border-top: 1px solid #ddd;
         }
 
-        @media (max-width: 768px) {
-            form {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
         .pagination {
             text-align: center;
             margin: 30px 0;
@@ -171,37 +154,37 @@
             transition: background 0.3s, color 0.3s;
         }
 
-
         .pagination a.active,
         .pagination a:hover {
             background-color: #1e1e2f;
             color: white !important;
             font-weight: bold;
         }
+
+        @media (max-width: 768px) {
+            form.filter-form {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
     </style>
-
-
-
 </head>
 <body>
 <div class="wrapper">
     <div class="container">
         <div th:insert="~{fragment/header :: header}"></div>
 
-
         <div th:if="${param.expired}" class="alert alert-warning text-center" role="alert">
             토큰이 만료되었습니다. 다시 로그인해주세요.
         </div>
 
-        <form method="get" action="/items">
+        <form method="get" action="/items" class="filter-form">
             <div>
                 <label>
-                    <input type="radio" name="gender" value="MALE"
-                           th:checked="${selectedGender == 'MALE'}"> 남성
+                    <input type="radio" name="gender" value="MALE" th:checked="${selectedGender == 'MALE'}"> 남성
                 </label>
                 <label>
-                    <input type="radio" name="gender" value="FEMALE"
-                           th:checked="${selectedGender == 'FEMALE'}"> 여성
+                    <input type="radio" name="gender" value="FEMALE" th:checked="${selectedGender == 'FEMALE'}"> 여성
                 </label>
             </div>
             <div>
@@ -213,6 +196,7 @@
                     <option value="most reviews" th:selected="${selectedSort == 'most reviews'}">리뷰 많은순</option>
                     <option value="popular" th:selected="${selectedSort == 'popular'}">인기순</option>
                 </select>
+
                 <select name="category">
                     <optgroup label="상의">
                         <option value="hoodie" th:selected="${selectedCategory == 'hoodie'}">후드티</option>
@@ -240,7 +224,6 @@
                         <option value="necklace" th:selected="${selectedCategory == 'necklace'}">목걸이</option>
                     </optgroup>
                 </select>
-
             </div>
             <button type="submit">적용</button>
         </form>
@@ -249,39 +232,38 @@
             <div th:if="${#lists.isEmpty(items)}">상품이 없습니다.</div>
             <div th:each="item : ${items}" class="product-card">
                 <a th:href="@{/items/detail/{id}(id=${item.id})}">
-                    <img th:src="${item.imagePath}" onerror="this.src='/images/default.png'" th:alt="${item.itemName}">
+                    <img th:src="${item.imagePath}" loading="lazy" onerror="this.src='/images/default.png'" th:alt="${item.itemName}">
                     <h3 th:text="${item.itemName}"></h3>
                     <p th:text="${#numbers.formatInteger(item.price, 3, 'COMMA')} + '원'"></p>
                 </a>
             </div>
         </div>
-        <div class="pagination" style="text-align: center; margin: 20px 0;">
-           <div th:if="${totalPages != null}">
-               <ul style="list-style:none; padding:0; display:inline-flex; gap:10px;">
 
-                   <li th:if="${currentPage > 0}">
-                       <a th:href="@{/items(gender=${selectedGender}, sort=${selectedSort}, page=${currentPage - 1})}">« 이전</a>
-                   </li>
-                   <li th:unless="${currentPage > 0}" style="color: #ccc;">« 이전</li>
+        <div class="pagination" th:if="${totalPages != null}">
+            <ul>
+                <li th:if="${currentPage > 0}">
+                    <a th:href="@{/items(gender=${selectedGender}, sort=${selectedSort}, page=${currentPage - 1})}">« 이전</a>
+                </li>
+                <li th:unless="${currentPage > 0}" style="color: #ccc;">« 이전</li>
 
-                   <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                       <a th:href="@{/items(gender=${selectedGender}, sort=${selectedSort}, page=${i})}"
-                          th:text="${i + 1}"
-                          th:classappend="${i == currentPage} ? 'active' : ''"
-                          style="padding: 5px 10px; text-decoration:none; border:1px solid #ddd; border-radius:4px;"></a>
-                   </li>
+                <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a th:href="@{/items(gender=${selectedGender}, sort=${selectedSort}, page=${i})}"
+                       th:text="${i + 1}"
+                       th:classappend="${i == currentPage} ? 'active' : ''"></a>
+                </li>
 
-                   <li th:if="${currentPage < totalPages - 1}">
-                       <a th:href="@{/items(gender=${selectedGender}, sort=${selectedSort}, page=${currentPage + 1})}">다음 »</a>
-                   </li>
-                   <li th:unless="${currentPage < totalPages - 1}" style="color: #ccc;">다음 »</li>
-               </ul>
-
-           </div>
+                <li th:if="${currentPage < totalPages - 1}">
+                    <a th:href="@{/items(gender=${selectedGender}, sort=${selectedSort}, page=${currentPage + 1})}">다음 »</a>
+                </li>
+                <li th:unless="${currentPage < totalPages - 1}" style="color: #ccc;">다음 »</li>
+            </ul>
         </div>
     </div>
+
+
     <div th:insert="~{fragment/footer :: footer}"></div>
 </div>
+
 <script>
     window.addEventListener('DOMContentLoaded', () => {
         const alertBox = document.querySelector('.alert');
@@ -291,6 +273,7 @@
             }, 3000);
         }
     });
+
     setInterval(() => {
         fetch('/ping', { credentials: 'include' })
             .then(response => {

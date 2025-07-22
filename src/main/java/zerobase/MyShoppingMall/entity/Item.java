@@ -29,6 +29,7 @@ public class Item {
     private int quantity;
     private int itemRating;
     private String review;
+    private String imageUrl;
     private char deleteType;
 
     @CreationTimestamp
@@ -55,7 +56,7 @@ public class Item {
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     private List<WishList> wishLists;
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
-    private List<ItemImage> itemImages;
+//    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+//    private List<ItemImage> itemImages;
 
 }

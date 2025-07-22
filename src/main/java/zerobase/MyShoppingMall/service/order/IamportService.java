@@ -1,4 +1,4 @@
-package zerobase.MyShoppingMall.service;
+package zerobase.MyShoppingMall.service.order;
 
 
 import com.fasterxml.jackson.databind.JsonNode;

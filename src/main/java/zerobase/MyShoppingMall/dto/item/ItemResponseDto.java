@@ -47,10 +47,10 @@ public class ItemResponseDto {
     }
 
     public static ItemResponseDto fromEntity(Item item) {
-        String imagePath = null;
-        if (item.getItemImages() != null && !item.getItemImages().isEmpty()) {
-            imagePath = "/images/" + item.getItemImages().get(0).getItemPath();
-        }
+//        String imagePath = null;
+//        if (item.getItemImages() != null && !item.getItemImages().isEmpty()) {
+//            imagePath = "/images/" + item.getItemImages().get(0).getItemPath();
+//        }
 
         ItemResponseDto dto = ItemResponseDto.builder()
                 .id(item.getId())
@@ -64,12 +64,18 @@ public class ItemResponseDto {
                 .category(item.getCategory())
                 .subCategory(item.getSubCategory())
                 .gender(item.getGender())
-                .imagePath(imagePath)
+                .imagePath(item.getImageUrl())
+//                .imagePath(imagePath)
                 .build();
 
         return dto;
     }
+
+    public String getImageUrl() {
+        return imagePath;
+    }
+
     public String getFormattedPrice() {
-        return String.format("₩%,d", this.price);
+        return String.format("%,d", price);
     }
 }

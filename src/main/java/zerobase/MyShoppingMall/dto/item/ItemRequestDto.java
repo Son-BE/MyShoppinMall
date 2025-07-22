@@ -1,6 +1,7 @@
 package zerobase.MyShoppingMall.dto.item;
 
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 import zerobase.MyShoppingMall.type.Gender;
 import zerobase.MyShoppingMall.type.ItemCategory;
 import zerobase.MyShoppingMall.type.ItemSubCategory;
@@ -19,6 +20,7 @@ public class ItemRequestDto {
     private ItemCategory category;
     private ItemSubCategory subCategory;
     private Gender gender;
+    private MultipartFile imageFile;
 
 
 }

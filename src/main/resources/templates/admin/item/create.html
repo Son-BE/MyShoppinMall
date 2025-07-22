@@ -88,13 +88,14 @@
 <div class="container mt-5">
     <h2>상품 등록</h2>
     <form th:action="@{/admin/items/create}" th:object="${item}" method="post" enctype="multipart/form-data">
-        <div class="mb-3">
+    <div class="mb-3">
             <label for="name" class="form-label">상품 이름</label>
             <input type="text" class="form-control" id="name" th:field="*{itemName}" required/>
         </div>
         <div class="mb-3">
             <label for="itemImage" class="form-label">상품 이미지</label>
-            <input type="file" class="form-control" id="itemImage" name="imageFile" required/>
+            <input type="file" class="form-control" id="itemImage" name="imageFile" />
+
         </div>
         <div class="mb-3">
             <label for="description" class="form-label">상품 설명</label>
@@ -117,12 +118,12 @@
             </select>
         </div>
         <label for="category">카테고리</label>
-        <select id="category" name="category" onchange="updateSubCategories()" class="form-select">
+        <select id="category" th:field="*{category}" onchange="updateSubCategories()" class="form-select">
             <option value="">카테고리 선택</option>
             <option th:each="cat : ${categories}" th:value="${cat.name()}" th:text="${cat.getDisplayName()}"></option>
         </select>
-        <label for="subCategory">하위 카테고리</label>
-        <select id="subCategory" name="subCategory" class="form-select">
+
+        <select id="subCategory" th:field="*{subCategory}" class="form-select">
             <option value="">하위 카테고리 선택</option>
         </select>
         <button type="submit" class="btn btn-warm">등록</button>
@@ -138,7 +139,7 @@
 
         subCategorySelect.innerHTML = '<option value="">하위 카테고리 선택</option>';
 
-        if (subCategoryData[category]) {
+        if(subCategoryData && subCategoryData[category]) {
             subCategoryData[category].forEach(subCat => {
                 let option = document.createElement('option');
                 option.value = subCat;

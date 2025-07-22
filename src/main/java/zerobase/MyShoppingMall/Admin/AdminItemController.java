@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import zerobase.MyShoppingMall.dto.item.ItemRequestDto;
 import zerobase.MyShoppingMall.dto.item.ItemResponseDto;
+import zerobase.MyShoppingMall.entity.Item;
 import zerobase.MyShoppingMall.service.item.ItemService;
 import zerobase.MyShoppingMall.type.ItemCategory;
 import zerobase.MyShoppingMall.type.ItemSubCategory;
@@ -31,13 +32,19 @@ public class AdminItemController {
 
     private final ItemService itemService;
 
-    // 상품 등록
+    //    // 상품 등록
+//    @PostMapping("/create")
+//    public String createItem(@ModelAttribute ItemRequestDto itemRequestDto,
+//                             @RequestParam("imageFile") MultipartFile imageFile) {
+//        itemService.createItem(itemRequestDto,imageFile);
+//        return "redirect:/admin/items";
+//    }
     @PostMapping("/create")
-    public String createItem(@ModelAttribute ItemRequestDto itemRequestDto,
-                             @RequestParam("imageFile") MultipartFile imageFile) {
-        itemService.createItem(itemRequestDto,imageFile);
-        return "redirect:/admin/items";
+    public String createItem(@ModelAttribute ItemRequestDto requestDto) throws IOException {
+        itemService.createItem(requestDto);
+        return "redirect:/dashboard"; // 등록 후 목록 페이지 이동
     }
+
 
     // 상품 삭제
     @DeleteMapping("/{itemId}")

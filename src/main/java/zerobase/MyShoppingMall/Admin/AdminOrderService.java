@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import zerobase.MyShoppingMall.entity.Order;
 import zerobase.MyShoppingMall.dto.order.OrderResponseDto;
 import zerobase.MyShoppingMall.repository.order.OrderRepository;
-import zerobase.MyShoppingMall.service.IamportService;
+import zerobase.MyShoppingMall.service.order.IamportService;
 import zerobase.MyShoppingMall.service.order.OrderStatsDto;
 import zerobase.MyShoppingMall.type.OrderStatus;
 

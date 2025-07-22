@@ -1,26 +1,10 @@
 package zerobase.MyShoppingMall.utils;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-import zerobase.MyShoppingMall.entity.Item;
-import zerobase.MyShoppingMall.entity.ItemImage;
-import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
 import zerobase.MyShoppingMall.repository.member.MemberRepository;
-import zerobase.MyShoppingMall.type.Gender;
-import zerobase.MyShoppingMall.type.ItemCategory;
-import zerobase.MyShoppingMall.type.ItemSubCategory;
-import zerobase.MyShoppingMall.type.Role;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
-import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor

@@ -84,8 +84,12 @@ public class CartService {
     }
 
     // 장바구니 비우기
+    @Transactional
     public void clearCart(Long memberId) {
         Cart cart = getOrCreateCart(memberId);
+        for(CartItem item : cart.getCartItems()) {
+            item.setCart(null);
+        }
         cartItemRepository.deleteAll(cart.getCartItems());
         cart.getCartItems().clear();
 

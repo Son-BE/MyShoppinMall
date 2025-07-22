@@ -34,10 +34,7 @@ public class WishListService {
                         .memberId(wl.getMember().getId())
                         .itemId(wl.getItem().getId())
                         .itemName(wl.getItem().getItemName())
-                        .itemImagePath(
-                                wl.getItem().getItemImages().isEmpty()
-                                        ? null
-                                        : wl.getItem().getItemImages().get(0).getItemPath())
+                        .itemImagePath(wl.getItem().getImageUrl())
                         .itemPrice(wl.getItem().getPrice())
                         .build())
                 .collect(Collectors.toList());

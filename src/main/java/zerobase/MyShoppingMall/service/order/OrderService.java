@@ -11,10 +11,8 @@ import zerobase.MyShoppingMall.repository.address.AddressRepository;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
 import zerobase.MyShoppingMall.repository.member.MemberRepository;
 import zerobase.MyShoppingMall.repository.order.OrderRepository;
-import zerobase.MyShoppingMall.service.IamportService;
 import zerobase.MyShoppingMall.service.cart.CartService;
 import zerobase.MyShoppingMall.type.OrderStatus;
-import zerobase.MyShoppingMall.type.PaymentMethod;
 
 import java.util.List;
 import java.util.stream.Collectors;
