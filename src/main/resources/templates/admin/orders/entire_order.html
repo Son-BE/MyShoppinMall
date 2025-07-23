@@ -4,37 +4,79 @@
     <meta charset="UTF-8" />
     <title>전체 주문 목록</title>
     <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            margin-top: 30px;
+            color: #222;
+        }
         table {
-            width: 100%;
+            width: 90%;
+            margin: 30px auto;
             border-collapse: collapse;
-            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
             text-align: center;
+            font-size: 1rem;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #f7f7f7;
+            color: #333;
+            font-weight: 600;
+        }
+        td {
+            color: #555;
         }
         .pagination {
-            margin-top: 20px;
             text-align: center;
+            margin: 30px 0;
         }
         .pagination a, .pagination span {
-            margin: 0 5px;
-            padding: 6px 12px;
+            margin: 0 6px;
+            padding: 8px 14px;
             text-decoration: none;
             border: 1px solid #ddd;
             color: #333;
+            font-size: 1rem;
+            border-radius: 4px;
         }
         .pagination .current {
-            font-weight: bold;
-            background-color: #ddd;
+            background-color: #222;
+            color: white;
+            font-weight: 700;
+        }
+        .pagination a:hover {
+            background-color: #f2f2f2;
+        }
+        .pagination a:focus {
+            outline: none;
+            border-color: #222;
+        }
+        .btn-detail {
+            color: #222;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .btn-detail:hover {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
+
 <h1>전체 주문 목록</h1>
 
 <table>
@@ -56,11 +98,11 @@
         <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
         <td th:text="${order.totalPrice}">100,000원</td>
         <td>
-            <a th:href="@{'/admin/orders/' + ${order.orderId}}">상세보기</a>
+            <a th:href="@{'/admin/orders/' + ${order.orderId}}" class="btn-detail">상세보기</a>
         </td>
     </tr>
     <tr th:if="${orders.size() == 0}">
-        <td colspan="6">주문 내역이 없습니다.</td>
+        <td colspan="6" style="text-align: center; font-size: 1.1rem; color: #888;">주문 내역이 없습니다.</td>
     </tr>
     </tbody>
 </table>

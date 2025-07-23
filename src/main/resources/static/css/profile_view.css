@@ -1,0 +1,84 @@
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #fff;
+    color: #111;
+    margin: 0;
+
+}
+
+h1 {
+    font-weight: 700;
+    font-size: 1.7rem;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    color: #111;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 1rem;
+    color: #222;
+}
+
+a {
+    display: inline-block;
+    margin-top: 20px;
+    font-weight: 600;
+    color: #111;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s;
+}
+a:hover {
+    border-bottom: 2px solid #111;
+}
+
+.button-group {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.edit-btn {
+    flex: 1;
+    background-color: #111;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 12px 0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.edit-btn:hover {
+    background-color: #333;
+}
+
+form {
+    margin: 0;
+}
+
+/* 배송지 섹션 */
+.address-section {
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.address-info {
+    margin-bottom: 12px;
+    font-size: 1rem;
+    color: #222;
+}
+
+.no-address {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 12px;
+}

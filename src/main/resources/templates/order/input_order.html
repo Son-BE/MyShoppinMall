@@ -6,577 +6,457 @@
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" href="/css/input_order.css">
+    <link rel="stylesheet" href="/css/header.css">
+
     <title>주문정보 입력</title>
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f5f7fa;
-            color: #2c3e50;
-        }
 
-        .wrapper {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
 
-        .container {
-            flex: 1;
-            padding: 0rem;
-        }
-
-        header, nav, footer {
-            padding: 1rem 2rem;
-            background-color: #f8f8f8;
-            border-bottom: 1px solid #ddd;
-        }
-
-        nav a {
-            margin-right: 1rem;
-            text-decoration: none;
-            color: #34495e;
-            font-weight: 500;
-        }
-
-        nav a:hover {
-            color: #e67e22;
-        }
-
-        form {
-            max-width: 600px;
-            margin: auto;
-            background: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        label {
-            display: block;
-            margin-top: 1rem;
-            font-weight: bold;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 0.5rem;
-            margin-top: 0.4rem;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        .btn {
-            margin-top: 1.5rem;
-            background: #0077cc;
-            color: white;
-            border: none;
-            padding: 1rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            display: block;
-            margin: auto;
-            text-align: center;
-        }
-
-        .btn:hover {
-            background: #005fa3;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        th, td {
-            border-bottom: 1px solid #d7ccc8;
-            padding: 0.8rem;
-            text-align: center;
-        }
-
-        th {
-            background-color: #e1f0ff;
-            color: #2c3e50;
-        }
-
-        td img {
-            width: 150px;
-            height: 190px;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .total {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin: 1rem 0;
-            text-align: right;
-        }
-
-        .cancel-btn {
-            margin-top: 1rem;
-            text-align: center;
-        }
-
-        .cancel-btn a {
-            display: inline-block;
-            background: #ccc;
-            color: #333;
-            padding: 0.8rem 1rem;
-            border-radius: 6px;
-            text-decoration: none;
-        }
-
-        .cancel-btn a:hover {
-            background: #bbb;
-        }
-
-        .payment-methods {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-
-        .payment-methods label {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 1rem;
-            white-space: nowrap;
-        }
-
-        /* 포인트 잔액 표시 영역 스타일 */
-        #point-balance {
-            margin-top: 0.5rem;
-            font-weight: bold;
-            color: #27ae60;
-        }
-    </style>
 </head>
 <body>
-<div class="wrapper">
-    <div class="container">
-        <div th:insert="~{fragment/header :: header}"></div>
-        <h2 style="text-align: center;">주문 및 결제 정보</h2>
-
-        <form method="post" th:action="@{/api/orders/create}" onsubmit="return validateForm()">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-            <label for="recipientName">수령인 이름</label>
-            <input type="text" id="recipientName" name="recipientName" required/>
-
-            <label for="recipientPhone">연락처</label>
-            <input type="text" id="recipientPhone" name="recipientPhone" required placeholder="010-1234-5678"/>
-
-            <label for="postcode">우편번호</label>
-            <div style="display: flex; gap: 8px; margin-bottom: 0.5rem;">
-                <input type="text" id="postcode" name="postcode" readonly placeholder="우편번호" style="flex: 1;" />
-                <button type="button" class="btn" style="padding: 0.5rem 1rem;" onclick="execDaumPostcode()">우편번호 찾기</button>
-                <button type="button" class="btn" style="padding: 0.5rem 1rem; background-color:#27ae60;" id="loadDefaultAddressBtn">기본 주소 불러오기</button>
+<header>
+    <div class="top-bar">
+        <h2 th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">
+            <i class="fa-solid fa-store" aria-hidden="true"></i>
+            병의's 쇼핑몰
+        </h2>
+        <div class="user-info">
+            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/members/profile}" aria-label="프로필 페이지 이동">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    <span th:text="${#authentication.name} + '님'"></span>
+                </a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="logout-button" aria-label="로그아웃">
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
+                    </button>
+                </form>
             </div>
-
-            <label for="addressLine1">주소</label>
-            <input type="text" id="addressLine1" name="addressLine1" placeholder="기본 주소" required/>
-
-            <label for="addressLine2">상세 주소</label>
-            <input type="text" id="addressLine2" name="addressLine2" placeholder="상세 주소 입력"/>
-
-            <label for="deliveryRequest">배송 요청사항</label>
-            <input type="text" id="deliveryRequest" name="deliveryRequest" placeholder="예: 문 앞에 놓아주세요."/>
-
-            <label>결제 수단</label>
-            <div class="payment-methods">
-                <label><input type="radio" name="paymentMethod" value="CARD" required/> 카드</label><br/>
-                <label><input type="radio" name="paymentMethod" value="BANK_TRANSFER"/> 계좌이체</label><br/>
-                <label><input type="radio" name="paymentMethod" value="MOBILE"/> 모바일</label><br/>
-                <label><input type="radio" name="paymentMethod" value="POINT"/> 포인트</label>
+            <div th:if="${!#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/login}" title="로그인" aria-label="로그인 페이지 이동">
+                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                </a>
             </div>
-
-
-            <div id="pointBalanceArea" style="margin-top: 8px;">
-                <span id="pointValue">(보유 포인트: )</span>
-            </div>
-
-            <div id="usePointSection" style="display: none; margin-top: 10px;">
-                <label for="usePoint">사용할 포인트</label>
-                <input type="number" id="usePoint" name="usePoint" min="0" max="0" placeholder="사용할 포인트를 입력하세요" />
-            </div>
-
-
-            <input type="hidden" name="memberId" th:value="${memberId}"/>
-            <input type="hidden" id="totalPriceInput" th:value="${totalPrice}"/>
-            <input type="hidden" name="addressId" th:value="${addressId}"/>
-            <input type="hidden" name="merchantUid"/>
-
-            <div th:each="item, iterStat : ${cartItems}">
-                <input type="hidden" th:name="'orderDetails[' + ${iterStat.index} + '].itemId'"
-                       th:value="${item.itemId}"/>
-                <input type="hidden" th:name="'orderDetails[' + ${iterStat.index} + '].quantity'"
-                       th:value="${item.quantity}"/>
-                <input type="hidden" th:name="'orderDetails[' + ${iterStat.index} + '].price'"
-                       th:value="${item.price}"/>
-            </div>
-
-            <table>
-                <thead>
-                <tr>
-                    <th></th>
-                    <th>상품명</th>
-                    <th>가격</th>
-                    <th>수량</th>
-                    <th>합계</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item : ${cartItems}">
-                    <td><img th:src="${item.imagePath != null} ? ${item.imagePath} : '/images/default-item.png'"
-                             alt="상품 이미지"/></td>
-                    <td class="item-name" th:text="${item.itemName}">상품명</td>
-                    <td th:text="'₩' + ${#numbers.formatInteger(item.price, 3, 'COMMA')}">0₩</td>
-                    <td th:text="${item.quantity}">1</td>
-                    <td th:text="'₩' + ${#numbers.formatInteger(item.price * item.quantity, 3, 'COMMA')}">0₩</td>
-                </tr>
-                </tbody>
-            </table>
-
-<!--            <div class="total">-->
-<!--                총 합계: <span th:text="'₩' + ${#numbers.formatInteger(totalPrice, 3, 'COMMA')}">0₩</span><br/>-->
-<!--                <small style="color: #777;">※ 배송비는 포함되어 있지 않습니다.</small>-->
-<!--            </div>-->
-
-            <div class="total">
-                총 합계: <span id="finalAmountText" th:text="'₩' + ${#numbers.formatInteger(totalPrice, 3, 'COMMA')}">0₩</span><br/>
-                <small style="color: #777;">※ 배송비는 포함되어 있지 않습니다.</small>
-            </div>
-
-
-            <button type="button" class="btn" id="payment-button">결제하기</button>
-
-
-            <div class="cancel-btn">
-                <a th:href="@{/cart}">장바구니로 돌아가기</a>
-            </div>
-        </form>
-
-        <!-- Footer 포함 -->
-        <div th:insert="~{fragment/footer :: footer}"></div>
-
-        <!-- 다음 주소 API -->
-        <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-        <script>
-            function execDaumPostcode() {
-                new daum.Postcode({
-                    oncomplete: function (data) {
-                        document.getElementById('postcode').value = data.zonecode;
-                        document.getElementById('addressLine1').value = data.address;
-                        document.getElementById('addressLine2').focus();
-                    }
-                }).open();
-            }
-
-            function validateForm() {
-                const name = document.getElementById('recipientName').value.trim();
-                const phone = document.getElementById('recipientPhone').value.trim();
-                const postcode = document.getElementById('postcode').value.trim();
-                const address = document.getElementById('addressLine1').value.trim();
-                const detail = document.getElementById('addressLine2').value.trim();
-                const payment = document.querySelector('input[name="paymentMethod"]:checked');
-
-                if (!name || !phone || !postcode || !address || !detail || !payment) {
-                    alert("모든 필수 정보를 입력해 주세요.");
-                    return false;
-                }
-
-                return true;
-            }
-
-            document.getElementById('loadDefaultAddressBtn').addEventListener('click', async function () {
-                try {
-                    const response = await fetch('/api/address/default', {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json'
-                        },
-                        credentials: 'same-origin'
-                    });
-
-                    if (response.status === 204) {
-                        alert('기본 주소가 등록되어 있지 않습니다.');
-                        return;
-                    }
-
-                    if (!response.ok) {
-                        alert('기본 주소를 불러오는데 실패했습니다.');
-                        return;
-                    }
-
-                    const data = await response.json();
-
-                    document.getElementById('postcode').value = data.postalCode || '';
-                    document.getElementById('addressLine1').value = data.addressLine1 || '';
-                    document.getElementById('addressLine2').value = data.addressLine2 || '';
-                } catch (e) {
-                    console.error('기본 주소 불러오기 에러:', e);
-                    alert('기본 주소 불러오기 중 오류가 발생했습니다.');
-                }
-            });
-        </script>
-
-        <!-- 포인트 결제 -->
-        <script>
-            document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
-                radio.addEventListener('change', function () {
-                    const usePointInput = document.getElementById("usePoint");
-                    const usePointSection = document.getElementById("usePointSection");
-
-
-                        usePointSection.style.display = "block";
-
-                        const totalAmount = parseInt(document.getElementById('totalPriceInput').value, 10);
-                        usePointInput.max = totalAmount;
-
-                        fetch("/api/members/point")
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error("서버 오류");
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                const point = parseInt(data, 10);
-                                usePointInput.max = Math.min(totalAmount, point);
-                                document.getElementById("pointValue").textContent = `(보유 포인트: ${data.toLocaleString()} P)`;
-                            })
-                            .catch(error => {
-                                console.error("포인트 조회 실패:", error);
-                                document.getElementById("pointValue").textContent = "(포인트 조회 실패)";
-                            });
-
-                });
-            });
-
-            document.getElementById("usePoint").addEventListener("input", function() {
-                const maxPoint = parseInt(this.max, 10);
-                const val = parseInt(this.value, 10);
-
-                if (val > maxPoint) {
-                    alert(`사용할 포인트는 최대 ${maxPoint}까지 입력 가능합니다.`);
-                    this.value = maxPoint;
-                } else if (val < 0 || isNaN(val)) {
-                    this.value = 0;
-                }
-            });
-        </script>
-
-        <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
-        <script>
-            document.getElementById("payment-button").addEventListener("click", async function () {
-                if (!validateForm()) return;
-
-                const getInput = id => document.getElementById(id).value;
-                const name = getInput('recipientName');
-                const phone = getInput('recipientPhone');
-                const postcode = getInput('postcode');
-                const address1 = getInput('addressLine1');
-                const address2 = getInput('addressLine2');
-                const deliveryRequest = getInput('deliveryRequest');
-                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
-                const totalAmount = parseInt(getInput('totalPriceInput'), 10);
-                const usePoint = usePointInput ? Number(usePointInput.value || 0) : 0;
-
-                const orderDetails = [];
-
-                const itemIdInputs = document.querySelectorAll('input[name^="orderDetails"][name$=".itemId"]');
-                const quantityInputs = document.querySelectorAll('input[name^="orderDetails"][name$=".quantity"]');
-                const priceInputs = document.querySelectorAll('input[name^="orderDetails"][name$=".price"]');
-
-                for (let i = 0; i < itemIdInputs.length; i++) {
-                    orderDetails.push({
-                        itemId: parseInt(itemIdInputs[i].value, 10),
-                        quantity: parseInt(quantityInputs[i].value, 10),
-                        price: parseInt(priceInputs[i].value, 10)
-                    });
-                }
-
-                if (!paymentMethod) {
-                    alert("결제 수단을 선택해주세요.");
-                    return;
-                }
-
-                if (paymentMethod === "POINT" && (usePoint <= 0 || isNaN(usePoint))) {
-                    alert("사용할 포인트를 올바르게 입력해주세요.");
-                    return;
-                }
-
-                const payload = {
-                    recipientName: name,
-                    recipientPhone: phone,
-                    postcode: postcode,
-                    addressLine1: address1,
-                    addressLine2: address2,
-                    deliveryRequest: deliveryRequest,
-                    paymentMethod: paymentMethod,
-                    totalPrice: totalAmount,
-                    memberId: document.querySelector("input[name='memberId']").value,
-                    addressId: document.querySelector("input[name='addressId']").value,
-                    orderDetails: orderDetails,
-                    usePoint: usePoint
-                };
-
-                try {
-                    // 1. 주문 생성 API 호출
-
-                    const orderRes = await fetch("/api/orders/create", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!orderRes.ok) throw new Error("주문 생성 실패");
-                    const data = await orderRes.json();
-                    const { merchantUid, orderId } = data;
-
-                    // 2. 포인트 결제 분기
-                    if (paymentMethod === "POINT") {
-                        alert("포인트 결제가 완료되었습니다!");
-                        window.location.href = `/orders/complete-view?orderId=${orderId}`;
-                        return; // PG 결제 호출 없이 종료
-                    } else if(paymentMethod === "CARD_DISCOUNT_BY_POINT") {
-                        alert("포인트 결제가 완료되었습니다!");
-                        window.location.href = `/orders/complete-view?orderId=${orderId}`;
-                        return;
-                    }
-
-                    // 3. PG 결제 진행 (포인트 결제가 아닐 경우)
-                    const IMP = window.IMP;
-                    IMP.init("imp11448625");
-
-                    const itemNames = document.querySelectorAll(".item-name");
-                    const firstItemName = itemNames.length > 0 ? itemNames[0].textContent.trim() : "상품";
-                    const goodsName = itemNames.length <= 1 ? firstItemName : `${firstItemName} 외 ${itemNames.length - 1}건`;
-                    const finalAmount = Math.max(totalAmount - usePoint, 0);
-
-
-                    console.log("총 상품 가격 totalAmount:", totalAmount);
-                    console.log("사용 포인트 usePoint:", usePoint);
-                    console.log("최종 결제금액 finalAmount:", finalAmount);
-
-                    console.log("결제 수단 paymentMethod:", paymentMethod);
-                    console.log("usePointInput element:", usePointInput);
-                    console.log("사용 포인트 usePoint:", usePoint);
-
-                    console.log("IMP.request_pay amount:", finalAmount);
-                    IMP.request_pay({
-                        pg: "html5_inicis",
-                        pay_method: paymentMethod.toLowerCase(),
-                        merchant_uid: merchantUid,
-                        name: goodsName,
-                        amount: finalAmount,
-                        buyer_name: name,
-                        buyer_phone: phone,
-                        buyer_addr: `${address1} ${address2}`,
-                        buyer_postcode: postcode
-                    }, async function (rsp) {
-                        if (rsp.success) {
-                            try {
-                                const verifyRes = await fetch("/payment/verify", {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                        "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
-                                    },
-                                    body: JSON.stringify({
-                                        impUid: rsp.imp_uid,
-                                        merchantUid: merchantUid,
-                                        amount: finalAmount
-                                    })
-                                });
-
-                                if (!verifyRes.ok) throw new Error("결제 검증 실패");
-
-                                const completeRes = await fetch("/api/orders/complete", {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                        "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
-                                    },
-                                    body: JSON.stringify({
-                                        orderId: orderId,
-                                        impUid: rsp.imp_uid
-                                    })
-                                });
-
-                                if (completeRes.ok) {
-                                    alert("결제가 완료되었습니다!");
-                                    window.location.href = `/orders/complete-view?orderId=${orderId}`;
-                                } else {
-                                    alert("결제는 되었지만 주문 완료 처리에 실패했습니다.");
-                                }
-                            } catch (err) {
-                                console.error("결제 처리 오류:", err);
-                                alert("결제 처리 중 오류가 발생했습니다.");
-                            }
-                        } else {
-                            alert("결제가 취소되었습니다: " + rsp.error_msg);
-                        }
-                    });
-
-                } catch (error) {
-                    console.error("전체 주문 처리 실패:", error);
-                    alert("주문 처리 중 오류가 발생했습니다.");
-                }
-            });
-        </script>
-
-        <script>
-            const totalPrice = parseInt(document.getElementById('totalPriceInput').value, 10);
-            const usePointInput = document.getElementById("usePoint");
-            const finalAmountText = document.getElementById("finalAmountText");
-
-            function updateFinalAmount() {
-                const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
-                if (!selectedPayment || selectedPayment === "POINT") {
-
-                    finalAmountText.textContent = `₩${totalPrice.toLocaleString()}`;
-                    return;
-                }
-
-                const point = parseInt(usePointInput.value || 0, 10);
-                const adjusted = Math.max(totalPrice - point, 0);
-                finalAmountText.textContent = `₩${adjusted.toLocaleString()}`;
-            }
-
-            // 결제 수단 변경 시 반영
-            document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
-                radio.addEventListener("change", () => {
-                    setTimeout(updateFinalAmount, 100); // 포인트 max 세팅 이후 호출
-                });
-            });
-
-            // 포인트 입력 시 반영
-            usePointInput.addEventListener("input", function () {
-                const val = parseInt(this.value, 10);
-                const maxPoint = parseInt(this.max, 10);
-
-                if (val > maxPoint) {
-                    alert(`사용할 수 있는 최대 포인트는 ${maxPoint.toLocaleString()}P 입니다.`);
-                    this.value = maxPoint;
-                } else if (val < 0 || isNaN(val)) {
-                    this.value = 0;
-                }
-
-                updateFinalAmount();
-            });
-        </script>
+        </div>
     </div>
-</div>
+
+    <nav class="main-nav">
+        <a href="/items"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
+        <a href="/user/cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> 장바구니</a>
+        <a href="/user/wishList"><i class="fa-solid fa-heart" aria-hidden="true"></i> 찜 목록</a>
+        <a href="/orders/myOrder"><i class="fa-solid fa-book" aria-hidden="true"></i> 주문 내역</a>
+        <a href="/board?category=NOTICE"><i class="fa-solid fa-comments" aria-hidden="true"></i> 게시판</a>
+    </nav>
+</header>
+
+<h2 class="order-info">주문 및 결제 정보</h2>
+
+<form method="post" th:action="@{/api/orders/create}" onsubmit="return validateForm()">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+    <label for="recipientName">수령인 이름</label>
+    <input type="text" id="recipientName" name="recipientName" required/>
+
+    <label for="recipientPhone">연락처</label>
+    <input type="text" id="recipientPhone" name="recipientPhone" required placeholder="010-1234-5678"/>
+
+    <label for="postcode">우편번호</label>
+    <div>
+        <input type="text" id="postcode" name="postcode" readonly placeholder="우편번호"/>
+        <button type="button" class="btn" onclick="execDaumPostcode()">우편번호 찾기</button>
+        <button type="button" class="btn" id="loadDefaultAddressBtn">기본 주소 불러오기</button>
+    </div>
+
+    <label for="addressLine1">주소</label>
+    <input type="text" id="addressLine1" name="addressLine1" placeholder="기본 주소" required/>
+
+    <label for="addressLine2">상세 주소</label>
+    <input type="text" id="addressLine2" name="addressLine2" placeholder="상세 주소 입력"/>
+
+    <label for="deliveryRequest">배송 요청사항</label>
+    <input type="text" id="deliveryRequest" name="deliveryRequest" placeholder="예: 문 앞에 놓아주세요."/>
+
+    <label>결제 수단</label>
+    <div class="payment-methods">
+        <label><input type="radio" name="paymentMethod" value="CARD" required/> 카드</label><br/>
+        <label><input type="radio" name="paymentMethod" value="BANK_TRANSFER"/> 계좌이체</label><br/>
+        <label><input type="radio" name="paymentMethod" value="MOBILE"/> 모바일</label><br/>
+        <label><input type="radio" name="paymentMethod" value="POINT"/> 포인트</label>
+    </div>
+
+
+    <div id="pointBalanceArea">
+        <span id="pointValue">(보유 포인트: )</span>
+    </div>
+
+    <div id="usePointSection">
+        <label for="usePoint">사용할 포인트</label>
+        <input type="number" id="usePoint" name="usePoint" min="0" max="0" placeholder="사용할 포인트를 입력하세요"/>
+    </div>
+
+
+    <input type="hidden" name="memberId" th:value="${memberId}"/>
+    <input type="hidden" id="totalPriceInput" th:value="${totalPrice}"/>
+    <input type="hidden" name="addressId" th:value="${addressId}"/>
+    <input type="hidden" name="merchantUid"/>
+
+    <div th:each="item, iterStat : ${cartItems}">
+        <input type="hidden" th:name="'orderDetails[' + ${iterStat.index} + '].itemId'"
+               th:value="${item.itemId}"/>
+        <input type="hidden" th:name="'orderDetails[' + ${iterStat.index} + '].quantity'"
+               th:value="${item.quantity}"/>
+        <input type="hidden" th:name="'orderDetails[' + ${iterStat.index} + '].price'"
+               th:value="${item.price}"/>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th></th>
+            <th>상품명</th>
+            <th>가격</th>
+            <th>수량</th>
+            <th>합계</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${cartItems}">
+            <td><img th:src="${item.imagePath != null} ? ${item.imagePath} : '/images/default-item.png'"
+                     alt="상품 이미지"/></td>
+            <td class="item-name" th:text="${item.itemName}">상품명</td>
+            <td th:text="'₩' + ${#numbers.formatInteger(item.price, 3, 'COMMA')}">0₩</td>
+            <td th:text="${item.quantity}">1</td>
+            <td th:text="'₩' + ${#numbers.formatInteger(item.price * item.quantity, 3, 'COMMA')}">0₩</td>
+        </tr>
+        </tbody>
+    </table>
+
+
+    <div class="total">
+        총 합계: <span id="finalAmountText"
+                    th:text="'₩' + ${#numbers.formatInteger(totalPrice, 3, 'COMMA')}">0₩</span><br/>
+    </div>
+
+
+    <button type="button" class="btn" id="payment-button">결제하기</button>
+
+
+    <div class="cancel-btn">
+        <a th:href="@{/cart}">장바구니로 돌아가기</a>
+    </div>
+</form>
+
 </body>
+<!-- 다음 주소 API -->
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function (data) {
+                document.getElementById('postcode').value = data.zonecode;
+                document.getElementById('addressLine1').value = data.address;
+                document.getElementById('addressLine2').focus();
+            }
+        }).open();
+    }
+
+    function validateForm() {
+        const name = document.getElementById('recipientName').value.trim();
+        const phone = document.getElementById('recipientPhone').value.trim();
+        const postcode = document.getElementById('postcode').value.trim();
+        const address = document.getElementById('addressLine1').value.trim();
+        const detail = document.getElementById('addressLine2').value.trim();
+        const payment = document.querySelector('input[name="paymentMethod"]:checked');
+
+        if (!name || !phone || !postcode || !address || !detail || !payment) {
+            alert("모든 필수 정보를 입력해 주세요.");
+            return false;
+        }
+
+        return true;
+    }
+
+    document.getElementById('loadDefaultAddressBtn').addEventListener('click', async function () {
+        try {
+            const response = await fetch('/api/address/default', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
+            });
+
+            if (response.status === 204) {
+                alert('기본 주소가 등록되어 있지 않습니다.');
+                return;
+            }
+
+            if (!response.ok) {
+                alert('기본 주소를 불러오는데 실패했습니다.');
+                return;
+            }
+
+            const data = await response.json();
+
+            document.getElementById('postcode').value = data.postalCode || '';
+            document.getElementById('addressLine1').value = data.addressLine1 || '';
+            document.getElementById('addressLine2').value = data.addressLine2 || '';
+        } catch (e) {
+            console.error('기본 주소 불러오기 에러:', e);
+            alert('기본 주소 불러오기 중 오류가 발생했습니다.');
+        }
+    });
+</script>
+
+<!-- 포인트 결제 -->
+<script>
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const usePointInput = document.getElementById("usePoint");
+            const usePointSection = document.getElementById("usePointSection");
+
+
+            usePointSection.style.display = "block";
+
+            const totalAmount = parseInt(document.getElementById('totalPriceInput').value, 10);
+            usePointInput.max = totalAmount;
+
+            fetch("/api/members/point")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("서버 오류");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const point = parseInt(data, 10);
+                    usePointInput.max = Math.min(totalAmount, point);
+                    document.getElementById("pointValue").textContent = `(보유 포인트: ${data.toLocaleString()} P)`;
+                })
+                .catch(error => {
+                    console.error("포인트 조회 실패:", error);
+                    document.getElementById("pointValue").textContent = "(포인트 조회 실패)";
+                });
+
+        });
+    });
+
+    document.getElementById("usePoint").addEventListener("input", function () {
+        const maxPoint = parseInt(this.max, 10);
+        const val = parseInt(this.value, 10);
+
+        if (val > maxPoint) {
+            alert(`사용할 포인트는 최대 ${maxPoint}까지 입력 가능합니다.`);
+            this.value = maxPoint;
+        } else if (val < 0 || isNaN(val)) {
+            this.value = 0;
+        }
+    });
+</script>
+
+<script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+<script>
+    document.getElementById("payment-button").addEventListener("click", async function () {
+        if (!validateForm()) return;
+
+        const getInput = id => document.getElementById(id).value;
+        const name = getInput('recipientName');
+        const phone = getInput('recipientPhone');
+        const postcode = getInput('postcode');
+        const address1 = getInput('addressLine1');
+        const address2 = getInput('addressLine2');
+        const deliveryRequest = getInput('deliveryRequest');
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+        const totalAmount = parseInt(getInput('totalPriceInput'), 10);
+        const usePoint = usePointInput ? Number(usePointInput.value || 0) : 0;
+
+        const orderDetails = [];
+
+        const itemIdInputs = document.querySelectorAll('input[name^="orderDetails"][name$=".itemId"]');
+        const quantityInputs = document.querySelectorAll('input[name^="orderDetails"][name$=".quantity"]');
+        const priceInputs = document.querySelectorAll('input[name^="orderDetails"][name$=".price"]');
+
+        for (let i = 0; i < itemIdInputs.length; i++) {
+            orderDetails.push({
+                itemId: parseInt(itemIdInputs[i].value, 10),
+                quantity: parseInt(quantityInputs[i].value, 10),
+                price: parseInt(priceInputs[i].value, 10)
+            });
+        }
+
+        if (!paymentMethod) {
+            alert("결제 수단을 선택해주세요.");
+            return;
+        }
+
+        if (paymentMethod === "POINT" && (usePoint <= 0 || isNaN(usePoint))) {
+            alert("사용할 포인트를 올바르게 입력해주세요.");
+            return;
+        }
+
+        const payload = {
+            recipientName: name,
+            recipientPhone: phone,
+            postcode: postcode,
+            addressLine1: address1,
+            addressLine2: address2,
+            deliveryRequest: deliveryRequest,
+            paymentMethod: paymentMethod,
+            totalPrice: totalAmount,
+            memberId: document.querySelector("input[name='memberId']").value,
+            addressId: document.querySelector("input[name='addressId']").value,
+            orderDetails: orderDetails,
+            usePoint: usePoint
+        };
+
+        try {
+            // 1. 주문 생성 API 호출
+
+            const orderRes = await fetch("/api/orders/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!orderRes.ok) throw new Error("주문 생성 실패");
+            const data = await orderRes.json();
+            const {merchantUid, orderId} = data;
+
+            // 2. 포인트 결제 분기
+            if (paymentMethod === "POINT") {
+                alert("포인트 결제가 완료되었습니다!");
+                window.location.href = `/orders/complete-view?orderId=${orderId}`;
+                return; // PG 결제 호출 없이 종료
+            } else if (paymentMethod === "CARD_DISCOUNT_BY_POINT") {
+                alert("포인트 결제가 완료되었습니다!");
+                window.location.href = `/orders/complete-view?orderId=${orderId}`;
+                return;
+            }
+
+            // 3. PG 결제 진행 (포인트 결제가 아닐 경우)
+            const IMP = window.IMP;
+            IMP.init("imp11448625");
+
+            const itemNames = document.querySelectorAll(".item-name");
+            const firstItemName = itemNames.length > 0 ? itemNames[0].textContent.trim() : "상품";
+            const goodsName = itemNames.length <= 1 ? firstItemName : `${firstItemName} 외 ${itemNames.length - 1}건`;
+            const finalAmount = Math.max(totalAmount - usePoint, 0);
+
+
+            console.log("총 상품 가격 totalAmount:", totalAmount);
+            console.log("사용 포인트 usePoint:", usePoint);
+            console.log("최종 결제금액 finalAmount:", finalAmount);
+
+            console.log("결제 수단 paymentMethod:", paymentMethod);
+            console.log("usePointInput element:", usePointInput);
+            console.log("사용 포인트 usePoint:", usePoint);
+
+            console.log("IMP.request_pay amount:", finalAmount);
+            IMP.request_pay({
+                pg: "html5_inicis",
+                pay_method: paymentMethod.toLowerCase(),
+                merchant_uid: merchantUid,
+                name: goodsName,
+                amount: finalAmount,
+                buyer_name: name,
+                buyer_phone: phone,
+                buyer_addr: `${address1} ${address2}`,
+                buyer_postcode: postcode
+            }, async function (rsp) {
+                if (rsp.success) {
+                    try {
+                        const verifyRes = await fetch("/payment/verify", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+                            },
+                            body: JSON.stringify({
+                                impUid: rsp.imp_uid,
+                                merchantUid: merchantUid,
+                                amount: finalAmount
+                            })
+                        });
+
+                        if (!verifyRes.ok) throw new Error("결제 검증 실패");
+
+                        const completeRes = await fetch("/api/orders/complete", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+                            },
+                            body: JSON.stringify({
+                                orderId: orderId,
+                                impUid: rsp.imp_uid
+                            })
+                        });
+
+                        if (completeRes.ok) {
+                            alert("결제가 완료되었습니다!");
+                            window.location.href = `/orders/complete-view?orderId=${orderId}`;
+                        } else {
+                            alert("결제는 되었지만 주문 완료 처리에 실패했습니다.");
+                        }
+                    } catch (err) {
+                        console.error("결제 처리 오류:", err);
+                        alert("결제 처리 중 오류가 발생했습니다.");
+                    }
+                } else {
+                    alert("결제가 취소되었습니다: " + rsp.error_msg);
+                }
+            });
+
+        } catch (error) {
+            console.error("전체 주문 처리 실패:", error);
+            alert("주문 처리 중 오류가 발생했습니다.");
+        }
+    });
+</script>
+
+<script>
+    const totalPrice = parseInt(document.getElementById('totalPriceInput').value, 10);
+    const usePointInput = document.getElementById("usePoint");
+    const finalAmountText = document.getElementById("finalAmountText");
+
+    function updateFinalAmount() {
+        const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+        if (!selectedPayment || selectedPayment === "POINT") {
+
+            finalAmountText.textContent = `₩${totalPrice.toLocaleString()}`;
+            return;
+        }
+
+        const point = parseInt(usePointInput.value || 0, 10);
+        const adjusted = Math.max(totalPrice - point, 0);
+        finalAmountText.textContent = `₩${adjusted.toLocaleString()}`;
+    }
+
+    // 결제 수단 변경 시 반영
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+        radio.addEventListener("change", () => {
+            setTimeout(updateFinalAmount, 100); // 포인트 max 세팅 이후 호출
+        });
+    });
+
+    // 포인트 입력 시 반영
+    usePointInput.addEventListener("input", function () {
+        const val = parseInt(this.value, 10);
+        const maxPoint = parseInt(this.max, 10);
+
+        if (val > maxPoint) {
+            alert(`사용할 수 있는 최대 포인트는 ${maxPoint.toLocaleString()}P 입니다.`);
+            this.value = maxPoint;
+        } else if (val < 0 || isNaN(val)) {
+            this.value = 0;
+        }
+
+        updateFinalAmount();
+    });
+</script>
+
 </html>

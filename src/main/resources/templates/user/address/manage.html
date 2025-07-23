@@ -1,87 +1,83 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>기본 배송지 등록</title>
-  <style>
-    body {
-      font-family: 'Noto Sans KR', sans-serif;
-      background: #f5f7fa;
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-    h1 {
-      text-align: center;
-      color: #0077cc;
-    }
-    form {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-    }
-    label {
-      display: block;
-      margin: 1rem 0 0.5rem;
-      font-weight: bold;
-    }
-    input[type="text"], input[type="tel"] {
-      width: 100%;
-      padding: 10px;
-      font-size: 1rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    .button {
-      margin-top: 1.5rem;
-      background-color: #0077cc;
-      color: white;
-      border: none;
-      padding: 12px;
-      width: 100%;
-      font-size: 1.1rem;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .button:hover {
-      background-color: #005fa3;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>기본 배송지 등록</title>
+    <link rel="stylesheet" href="/css/address.css">
+    <link rel="stylesheet" href="/css/header.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
 </head>
 <body>
+<header>
+    <div class="top-bar">
+        <h2 th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">
+            <i class="fa-solid fa-store" aria-hidden="true"></i>
+            병의's 쇼핑몰
+        </h2>
+        <div class="user-info">
+            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/members/profile}" aria-label="프로필 페이지 이동">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    <span th:text="${#authentication.name} + '님'"></span>
+                </a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="logout-button" aria-label="로그아웃">
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
+                    </button>
+                </form>
+            </div>
+            <div th:if="${!#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/login}" title="로그인" aria-label="로그인 페이지 이동">
+                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                </a>
+            </div>
+        </div>
+    </div>
 
-<h1>기본 배송지 등록</h1>
-<form th:action="@{/address/save}" method="post">
-  <label>수령인</label>
-  <input type="text" name="receiverName" required>
+    <nav class="main-nav">
+        <a href="/items"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
+        <a href="/user/cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> 장바구니</a>
+        <a href="/user/wishList"><i class="fa-solid fa-heart" aria-hidden="true"></i> 찜 목록</a>
+        <a href="/orders/myOrder"><i class="fa-solid fa-book" aria-hidden="true"></i> 주문 내역</a>
+        <a href="/board?category=NOTICE"><i class="fa-solid fa-comments" aria-hidden="true"></i> 게시판</a>
+    </nav>
+</header>
 
-  <label>주소</label>
-  <input type="text" id="addr" name="addr" placeholder="주소 검색 클릭" readonly required onclick="execDaumPostcode()">
+<div class="form-container">
+    <h1 class="form-title">기본 배송지 등록</h1>
 
-  <label>상세주소</label>
-  <input type="text" name="addrDetail" required>
+    <form th:action="@{/address/save}" method="post" class="address-form">
+        <label for="receiverName">수령인</label>
+        <input type="text" id="receiverName" name="receiverName" required>
 
-  <label>우편번호</label>
-  <input type="text" id="postalCode" name="postalCode" readonly required>
+        <label for="addr">주소</label>
+        <input type="text" id="addr" name="addr" placeholder="주소 검색 클릭" readonly required onclick="execDaumPostcode()">
 
-  <label>수령인 전화번호</label>
-  <input type="tel" name="receiverPhone" required>
+        <label for="addrDetail">상세주소</label>
+        <input type="text" id="addrDetail" name="addrDetail" required>
 
-  <button class="button" type="submit">저장하기</button>
-</form>
+        <label for="postalCode">우편번호</label>
+        <input type="text" id="postalCode" name="postalCode" readonly required>
 
-<!-- 다음 주소 API -->
+        <label for="receiverPhone">수령인 전화번호</label>
+        <input type="tel" id="receiverPhone" name="receiverPhone" required>
+
+        <button type="submit" class="submit-btn">저장하기</button>
+    </form>
+</div>
+
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
-  function execDaumPostcode() {
-    new daum.Postcode({
-      oncomplete: function(data) {
-        document.getElementById("addr").value = data.address;
-        document.getElementById("postalCode").value = data.zonecode;
-      }
-    }).open();
-  }
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function (data) {
+                document.getElementById("addr").value = data.address;
+                document.getElementById("postalCode").value = data.zonecode;
+            }
+        }).open();
+    }
 </script>
 
 </body>

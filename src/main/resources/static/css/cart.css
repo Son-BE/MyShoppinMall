@@ -1,0 +1,102 @@
+body {
+    margin: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #fafafa;
+    color: #111;
+}
+.cart-container {
+    max-width: 900px;
+    margin: 0 auto 40px;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.cart-title {
+    font-size: 2rem;
+    font-weight: 600;
+    border-bottom: 2px solid #000;
+    padding-bottom: 12px;
+    margin-bottom: 40px;
+    text-align: left;
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.cart-table th,
+.cart-table td {
+    padding: 18px 12px;
+    font-size: 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    vertical-align: middle;
+}
+
+.cart-table th {
+    background-color: #fafafa;
+    font-weight: 500;
+    color: #222;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cart-table td img {
+    width: 90px;
+    height: auto;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.cart-total {
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-align: right;
+    margin-top: 10px;
+    color: #000;
+}
+
+.cart-actions {
+    margin-top: 40px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.cart-actions button {
+    padding: 12px 22px;
+    font-size: 14px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.cart-actions button:hover {
+    background-color: #333;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .cart-table th,
+    .cart-table td {
+        padding: 12px 6px;
+        font-size: 13px;
+    }
+
+    .cart-actions {
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .cart-actions button {
+        width: 100%;
+    }
+}

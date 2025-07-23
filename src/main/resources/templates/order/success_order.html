@@ -3,129 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <title>주문 완료</title>
-    <style>
 
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f5f7fa;
-            color: #2c3e50;
-        }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/success.css">
+    <link rel="stylesheet" href="/css/header.css">
 
-        .wrapper {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-
-        header, nav, footer {
-            padding: 1rem 2rem;
-            background-color: #f8f8f8;
-            border-bottom: 1px solid #ddd;
-        }
-
-        nav a {
-            margin-right: 1rem;
-            text-decoration: none;
-            color: #34495e;
-            font-weight: 500;
-        }
-
-        nav a:hover {
-            color: #e67e22;
-        }
-
-        form {
-            max-width: 600px;
-            margin: auto;
-            background: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background: #f0f8ff;
-            padding: 0rem;
-            text-align: center;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-        }
-
-        h1 {
-            color: #2c3e50;
-        }
-
-        .checkmark {
-            font-size: 60px;
-            color: #4CAF50;
-            margin-bottom: 1rem;
-        }
-
-        .summary {
-            margin-top: 2rem;
-            text-align: left;
-        }
-
-        .summary p {
-            margin: 0.4rem 0;
-            font-size: 1.1rem;
-        }
-
-        .btn {
-            margin-top: 2rem;
-            display: inline-block;
-            padding: 0.7rem 1.4rem;
-            background: #0077cc;
-            color: white;
-            border-radius: 6px;
-            text-decoration: none;
-        }
-
-        .btn:hover {
-            background: #005fa3;
-        }
-    </style>
 </head>
 <body>
-<div th:insert="~{fragment/header :: header}"></div>
-
-<div class="container">
-    <div class="wrapper">
-        <div class="checkmark">
-            <i class="fas fa-check-circle"></i>
-        </div>
-        <h1>주문이 완료되었습니다!</h1>
-        <p>소중한 주문 감사합니다. 빠르게 준비하여 배송해드리겠습니다.</p>
-
-        <div class="summary">
-            <p><strong>주문자:</strong> <span th:text="${order.receiverName}"></span></p>
-            <p><strong>연락처:</strong> <span th:text="${order.receiverPhone}"></span></p>
-            <p><strong>배송주소:</strong> <span th:text="${order.receiverAddress}"></span></p>
-            <p><strong>배송상세주소:</strong> <span th:text="${order.receiverDetailAddress}"></span></p>
-            <p><strong>결제 금액:</strong> <span th:text="'₩' + ${#numbers.formatInteger(order.totalPrice, 3, 'COMMA')}"></span></p>
-            <p><strong>결제 수단:</strong> <span th:text="${order.paymentMethod}"></span></p>
-        </div>
-
-        <div style="margin-top: 2rem;">
-            <a href="/" class="btn" style="margin-right: 1rem;">홈으로 가기</a>
-            <a th:href="@{/orders/myOrder}" class="btn">주문 내역 보기</a>
+<header>
+    <div class="top-bar">
+        <h2 th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">
+            <i class="fa-solid fa-store" aria-hidden="true"></i>
+            병의's 쇼핑몰
+        </h2>
+        <div class="user-info">
+            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/members/profile}" aria-label="프로필 페이지 이동">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    <span th:text="${#authentication.name} + '님'"></span>
+                </a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="logout-button" aria-label="로그아웃">
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
+                    </button>
+                </form>
+            </div>
+            <div th:if="${!#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/login}" title="로그인" aria-label="로그인 페이지 이동">
+                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                </a>
+            </div>
         </div>
     </div>
 
+    <nav class="main-nav">
+        <a href="/items"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
+        <a href="/user/cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> 장바구니</a>
+        <a href="/user/wishList"><i class="fa-solid fa-heart" aria-hidden="true"></i> 찜 목록</a>
+        <a href="/orders/myOrder"><i class="fa-solid fa-book" aria-hidden="true"></i> 주문 내역</a>
+        <a href="/board?category=NOTICE"><i class="fa-solid fa-comments" aria-hidden="true"></i> 게시판</a>
+    </nav>
+</header>
+
+<div class="checkmark">
+    <i class="fas fa-check-circle"></i>
+</div>
+<h1>주문이 완료되었습니다!</h1>
+<p>소중한 주문 감사합니다. 빠르게 준비하여 배송해드리겠습니다.</p>
+
+<div class="summary">
+    <p><strong>주문자:</strong> <span th:text="${order.receiverName}"></span></p>
+    <p><strong>연락처:</strong> <span th:text="${order.receiverPhone}"></span></p>
+    <p><strong>배송주소:</strong> <span th:text="${order.receiverAddress}"></span></p>
+    <p><strong>배송상세주소:</strong> <span th:text="${order.receiverDetailAddress}"></span></p>
+    <p><strong>결제 금액:</strong> <span th:text="'₩' + ${#numbers.formatInteger(order.totalPrice, 3, 'COMMA')}"></span></p>
+    <p><strong>결제 수단:</strong> <span th:text="${order.paymentMethod}"></span></p>
 </div>
 
-<div th:insert="~{fragment/footer :: footer}"></div>
+<div style="margin-top: 2rem;">
+    <a href="/items" class="btn" style="margin-right: 1rem;">홈으로 가기</a>
+    <a th:href="@{/orders/myOrder}" class="btn">주문 내역 보기</a>
+</div>
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
 </body>
 </html>

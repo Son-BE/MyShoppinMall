@@ -1,211 +1,100 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8"/>
     <title th:text="${item.itemName} + ' - 상품 상세'">상품 상세</title>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
 
     <!-- CSRF 토큰 메타 -->
     <meta name="_csrf" content="${_csrf.token}"/>
     <meta name="_csrf_header" content="${_csrf.headerName}"/>
+    <link rel="stylesheet" href="/css/item_detail.css"/>
+    <link rel="stylesheet" href="/css/header.css">
 
-    <style>
-        /* 공통 폰트 및 배경 */
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f5f7fa;
-            color: #2c3e50;
-            margin: 0;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 2rem auto 3rem;
-            background-color: #fff;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 119, 204, 0.1);
-        }
-
-        .image-section img {
-            width: 100%;
-            max-height: 500px;
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-        }
-
-        .info-section {
-            margin-top: 1.5rem;
-            color: #34495e;
-        }
-
-        .info-section h1 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-
-        .info-section p.price {
-            font-size: 1.5rem;
-            color: #0077cc;
-            font-weight: 700;
-            margin: 0.5rem 0;
-        }
-
-        .info-section p.description {
-            margin-top: 1rem;
-            color: #5c7080;
-            line-height: 1.5;
-        }
-
-        .extra-info {
-            margin-top: 1rem;
-            font-size: 0.95rem;
-            color: #5c7080;
-            line-height: 1.4;
-        }
-
-        .sold-out {
-            color: #e74c3c;
-            font-weight: 700;
-            margin-top: 1rem;
-            font-size: 1.1rem;
-        }
-
-        /* 버튼 & 액션 영역 */
-        .actions {
-            margin-top: 2.5rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .actions form button,
-        .actions a {
-            background-color: #0077cc;
-            color: #ffffff;
-            border: none;
-            padding: 0.8rem 1.8rem;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            user-select: none;
-        }
-
-        .actions form button:hover,
-        .actions a:hover {
-            background-color: #005fa3;
-        }
-
-        .actions form button:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-        }
-
-        .actions .wish-btn {
-            background-color: #d0e6ff;
-            color: #2c3e50;
-        }
-
-        .actions .wish-btn:hover {
-            background-color: #a4cfff;
-        }
-
-        /* 수량 입력 스타일 */
-        input[type="number"] {
-            width: 60px;
-            padding: 0.4rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-left: 8px;
-            font-size: 1rem;
-            font-weight: 500;
-            text-align: center;
-            transition: border-color 0.3s ease;
-        }
-
-        input[type="number"]:focus {
-            border-color: #0077cc;
-            outline: none;
-        }
-
-        /* 링크 스타일 (예: 네비게이션) */
-        nav a {
-            margin-right: 1rem;
-            text-decoration: none;
-            color: #34495e;
-            font-weight: 500;
-        }
-
-        nav a:hover {
-            color: #e67e22;
-        }
-    </style>
 </head>
 <body>
-
-<!-- 헤더 include -->
-<div th:insert="~{fragment/header :: header}"></div>
-
-<div class="container">
-    <div class="image-section">
-        <img th:src="${item.imagePath}" alt="상품 이미지"
-             onerror="this.onerror=null;this.src='/images/default.png';"/>
-    </div>
-
-    <div class="info-section">
-        <h1 th:text="${item.itemName}">상품명</h1>
-        <p class="price" th:text="'₩' + ${#numbers.formatInteger(item.price, 3, 'COMMA')}">가격</p>
-        <p class="description" th:text="${item.itemComment}">상품 설명</p>
-
-        <div class="extra-info">
-            <p>카테고리: <span th:text="${item.subCategory}">카테고리</span></p>
-            <p>성별: <span th:text="${item.gender}">성별</span></p>
-            <p>재고 수량: <span th:text="${item.quantity}">0</span></p>
+<header>
+    <div class="top-bar">
+        <h2 th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">
+            <i class="fa-solid fa-store" aria-hidden="true"></i>
+            병의's 쇼핑몰
+        </h2>
+        <div class="user-info">
+            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/members/profile}" aria-label="프로필 페이지 이동">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    <span th:text="${#authentication.name} + '님'"></span>
+                </a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="logout-button" aria-label="로그아웃">
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
+                    </button>
+                </form>
+            </div>
+            <div th:if="${!#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/login}" title="로그인" aria-label="로그인 페이지 이동">
+                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                </a>
+            </div>
         </div>
-
-        <div th:if="${item.quantity == 0}" class="sold-out">품절된 상품입니다.</div>
     </div>
 
-    <div class="actions">
-        <!-- 장바구니 추가 폼 -->
-        <form th:action="@{/user/cart/add}" method="post" onsubmit="return confirmAddToCart()">
-            <input type="hidden" name="itemId" th:value="${item.id}" />
-            <label>
-                수량:
-                <input type="number" name="quantity" min="1" th:attr="max=${item.quantity}" value="1"
-                       th:disabled="${item.quantity == 0}" />
-            </label>
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <button type="submit" th:disabled="${item.quantity == 0}">
-                <i class="fa-solid fa-cart-plus"></i> 장바구니 추가
-            </button>
-        </form>
+    <nav class="main-nav">
+        <a href="/items"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
+        <a href="/user/cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> 장바구니</a>
+        <a href="/user/wishList"><i class="fa-solid fa-heart" aria-hidden="true"></i> 찜 목록</a>
+        <a href="/orders/myOrder"><i class="fa-solid fa-book" aria-hidden="true"></i> 주문 내역</a>
+        <a href="/board?category=NOTICE"><i class="fa-solid fa-comments" aria-hidden="true"></i> 게시판</a>
+    </nav>
+</header>
 
-        <!-- 찜하기 폼 -->
-        <form th:action="@{/wishList/add}" method="post" onsubmit="return confirmAddToWishlist()">
-            <input type="hidden" name="itemId" th:value="${item.id}" />
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <button type="submit" th:disabled="${item.quantity == 0}" class="wish-btn">
-                <i class="fa-solid fa-heart"></i> 찜하기
-            </button>
-        </form>
-    </div>
+<div class="image-section">
+    <img th:src="${item.imagePath}" alt="상품 이미지"
+         onerror="this.onerror=null;this.src='/images/default.png';"/>
 </div>
 
-<!-- footer include -->
-<div th:insert="~{fragment/footer :: footer}"></div>
+<div class="info-section">
+    <h1 th:text="${item.itemName}">상품명</h1>
+    <p class="price" th:text="'₩' + ${#numbers.formatInteger(item.price, 3, 'COMMA')}">가격</p>
+    <p class="description" th:text="${item.itemComment}">상품 설명</p>
+
+    <div class="extra-info">
+        <p>카테고리: <span th:text="${item.subCategory}">카테고리</span></p>
+        <p>성별: <span th:text="${item.gender}">성별</span></p>
+        <p>재고 수량: <span th:text="${item.quantity}">0</span></p>
+    </div>
+
+    <div th:if="${item.quantity == 0}" class="sold-out">품절된 상품입니다.</div>
+</div>
+
+<div class="actions">
+    <!-- 장바구니 추가 폼 -->
+    <form th:action="@{/user/cart/add}" method="post" onsubmit="return confirmAddToCart()">
+        <input type="hidden" name="itemId" th:value="${item.id}"/>
+        <label>
+            수량:
+            <input type="number" name="quantity" min="1" th:attr="max=${item.quantity}" value="1"
+                   th:disabled="${item.quantity == 0}"/>
+        </label>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="cart-add-button independent-button" th:disabled="${item.quantity == 0}">
+            <i class="fa-solid fa-cart-plus"></i> 장바구니 추가
+        </button>
+    </form>
+
+    <!-- 찜하기 폼 -->
+    <form th:action="@{/wishList/add}" method="post" onsubmit="return confirmAddToWishlist()">
+        <input type="hidden" name="itemId" th:value="${item.id}"/>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="wishlist-add-button independent-button" th:disabled="${item.quantity == 0}">
+            <i class="fa-solid fa-heart"></i> 찜하기
+        </button>
+    </form>
+</div>
 
 <script>
     function confirmAddToCart() {

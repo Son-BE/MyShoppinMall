@@ -1,173 +1,108 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <title>내 정보 수정</title>
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-    <style>
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f5f7fa;
-            color: #2c3e50;
-            margin: 0 auto;
-            max-width: 600px;
-            padding: 2rem 1rem;
-        }
-        h1, h2 {
-            text-align: center;
-            color: #0077cc;
-            margin-bottom: 2rem;
-        }
-        .container {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-        }
-        form {
-            margin-bottom: 3rem;
-        }
-        label {
-            display: block;
-            margin-top: 1rem;
-            font-weight: 600;
-        }
-        input[type="text"], input[type="password"], select {
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            margin-top: 0.3rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        button[type="submit"] {
-            margin-top: 1.8rem;
-            width: 100%;
-            background-color: #0077cc;
-            border: none;
-            color: white;
-            padding: 0.75rem 0;
-            font-size: 1.1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        button[type="submit"]:hover {
-            background-color: #005fa3;
-        }
-        .section-title {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            border-bottom: 2px solid #0077cc;
-            padding-bottom: 0.3rem;
-        }
-        .message {
-            max-width: 100%;
-            margin: 0 auto 1rem auto;
-            text-align: center;
-            font-weight: 600;
-            color: #27ae60;
-        }
-        .error {
-            color: #e74c3c;
-        }
-        .btn-check-nick {
-            background-color: #0077cc;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 2px 6px rgba(0, 119, 204, 0.3);
-            user-select: none;
-        }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/profile_edit.css"/>
+    <link rel="stylesheet" href="/css/header.css">
 
-        .btn-check-nick:hover {
-            background-color: #005fa3;
-            box-shadow: 0 4px 10px rgba(0, 95, 163, 0.5);
-        }
-
-        .btn-check-nick:active {
-            background-color: #004678;
-            box-shadow: 0 2px 5px rgba(0, 70, 120, 0.7);
-        }
-
-        .btn-check-nick:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.5);
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 1rem;
-                max-width: 100%;
-            }
-        }
-    </style>
 </head>
 <body>
-<div class="container">
-    <h2>내 정보 수정</h2>
-
-    <div id="message" class="message"></div>
-
-    <!-- 회원정보 수정 폼 -->
-    <form id="profileForm" onsubmit="event.preventDefault(); updateProfile();">
-        <div class="section-title">기본 정보</div>
-
-        <label for="nickName">닉네임:</label>
-        <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="text" id="nickName" name="nickName" required style="flex: 1;" />
-            <button type="button" id="checkNickBtn" class="btn-check-nick">중복확인</button>
+<header>
+    <div class="top-bar">
+        <h2 th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">
+            <i class="fa-solid fa-store" aria-hidden="true"></i>
+            병의's 쇼핑몰
+        </h2>
+        <div class="user-info">
+            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/members/profile}" aria-label="프로필 페이지 이동">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    <span th:text="${#authentication.name} + '님'"></span>
+                </a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="logout-button" aria-label="로그아웃">
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
+                    </button>
+                </form>
+            </div>
+            <div th:if="${!#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/login}" title="로그인" aria-label="로그인 페이지 이동">
+                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                </a>
+            </div>
         </div>
-        <div id="nickCheckMessage" style="margin-top: 0.3rem; font-weight: 600;"></div>
+    </div>
 
-        <label for="phoneNumber">전화번호:</label>
-        <input type="text" id="phoneNumber" name="phoneNumber" required />
+    <nav class="main-nav">
+        <a href="/items"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
+        <a href="/user/cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> 장바구니</a>
+        <a href="/user/wishList"><i class="fa-solid fa-heart" aria-hidden="true"></i> 찜 목록</a>
+        <a href="/orders/myOrder"><i class="fa-solid fa-book" aria-hidden="true"></i> 주문 내역</a>
+        <a href="/board?category=NOTICE"><i class="fa-solid fa-comments" aria-hidden="true"></i> 게시판</a>
+    </nav>
+</header>
 
-        <button type="submit">정보 수정하기</button>
-    </form>
+<h2 class="edit-info" edit-info>내 정보 수정</h2>
+<div id="message" class="message" style="height:1.4rem; font-weight:600; text-align:center; margin-bottom:24px; color:#e03e3e;"></div>
 
-    <!-- 비밀번호 변경 폼 -->
-    <form id="passwordForm" onsubmit="event.preventDefault(); updatePassword();">
-        <div class="section-title">비밀번호 변경</div>
+<!-- 기본 정보 수정 폼 -->
+<form id="profileForm" onsubmit="event.preventDefault(); updateProfile();">
+    <div class="section-title">기본 정보</div>
 
-        <label for="currentPassword">현재 비밀번호:</label>
-        <input type="password" id="currentPassword" name="currentPassword" required />
+    <label for="nickName">닉네임:</label>
+    <div class="nick-container">
+        <input type="text" id="nickName" name="nickName" required />
+        <button type="button" id="checkNickBtn" class="btn-check-nick">중복확인</button>
+    </div>
+    <div id="nickCheckMessage"></div>
 
-        <label for="newPassword">새 비밀번호:</label>
-        <input type="password" id="newPassword" name="newPassword" required minlength="8" />
+    <label for="phoneNumber">전화번호:</label>
+    <input type="text" id="phoneNumber" name="phoneNumber" required />
 
-        <label for="confirmPassword">새 비밀번호 확인:</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" required minlength="8" />
+    <button type="submit">정보 수정하기</button>
+</form>
 
-        <button type="submit">비밀번호 변경하기</button>
-    </form>
-</div>
+<!-- 비밀번호 변경 폼 -->
+<form id="passwordForm" onsubmit="event.preventDefault(); updatePassword();">
+    <div class="section-title">비밀번호 변경</div>
+
+    <label for="currentPassword">현재 비밀번호:</label>
+    <input type="password" id="currentPassword" name="currentPassword" required />
+
+    <label for="newPassword">새 비밀번호:</label>
+    <input type="password" id="newPassword" name="newPassword" required minlength="8" />
+
+    <label for="confirmPassword">새 비밀번호 확인:</label>
+    <input type="password" id="confirmPassword" name="confirmPassword" required minlength="8" />
+
+    <button type="submit">비밀번호 변경하기</button>
+</form>
 
 <script>
     const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-
-
     function showMessage(text, isError = false) {
         const messageDiv = document.getElementById('message');
         messageDiv.textContent = text;
-        messageDiv.className = isError ? 'message error' : 'message';
-        setTimeout(() => { messageDiv.textContent = ''; }, 5000);
+        messageDiv.style.color = isError ? '#e03e3e' : '#2e8b57';
+        setTimeout(() => {
+            messageDiv.textContent = '';
+        }, 5000);
     }
 
     async function fetchProfile() {
         try {
             const res = await fetch('/api/members/profile', {
                 method: 'GET',
-                headers: { 'Accept': 'application/json' },
-                credentials: 'include'
+                headers: { Accept: 'application/json' },
+                credentials: 'include',
             });
             if (!res.ok) throw new Error('내 정보 조회 실패');
 
@@ -189,10 +124,10 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
+                    [csrfHeader]: csrfToken,
                 },
                 credentials: 'include',
-                body: JSON.stringify({ nickName, phoneNumber })
+                body: JSON.stringify({ nickName, phoneNumber }),
             });
 
             if (!res.ok) {
@@ -221,10 +156,10 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
+                    [csrfHeader]: csrfToken,
                 },
                 credentials: 'include',
-                body: JSON.stringify({ currentPassword, newPassword })
+                body: JSON.stringify({ currentPassword, newPassword }),
             });
 
             if (!res.ok) {
@@ -240,8 +175,8 @@
     }
 
     window.onload = fetchProfile;
-</script>
-<script>
+
+    // 닉네임 중복확인 버튼
     const checkNickBtn = document.getElementById('checkNickBtn');
     const nickCheckMessage = document.getElementById('nickCheckMessage');
 
@@ -249,28 +184,31 @@
         const nickName = document.getElementById('nickName').value.trim();
         if (!nickName) {
             nickCheckMessage.textContent = '닉네임을 입력하세요.';
-            nickCheckMessage.style.color = 'red';
+            nickCheckMessage.className = 'error';
             return;
         }
 
         try {
-            const res = await fetch(`/api/members/check-nickname?nickName=${encodeURIComponent(nickName)}`, {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' },
-                credentials: 'include'
-            });
+            const res = await fetch(
+                `/api/members/check-nickname?nickName=${encodeURIComponent(nickName)}`,
+                {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'include',
+                }
+            );
             const data = await res.json();
 
             if (data.exists) {
                 nickCheckMessage.textContent = '이미 사용 중인 닉네임입니다.';
-                nickCheckMessage.style.color = 'red';
+                nickCheckMessage.className = 'error';
             } else {
                 nickCheckMessage.textContent = '사용 가능한 닉네임입니다.';
-                nickCheckMessage.style.color = 'green';
+                nickCheckMessage.className = 'success';
             }
         } catch (error) {
             nickCheckMessage.textContent = '닉네임 확인 중 오류가 발생했습니다.';
-            nickCheckMessage.style.color = 'red';
+            nickCheckMessage.className = 'error';
         }
     });
 </script>

@@ -2,227 +2,121 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8"/>
-    <title>❤️ 찜한 상품 목록</title>
+    <title>💖 찜한 상품 목록</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+          crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/wishlist.css">
 
-    <style>
-        /* 공통 폰트, 배경 */
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f5f7fa;
-            color: #2c3e50;
-        }
 
-        .wrapper {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .container {
-            flex: 1;
-            max-width: 1000px;
-            margin: 2rem auto 3rem;
-            padding: 0 1rem;
-            width: 100%;
-        }
-
-        h2 {
-            margin-bottom: 1.5rem;
-            font-weight: 700;
-            color: #34495e;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1.5rem;
-            background-color: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 119, 204, 0.1);
-        }
-
-        thead th {
-            background-color: #e1f0ff;
-            color: #2c3e50;
-            font-weight: 600;
-            padding: 1rem 0.8rem;
-            text-align: center;
-            border-bottom: 1px solid #d7ccc8;
-        }
-
-        tbody td {
-            padding: 0.8rem 0.8rem;
-            text-align: center;
-            border-bottom: 1px solid #d7ccc8;
-            vertical-align: middle;
-        }
-
-        tbody tr:hover {
-            background-color: #f0f8ff;
-        }
-
-        td img {
-            width: 150px;
-            height: 190px;
-            object-fit: cover;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .icon-button {
-            color: #2c3e50;
-            background-color: transparent;
-            border: none;
-            padding: 0.4rem 0.6rem;
-            border-radius: 6px;
-            font-size: 1.3rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            user-select: none;
-        }
-
-        .icon-button:hover {
-            background-color: #fceae9;
-            color: #e74c3c;
-        }
-
-        .clear-btn {
-            background-color: #e1f0ff;
-            color: #2c3e50;
-            border: none;
-            padding: 0.7rem 1.4rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            margin-top: 1rem;
-            transition: background-color 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            user-select: none;
-        }
-
-        .clear-btn:hover {
-            background-color: #c5e0f7;
-            color: #005fa3;
-        }
-
-        /* 공통 nav 스타일 */
-        nav a {
-            margin-right: 1rem;
-            text-decoration: none;
-            color: #34495e;
-            font-weight: 500;
-        }
-
-        nav a:hover {
-            color: #e67e22;
-        }
-
-        p {
-            font-size: 1rem;
-            color: #5c7080;
-            margin-top: 1rem;
-            text-align: center;
-            font-weight: 500;
-        }
-    </style>
 </head>
 <body>
-
-<div class="wrapper">
-    <!-- 헤더 include -->
-    <div class="container">
-        <div th:insert="~{fragment/header :: header}"></div>
-
-        <h2>❤️ 찜한 상품 목록</h2>
-
-        <div th:if="${#lists.isEmpty(wishList)}">
-            <p>찜한 상품이 없습니다.</p>
-        </div>
-
-        <table th:if="${not #lists.isEmpty(wishList)}">
-            <thead>
-            <tr>
-                <th>찜 해제</th>
-                <th>이미지</th>
-                <th>상품명</th>
-                <th>가격</th>
-                <th>장바구니에 담기</th>
-                <th>삭제</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item : ${wishList}">
-                <td>
-                    <form th:action="@{/wishList/remove}" method="post">
-                        <input type="hidden" name="_method" value="delete"/>
-                        <input type="hidden" name="itemId" th:value="${item.itemId}"/>
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button type="submit" class="icon-button" title="찜 해제">❤️</button>
-                    </form>
-                </td>
-                <td>
-                    <!-- 이미지가 있는 경우 -->
-                    <img th:if="${item.itemImagePath != null and !item.itemImagePath.isEmpty()}"
-                         th:src="@{${item.itemImagePath}}" alt="상품 이미지" />
-
-                    <!-- 없는 경우 기본 이미지 -->
-                    <img th:unless="${item.itemImagePath != null and !item.itemImagePath.isEmpty()}"
-                         src="/images/default.png" alt="기본 이미지" />
-                </td>
-                <td th:text="${item.itemName}">상품명</td>
-                <td th:text="${item.formattedPrice}">0₩</td>
-                <td>
-                    <form th:action="@{/user/cart/add}" method="post"
-                          onsubmit="return confirm('장바구니에 담으시겠습니까?');">
-                        <input type="hidden" name="itemId" th:value="${item.itemId}"/>
-                        <input type="hidden" name="quantity" value="1"/>
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button type="submit" class="icon-button" title="장바구니에 담기">
-                            <i class="fa-solid fa-cart-plus"></i>
-                        </button>
-                    </form>
-                </td>
-                <td>
-                    <form th:action="@{/wishList/delete}" method="post" onsubmit="return confirmClearWishlist();">
-                        <input type="hidden" name="itemId" th:value="${item.id}"/>
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button type="submit" class="icon-button" title="삭제">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-
-        <div>
-            <form th:action="@{/wishList/clear}" method="post" onsubmit="return confirmClearWishlist();">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <button type="submit" class="clear-btn">
-                    <i class="fa-solid fa-trash-can"></i> 찜 목록 비우기
-                </button>
-            </form>
+<header>
+    <div class="top-bar">
+        <h2 th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">
+            <i class="fa-solid fa-store" aria-hidden="true"></i>
+            병의's 쇼핑몰
+        </h2>
+        <div class="user-info">
+            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/members/profile}" aria-label="프로필 페이지 이동">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    <span th:text="${#authentication.name} + '님'"></span>
+                </a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="logout-button" aria-label="로그아웃">
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
+                    </button>
+                </form>
+            </div>
+            <div th:if="${!#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/login}" title="로그인" aria-label="로그인 페이지 이동">
+                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- footer include -->
-    <div th:insert="~{fragment/footer :: footer}"></div>
+    <nav class="main-nav">
+        <a href="/items"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
+        <a href="/user/cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> 장바구니</a>
+        <a href="/user/wishList"><i class="fa-solid fa-heart" aria-hidden="true"></i> 찜 목록</a>
+        <a href="/orders/myOrder"><i class="fa-solid fa-book" aria-hidden="true"></i> 주문 내역</a>
+        <a href="/board?category=NOTICE"><i class="fa-solid fa-comments" aria-hidden="true"></i> 게시판</a>
+    </nav>
+</header>
+
+<h2 class="wishlist-title">💖 찜한 상품 목록</h2>
+
+<div th:if="${#lists.isEmpty(wishList)}">
+    <p>찜한 상품이 없습니다.</p>
+</div>
+
+<table th:if="${not #lists.isEmpty(wishList)}">
+    <thead>
+    <tr>
+        <th>찜 해제</th>
+        <th>이미지</th>
+        <th>상품명</th>
+        <th>가격</th>
+        <th>장바구니에 담기</th>
+        <th>삭제</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${wishList}">
+        <td>
+            <form th:action="@{/wishList/remove}" method="post">
+                <input type="hidden" name="_method" value="delete"/>
+                <input type="hidden" name="itemId" th:value="${item.itemId}"/>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="icon-button" title="찜 해제">❤️</button>
+            </form>
+        </td>
+        <td>
+            <img th:if="${item.itemImagePath != null and !item.itemImagePath.isEmpty()}"
+                 th:src="@{${item.itemImagePath}}" alt="상품 이미지"/>
+            <img th:unless="${item.itemImagePath != null and !item.itemImagePath.isEmpty()}"
+                 src="/images/default.png" alt="기본 이미지"/>
+        </td>
+        <td th:text="${item.itemName}">상품명</td>
+        <td th:text="${item.formattedPrice}">0</td>
+        <td>
+            <form th:action="@{/user/cart/add}" method="post"
+                  onsubmit="return confirm('장바구니에 담으시겠습니까?');">
+                <input type="hidden" name="itemId" th:value="${item.itemId}"/>
+                <input type="hidden" name="quantity" value="1"/>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="icon-button" title="장바구니에 담기">
+                    <i class="fa-solid fa-cart-plus"></i>
+                </button>
+            </form>
+        </td>
+        <td>
+            <form th:action="@{/wishList/delete}" method="post" onsubmit="return confirmClearWishlist();">
+                <input type="hidden" name="itemId" th:value="${item.id}"/>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="icon-button" title="삭제">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div th:if="${not #lists.isEmpty(wishList)}">
+    <form th:action="@{/wishList/clear}" method="post" onsubmit="return confirmClearWishlist();">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="clear-btn">
+            <i class="fa-solid fa-trash-can"></i> 찜 목록 비우기
+        </button>
+    </form>
 </div>
 
 <script>
-    function confirmDeleteFromWishlist() {
-        return confirm("정말로 삭제하시겠습니까?");
-    }
-
     function confirmClearWishlist() {
         return confirm("정말 찜 목록을 비우시겠습니까?");
     }

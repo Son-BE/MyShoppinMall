@@ -1,0 +1,97 @@
+body {
+    margin: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #fafafa;
+    color: #111;
+}
+
+.cart-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 32px;
+    margin-bottom: 24px;
+}
+
+form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+label {
+    display: block;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.btn {
+    padding: 10px 16px;
+    background-color: #111;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.btn:hover {
+    background-color: #333;
+}
+
+.payment-methods label {
+    display: inline-block;
+    margin-right: 16px;
+    font-size: 14px;
+}
+
+#pointBalanceArea {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #444;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 32px;
+    font-size: 14px;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+}
+
+.total {
+    margin-top: 24px;
+    font-weight: 700;
+    font-size: 16px;
+    text-align: right;
+}
+
+.cancel-btn {
+    margin-top: 24px;
+    text-align: center;
+}
+
+.cancel-btn a {
+    color: #888;
+    text-decoration: underline;
+}

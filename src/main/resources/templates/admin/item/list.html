@@ -1,191 +1,296 @@
-    <!DOCTYPE html>
-    <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="_csrf" th:content="${_csrf.token}" />
-        <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-        <title>상품 목록</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    </head>
-
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <title>상품 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
     <style>
         body {
-            background-color: #fdf6f0;
-            font-family: 'Segoe UI', sans-serif;
-            color: #4a3b2d;
+            background-color: #fff;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #333;
         }
 
-
         .navbar {
-            background-color: #ffe5d0;
+            background-color: #000;
+            border-bottom: 1px solid #eee;
         }
 
         .navbar .navbar-brand,
         .navbar .nav-link {
-            color: #6d4c41;
+            color: #fff;
         }
 
         .navbar .nav-link:hover {
-            color: #d84315;
+            color: #f5f5f5;
         }
 
         .sidebar .nav-link {
-            color: #4a3b2d;
+            color: #333;
             font-weight: 500;
         }
 
         .sidebar .nav-link:hover {
-            background-color: #decbb7;
-            color: #3c2f23;
+            background-color: #f8f8f8;
+            color: #000;
         }
 
         .sidebar .nav-link.active {
-            background-color: #d5b9a3;
-            color: #3c2f23;
+            background-color: #333;
+            color: #fff;
             font-weight: bold;
-            border-left: 4px solid #a47148;
         }
 
         .sidebar i {
-            width: 20px;
+            width: 18px;
             margin-right: 8px;
         }
 
-        t   able.table td,
-        table.table th {
+        .table {
+            margin-top: 2rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        .table th,
+        .table td {
             text-align: center;
             vertical-align: middle;
+            padding: 15px;
         }
 
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f8f8f8;
+        }
+
+        .btn-primary {
+            background-color: #000;
+            border-color: #000;
+        }
+
+        .btn-primary:hover {
+            background-color: #333;
+            border-color: #333;
+        }
+
+        .btn-secondary {
+            background-color: #f5f5f5;
+            border-color: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background-color: #ddd;
+            border-color: #ccc;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #000;
+            border-color: #000;
+            color: #fff;
+        }
+
+        .pagination .page-link {
+            color: #333;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #ccc;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.875rem;
+        }
+
+        /* 여백 및 배치 조정 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .pagination {
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-secondary.ms-2 {
+            margin-top: 1rem;
+        }
+
+        .table th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+
+        .table td {
+            color: #555;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            border-color: #f44336;
+        }
+
+        .btn-danger:hover {
+            background-color: #e53935;
+            border-color: #e53935;
+        }
+
+        .action-btn {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
     </style>
+</head>
+<body>
 
-    <body>
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/dashboard">관리자 대시보드</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" th:text="${#authentication.name}">관리자</a>
+                </li>
+                <form th:action="@{/logout}" method="post" class="mb-0">
+                    <button type="submit" class="btn btn-outline-dark btn-sm ms-2">로그아웃</button>
+                </form>
 
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/dashboard">관리자 대시보드</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarNav" aria-controls="navbarNav"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" th:text="${#authentication.name}">관리자</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/logout">로그아웃</a>
-                    </li>
-                </ul>
-            </div>
+
+            </ul>
         </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>상품 목록</h2>
+    <table class="table table-striped table-bordered">
+
+        <thead>
+        <tr>
+            <th>이름</th>
+            <th>상품이미지</th>
+            <th>내용</th>
+            <th>가격</th>
+            <th>재고</th>
+            <th>카테고리</th>
+            <th>하위 카테고리</th>
+            <th>성별</th>
+            <th>액션</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${items}">
+            <td th:text="${item.itemName}">이름</td>
+            <td>
+                <img th:if="${item.imageUrl != null and item.imageUrl != ''}"
+                     th:src="${item.imageUrl}"
+                     alt="상품 이미지" style="width: 100px;" />
+                <img th:unless="${item.imageUrl != null and item.imageUrl != ''}"
+                     src="/images/default.jpg"
+                     alt="기본 이미지" style="width: 100px;" />
+            </td>
+            <td th:text="${item.itemComment}">내용</td>
+            <td th:text="${item.formattedPrice}">가격</td>
+            <td th:text="${item.quantity}">재고</td>
+            <td th:text="${item.category}">카테고리</td>
+            <td th:text="${item.subCategory}">하위 카테고리</td>
+            <td th:text="${item.gender}">성별</td>
+            <td class="action-btn">
+                <a th:href="@{/admin/items/edit/{id}(id=${item.id})}" class="btn btn-primary btn-sm">수정</a>
+                <button class="btn btn-danger btn-sm" th:onclick="'deleteItem(' + ${item.id} + ')'">삭제</button>
+            </td>
+        </tr>
+        </tbody>
+
+    </table>
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/admin/items(page=${currentPage - 1}, category=${category})}">이전</a>
+            </li>
+
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/admin/items(page=${i}, category=${category})}"
+                   th:text="${i + 1}">1</a>
+            </li>
+
+            <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/admin/items(page=${currentPage + 1}, category=${category})}">다음</a>
+            </li>
+        </ul>
     </nav>
 
-    <div class="container mt-4">
-        <h2>상품 목록</h2>
-        <table class="table table-striped table-bordered">
+    <form method="get" action="/admin/items" class="mb-3">
+        <select name="category" class="form-select" onchange="this.form.submit()">
+            <option value="" th:selected="${category == null}">전체</option>
+            <option th:each="cat : ${T(zerobase.MyShoppingMall.type.ItemCategory).values()}"
+                    th:value="${cat}"
+                    th:text="${cat}"
+                    th:selected="${cat == category}"></option>
+        </select>
+    </form>
 
-            <thead>
-            <tr>
-                <th>이름</th>
-                <th>상품이미지</th>
-                <th>내용</th>
-                <th>가격</th>
-                <th>재고</th>
-                <th>카테고리</th>
-                <th>하위 카테고리</th>
-                <th>성별</th>
-                <th>액션</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item : ${items}">
-                <td th:text="${item.itemName}">이름</td>
-                <td>
-                    <img th:if="${item.imageUrl != null and item.imageUrl != ''}"
-                         th:src="${item.imageUrl}"
-                         alt="상품 이미지" style="width: 100px;" />
-                    <img th:unless="${item.imageUrl != null and item.imageUrl != ''}"
-                         src="/images/default.jpg"
-                         alt="기본 이미지" style="width: 100px;" />
-                </td>
-                <td th:text="${item.itemComment}">내용</td>
-                <td th:text="${item.formattedPrice}">가격</td>
-                <td th:text="${item.quantity}">재고</td>
-                <td th:text="${item.category}">카테고리</td>
-                <td th:text="${item.subCategory}">하위 카테고리</td>
-                <td th:text="${item.gender}">성별</td>
-                <td>
-                    <a th:href="@{/admin/items/edit/{id}(id=${item.id})}" class="btn btn-primary btn-sm">수정</a>
-                    <button class="btn btn-danger btn-sm" th:onclick="'deleteItem(' + ${item.id} + ')'">삭제</button>
-                </td>
-            </tr>
-            </tbody>
-
-        </table>
-        <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
-                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                    <a class="page-link"
-                       th:href="@{/admin/items(page=${currentPage - 1}, category=${category})}">이전</a>
-                </li>
-
-                <li class="page-item"
-                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                    th:classappend="${i == currentPage} ? 'active'">
-                    <a class="page-link"
-                       th:href="@{/admin/items(page=${i}, category=${category})}"
-                       th:text="${i + 1}">1</a>
-                </li>
-
-                <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
-                    <a class="page-link"
-                       th:href="@{/admin/items(page=${currentPage + 1}, category=${category})}">다음</a>
-                </li>
-            </ul>
-        </nav>
-        <form method="get" action="/admin/items" class="mb-3">
-            <select name="category" class="form-select" onchange="this.form.submit()">
-                <option value="" th:selected="${category == null}">전체</option>
-                <option th:each="cat : ${T(zerobase.MyShoppingMall.type.ItemCategory).values()}"
-                        th:value="${cat}"
-                        th:text="${cat}"
-                        th:selected="${cat == category}">
-                </option>
-            </select>
-        </form>
-
+    <div class="d-flex justify-content-end mt-3">
+        <a href="/admin/items/create" class="btn btn-secondary ms-2">상품 등록하기</a>
+        <a href="javascript:history.back()" class="btn btn-secondary ms-2">뒤로가기</a>
     </div>
-    <a href="/admin/items/create" class="btn btn-secondary ms-2">상품 등록하기</a>
-    <a href="javascript:history.back()" class="btn btn-secondary ms-2">뒤로가기</a>
+</div>
 
-    <script>
-        function deleteItem(itemId) {
-            if (confirm('정말 삭제하시겠습니까?')) {
-                const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+<script>
+    function deleteItem(itemId) {
+        if (confirm('정말 삭제하시겠습니까?')) {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-                fetch('/admin/items/' + itemId, {
-                    method: 'DELETE',
-                    headers: {
-                        [csrfHeader]: csrfToken
+            fetch('/admin/items/' + itemId, {
+                method: 'DELETE',
+                headers: {
+                    [csrfHeader]: csrfToken
+                }
+            })
+                .then(response => {
+                    if (response.status === 204) {
+                        alert('삭제되었습니다.');
+                        location.reload();
+                    } else {
+                        alert('삭제에 실패했습니다.');
                     }
                 })
-                    .then(response => {
-                        if (response.status === 204) {
-                            alert('삭제되었습니다.');
-                            location.reload();
-                        } else {
-                            alert('삭제에 실패했습니다.');
-                        }
-                    })
-                    .catch(error => alert('삭제 요청 중 오류가 발생했습니다.'));
-            }
+                .catch(error => alert('삭제 요청 중 오류가 발생했습니다.'));
         }
-    </script>
+    }
+</script>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
-    </html>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

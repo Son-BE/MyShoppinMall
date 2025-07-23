@@ -1,0 +1,79 @@
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #fff;
+    color: #111;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-top: 2.5rem;
+    color: #111;
+}
+
+p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 0.8rem;
+}
+
+.checkmark {
+    font-size: 5rem;
+    color: #00c73c;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+}
+
+.summary {
+    max-width: 500px;
+    margin: 2rem auto;
+    text-align: left;
+    background-color: #f9f9f9;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #eee;
+}
+
+.summary p {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.summary strong {
+    color: #000;
+    margin-right: 0.5rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.7rem 1.8rem;
+    background-color: #111;
+    color: white;
+    font-size: 0.9rem;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+    margin: 0 0.5rem;
+}
+
+.btn:hover {
+    background-color: #333;
+}
+
+
+@media (max-width: 600px) {
+    .summary {
+        margin: 1.5rem 1rem;
+        padding: 1.5rem;
+    }
+
+    .btn {
+        width: 90%;
+        display: block;
+        margin: 0.5rem auto;
+    }
+}

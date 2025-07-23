@@ -1,0 +1,88 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+header {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #eee;
+}
+
+/* 상단 바 (로고 + 유저 정보) */
+.top-bar {
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    position: sticky;  /* 화면 상단에 고정 */
+    top: 0;  /* 페이지 상단 고정 */
+    z-index: 10;  /* 다른 요소보다 위에 표시 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  /* 그림자 효과 */
+}
+
+
+.top-bar h2 {
+    font-size: 24px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.user-info {
+    display: flex;
+    gap: 18px;
+    font-size: 14px;
+}
+
+.user-info a {
+    text-decoration: none;
+    color: #111;
+    transition: color 0.2s ease;
+}
+
+.user-info a:hover {
+    color: #888;
+}
+
+/* 네비게이션 바 */
+.main-nav {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    background-color: #fafafa;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 14px 0;
+    position: sticky;
+    top: 60px;  /* 상단 바 바로 아래에 고정 */
+    z-index: 5;  /* 네비게이션 바가 상단 바 바로 아래로 고정 */
+}
+
+.main-nav a {
+    font-size: 15px;
+    font-weight: 500;
+    color: #111;
+    position: relative;
+    text-decoration: none;
+}
+
+.main-nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    height: 1px;
+    width: 0%;
+    background-color: #111;
+    transition: width 0.3s ease;
+}
+
+.main-nav a:hover::after {
+    width: 100%;
+}

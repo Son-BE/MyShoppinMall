@@ -5,62 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>관리자 대시보드</title>
 
-    <!-- Bootstrap CSS -->
+    <!-- Google Fonts + Bootstrap -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
 
     <style>
         body {
-            background-color: #fff8f3;
-            font-family: 'Segoe UI', sans-serif;
-            color: #4e342e;
+            background-color: #ffffff;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #111111;
         }
 
         .navbar {
-            background-color: #ffe5d0;
+            background-color: #000000;
+            border-bottom: 1px solid #e0e0e0;
         }
 
         .navbar .navbar-brand,
         .navbar .nav-link {
-            color: #6d4c41;
-        }
-
-        .navbar .nav-link:hover {
-            color: #d84315;
-        }
-
-        .sidebar {
-            background-color: #fff3e0;
-            height: 100vh;
-            padding-top: 2rem;
-            border-right: 1px solid #ffccbc;
-        }
-
-        .sidebar .nav-link {
-            color: #4e342e;
+            color: #ffffff;
             font-weight: 500;
         }
 
-        .sidebar .nav-link:hover {
-            background-color: #ffe0b2;
-            color: #3c2f23;
+        .navbar .nav-link:hover {
+            color: #f5f5f5;
+        }
+
+        .sidebar {
+            background-color: #f9f9f9;
+            height: 100vh;
+            padding-top: 2rem;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .sidebar .nav-link {
+            color: #333333;
+            font-weight: 500;
+            padding: 10px 15px;
+            transition: background-color 0.2s ease;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: #ececec;
+            color: #000;
         }
 
         .card {
-            background-color: #fff3e0;
-            border: 1px solid #ffccbc;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
-            color: #4e342e;
-            box-shadow: 0 2px 5px rgba(255, 138, 101, 0.15);
+            background-color: #ffffff;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            color: #111111;
+            font-weight: 600;
+        }
+
+        .card-body span {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #222222;
         }
 
         .table th {
-            background-color: #ffe0b2;
-            color: #4e342e;
+            background-color: #f7f7f7;
+            color: #222222;
         }
 
         .table td {
-            color: #5d4037;
+            color: #444444;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 버튼 스타일 */
+        .btn-outline-dark {
+            border-color: #000;
+            color: #000;
+        }
+
+        .btn-outline-dark:hover {
+            background-color: #000;
+            color: #fff;
         }
     </style>
 </head>
@@ -70,20 +103,14 @@
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">관리자 대시보드</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarNav" aria-controls="navbarNav"
-                aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item">
                     <a class="nav-link" href="#" th:text="${#authentication.name}">관리자</a>
                 </li>
-                <form th:action="@{/logout}" method="post">
-                    <button type="submit" class="btn btn-link nav-link">로그아웃</button>
+                <form th:action="@{/logout}" method="post" class="mb-0">
+                    <button type="submit" class="btn btn-outline-dark btn-sm ms-2">로그아웃</button>
                 </form>
-
             </ul>
         </div>
     </div>
@@ -92,86 +119,70 @@
 <div class="container-fluid">
     <div class="row">
         <!-- 사이드바 -->
-        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+        <nav class="col-md-3 col-lg-2 sidebar collapse d-md-block">
             <ul class="nav flex-column">
-                <!-- 대시보드 -->
                 <li class="nav-item">
-                    <a class="nav-link"
-                       href="/dashboard"
+                    <a class="nav-link" href="/dashboard"
                        th:classappend="${uri != null and uri.startsWith('/dashboard')} ? ' active'">
-                        <i class="fas fa-chart-line"></i> 대시보드
+                        <i class="fas fa-chart-line me-2"></i> 대시보드
                     </a>
                 </li>
 
-                <!-- 회원 관리 -->
                 <li class="nav-item">
-                    <a class="nav-link"
-                       data-bs-toggle="collapse"
-                       href="#memberSub"
-                       role="button"
-                       aria-expanded="false"
-                       aria-controls="memberSub"
+                    <a class="nav-link" data-bs-toggle="collapse" href="#memberSub" role="button"
+                       aria-expanded="false" aria-controls="memberSub"
                        th:classappend="${uri != null and uri.startsWith('/admin/members')} ? ' active'">
-                        <i class="fas fa-users"></i> 회원 관리
+                        <i class="fas fa-users me-2"></i> 회원 관리
                     </a>
                     <div class="collapse ps-3"
                          id="memberSub"
                          th:classappend="${uri != null and uri.startsWith('/admin/members')} ? ' show'">
-                        <a class="nav-link"
-                           href="/admin/members"
-                           th:classappend="${uri == '/admin/members'} ? ' active'">
-                            <i class="fas fa-user-friends"></i> 전체 회원
-                        </a>
-                        <a class="nav-link"
-                           href="/admin/members/new"
-                           th:classappend="${uri == '/admin/members/new'} ? ' active'">
-                            <i class="fas fa-user-plus"></i> 신규 회원
-                        </a>
+                        <a class="nav-link" href="/admin/members"
+                           th:classappend="${uri == '/admin/members'} ? ' active'">전체 회원</a>
+                        <a class="nav-link" href="/admin/members/new"
+                           th:classappend="${uri == '/admin/members/new'} ? ' active'">신규 회원</a>
                     </div>
                 </li>
 
-                <!-- 주문 관리 -->
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#orderSub" role="button" aria-expanded="false"
                        aria-controls="orderSub">
-                        <i class="fas fa-box"></i> 주문 관리
+                        <i class="fas fa-box me-2"></i> 주문 관리
                     </a>
                     <div class="collapse ps-3" id="orderSub">
-                        <a class="nav-link" href="/admin/orders/entire"><i class="fas fa-list-alt"></i> 전체 주문</a>
-                        <a class="nav-link" href="/admin/orders/waiting_order"><i class="fas fa-clock"></i> 배송 대기 주문</a>
-                        <a class="nav-link" href="/admin/orders/cancel_requests"><i class="fas fa-rotate-back"></i> 취소 요청</a>
+                        <a class="nav-link" href="/admin/orders/entire">전체 주문</a>
+                        <a class="nav-link" href="/admin/orders/waiting_order">배송 대기 주문</a>
+                        <a class="nav-link" href="/admin/orders/cancel_requests">취소 요청</a>
                     </div>
                 </li>
 
-                <!-- 상품 관리 -->
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#itemSub" role="button" aria-expanded="false"
                        aria-controls="itemSub">
-                        <i class="fas fa-boxes-stacked"></i> 상품 관리
+                        <i class="fas fa-boxes-stacked me-2"></i> 상품 관리
                     </a>
                     <div class="collapse ps-3" id="itemSub">
-                        <a class="nav-link" href="/admin/items/create"><i class="fas fa-plus-square"></i> 상품 등록</a>
-                        <a class="nav-link" href="/admin/items"><i class="fas fa-list-ul"></i> 상품 목록</a>
+                        <a class="nav-link" href="/admin/items/create">상품 등록</a>
+                        <a class="nav-link" href="/admin/items">상품 목록</a>
                     </div>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/admin/points/grant" th:classappend="${uri != null and uri.startsWith('/admin/points')} ? ' active'">
-                        <i class="fas fa-coins"></i> 포인트 관리
+                    <a class="nav-link" href="/admin/points/grant"
+                       th:classappend="${uri != null and uri.startsWith('/admin/points')} ? ' active'">
+                        <i class="fas fa-coins me-2"></i> 포인트 관리
                     </a>
                 </li>
 
-                <!-- 정산 시스템 -->
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#settlementSub" role="button" aria-expanded="false"
                        aria-controls="settlementSub">
-                        <i class="fas fa-money-bill-wave"></i> 정산 시스템
+                        <i class="fas fa-money-bill-wave me-2"></i> 정산 시스템
                     </a>
                     <div class="collapse ps-3" id="settlementSub">
-                        <a class="nav-link" href="/admin/settlements"><i class="fas fa-plus-square"></i> 정산 목록</a>
+                        <a class="nav-link" href="/admin/settlements">정산 목록</a>
                     </div>
                 </li>
-
             </ul>
         </nav>
 
@@ -179,51 +190,47 @@
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <h1 class="mt-4">대시보드</h1>
 
-            <div class="row my-4">
+            <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="card" th:style="'background-color:#ffe0b2;'">
+                    <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">총 회원 수</h5>
-                            <p><span th:text="${totalMembers}"></span></p>
+                            <p><span th:text="${totalMembers}">0</span></p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card bg-success mb-3">
-                        <div class="card" th:style="'background-color:#ffe0b2;'">
-                            <div class="card-body">
-                                <h5 class="card-title">신규 회원 가입 수(최근 7일)</h5>
-                                <p><span th:text="${newMembers}"></span></p>
-                            </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">신규 회원 가입 수(최근 7일)</h5>
+                            <p><span th:text="${newMembers}">0</span></p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card bg-success mb-3">
-                        <div class="card" th:style="'background-color:#ffe0b2;'">
-                            <div class="card-body">
-                                <h5 class="card-title">남성 회원 수</h5>
-                                <p><span th:text="${maleMembers}"></span></p>
-                            </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">남성 회원 수</h5>
+                            <p><span th:text="${maleMembers}">0</span></p>
                         </div>
                     </div>
-                </div><div class="col-md-4">
-                <div class="card bg-success mb-3">
-                    <div class="card" th:style="'background-color:#ffe0b2;'">
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">여성 회원 수</h5>
-                            <p><span th:text="${femaleMembers}"></span></p>
-                        </div>
-                    </div>
-                </div><div class="card bg-success mb-3">
-                    <div class="card" th:style="'background-color:#ffe0b2;'">
-                        <div class="card-body">
-                            <h5 class="card-title">최근 1개월 가입자</h5>
-                            <p><span th:text="${monthlyNewMembers}"></span></p>
+                            <p><span th:text="${femaleMembers}">0</span></p>
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">최근 1개월 가입자</h5>
+                            <p><span th:text="${monthlyNewMembers}">0</span></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

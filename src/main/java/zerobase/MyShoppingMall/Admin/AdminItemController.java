@@ -42,9 +42,8 @@ public class AdminItemController {
     @PostMapping("/create")
     public String createItem(@ModelAttribute ItemRequestDto requestDto) throws IOException {
         itemService.createItem(requestDto);
-        return "redirect:/dashboard"; // 등록 후 목록 페이지 이동
+        return "redirect:/dashboard";
     }
-
 
     // 상품 삭제
     @DeleteMapping("/{itemId}")
@@ -96,16 +95,10 @@ public class AdminItemController {
     public String showCreateForm(Model model) {
         model.addAttribute("item", new ItemRequestDto());
         model.addAttribute("categories", ItemCategory.values());
-
-        Map<String, List<String>> subCategoryMap = Arrays.stream(ItemSubCategory.values())
-                .collect(Collectors.groupingBy(
-                        sub -> sub.getItemCategory().name(),
-                        Collectors.mapping(ItemSubCategory::name, Collectors.toList())
-                ));
-        model.addAttribute("subCategories", subCategoryMap);
-
+        model.addAttribute("subCategories", new HashMap<String, List<ItemSubCategory>>());
         return "admin/item/create";
     }
+
 
     // 상품 수정 폼 이동
     @GetMapping("/edit/{itemId}")
@@ -114,5 +107,18 @@ public class AdminItemController {
         model.addAttribute("item", item);
         model.addAttribute("categories", ItemCategory.values());
         return "admin/item/edit";
+    }
+
+    @GetMapping("/get-subcategories")
+    @ResponseBody
+    public Map<String, List<ItemSubCategory>> getSubCategoriesByCategory(@RequestParam ItemCategory category) {
+        Map<String, List<ItemSubCategory>> subCategoryMap = Arrays.stream(ItemSubCategory.values())
+                .filter(sub -> sub.getItemCategory() == category)
+                .collect(Collectors.groupingBy(
+                        sub -> sub.getItemCategory().name(),
+                        Collectors.toList()
+                ));
+
+        return subCategoryMap;
     }
 }

@@ -1,156 +1,137 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
-
-html, body {
-    height: 100%;
+body {
     margin: 0;
-    padding: 0;
     font-family: 'Noto Sans KR', sans-serif;
-    background-color: #f5f7fa;
-    color: #2c3e50;
-}
-
-.wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.container {
-    flex: 1;
-    padding: 0rem;
-}
-
-header, nav, footer {
-    padding: 1rem 2rem;
-    background-color: #f8f8f8;
-    border-bottom: 1px solid #ddd;
-}
-
-nav a {
-    margin-right: 1rem;
-    text-decoration: none;
-    color: #34495e;
-    font-weight: 500;
-}
-
-nav a:hover {
-    color: #e67e22;
-}
-
-form {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    padding: 1rem 2rem;
     background-color: #fafafa;
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
-    flex-wrap: wrap;
+    color: #111;
 }
 
-form label {
-    font-weight: 500;
-}
-
-select, button {
-    padding: 0.6rem 1.2rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #fff;
-    color: #333;
-    font-weight: 500;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #e67e22;
-    color: white;
-    border-color: #e67e22;
-    transition: 0.3s ease;
-}
-
+/* 컨테이너 구조 */
 .products-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 2rem 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 32px;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
+/* 상품 카드 */
 .product-card {
-    width: 320px;
     background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+    border: 1px solid #eee;
+    border-radius: 10px;
     overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    text-align: center;
-    padding-bottom: 1rem;
+    transition: box-shadow 0.3s ease;
 }
 
 .product-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .product-card img {
     width: 100%;
-    height: 220px;
+    height: 280px;
     object-fit: cover;
+    display: block;
 }
 
 .product-card h3 {
-    font-size: 1.1rem;
-    margin: 1rem 0 0.5rem;
-    color: #1e1e2f;
+    font-size: 16px;
+    font-weight: 500;
+    margin: 12px 0 4px 0;
+    padding: 0 12px;
 }
 
 .product-card p {
-    color: #ff6b6b;
-    font-weight: 600;
-    margin: 0;
-    font-size: 0.95rem;
+    font-size: 15px;
+    font-weight: bold;
+    color: #222;
+    padding: 0 12px 12px 12px;
 }
 
-footer {
-    text-align: center;
-    background-color: #f8f8f8;
-    color: #777;
-    padding: 1rem 2rem;
-    border-top: 1px solid #ddd;
+/* 필터 폼 */
+.filter-form {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-@media (max-width: 768px) {
-    form {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+.filter-form label {
+    margin-right: 16px;
+    font-size: 14px;
 }
 
+.filter-form select {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.filter-form button {
+    padding: 8px 16px;
+    background-color: #111;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.filter-form button:hover {
+    background-color: #333;
+}
+
+/* 페이지네이션 */
 .pagination {
+    max-width: 1200px;
+    margin: 40px auto;
     text-align: center;
-    margin: 30px 0;
 }
 
 .pagination ul {
     list-style: none;
     display: inline-flex;
-    gap: 10px;
+    gap: 8px;
     padding: 0;
 }
 
-.pagination a {
-    padding: 6px 12px;
-    border-radius: 6px;
+.pagination li a {
+    display: inline-block;
+    padding: 8px 14px;
     border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #111;
     text-decoration: none;
-    font-size: 0.9rem;
-    color: #1e1e2f;
-    transition: background 0.3s, color 0.3s;
 }
 
-.pagination a.active,
-.pagination a:hover {
-    background-color: #1e1e2f;
-    color: white !important;
+.pagination li a.active,
+.pagination li a:hover {
+    background-color: #111;
+    color: #fff;
+    border-color: #111;
+}
+
+/* 경고 메시지 */
+.alert {
+    background-color: #ffe0e0;
+    color: #c00;
+    padding: 12px 20px;
+    text-align: center;
     font-weight: bold;
+    margin: 20px auto;
+    max-width: 800px;
+    border-radius: 6px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.1);
 }
