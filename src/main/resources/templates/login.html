@@ -5,6 +5,9 @@
     <title>로그인 | MyShop</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5495390382896894"
+            crossorigin="anonymous">
+    </script>
     <style>
         /* 전체 배경 및 기본 폰트 */
         body {
@@ -88,68 +91,58 @@
         }
 
         /* 오Auth 로그인 버튼 */
-        .social-btn {
+        .social-login-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .social-btn.round {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
             border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        .social-btn img {
-            height: 22px;
-            width: 22px;
-            margin-right: 10px;
+        .social-btn.round:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        .social-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        .social-btn.round img {
+            width: 28px;
+            height: 28px;
         }
 
-        /* 카카오 로그인 버튼 */
-        .btn-kakao {
+        .btn-kakao.round {
             background-color: #fee500;
-            color: #3c1e1e;
         }
 
-        /* 네이버 로그인 버튼 */
-        .btn-naver {
+        .btn-naver.round {
             background-color: #03c75a;
-            color: white;
         }
 
-        /* 구글 로그인 버튼 */
-        .btn-google {
-            background-color: white;
-            color: #444;
+        .btn-google.round {
+            background-color: #ffffff;
             border: 1px solid #ddd;
         }
 
-        .btn-google:hover {
-            border-color: #bbb;
-        }
-        .social-btn img {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-
-        /* 모바일 대응 */
         @media (max-width: 768px) {
-            .login-container {
-                padding: 20px;
-                max-width: 100%;
+            .social-btn.round {
+                width: 50px;
+                height: 50px;
+            }
+
+            .social-btn.round img {
+                width: 24px;
+                height: 24px;
             }
         }
 
@@ -189,20 +182,32 @@
         <hr class="my-4" />
 
         <!-- OAuth2 로그인 -->
-        <a href="/oauth2/authorization/kakao" class="social-btn btn-kakao">
-            <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_small.png" alt="카카오 로고" />
-            카카오 로그인
-        </a>
-
-        <a href="/oauth2/authorization/naver" class="social-btn btn-naver">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Naver_Logotype.svg/512px-Naver_Logotype.svg.png" alt="네이버 로고" />
-            네이버 로그인
-        </a>
-
-        <a href="/oauth2/authorization/google" class="social-btn btn-google">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="구글 로고" />
-            구글 로그인
-        </a>
+        <div class="social-login-wrapper">
+            <a href="/oauth2/authorization/kakao" class="social-btn btn-kakao round" title="카카오 로그인">
+                <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_small.png" alt="카카오 로고" />
+            </a>
+            <a href="/oauth2/authorization/naver" class="social-btn btn-naver round" title="네이버 로그인" style="padding:0;">
+                <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="28"
+                        height="28"
+                        viewBox="0 0 64 64"
+                        role="img"
+                        aria-label="네이버 로고"
+                >
+                    <!-- 배경 초록색 원 -->
+                    <circle cx="32" cy="32" r="32" fill="#03c75a"/>
+                    <!-- 흰색 N 문자 (크기 키움, 좌우 여백 최소화) -->
+                    <path
+                            d="M18 46V18h7.5l11.5 16V18h7v28h-7l-11.5-16v16H18z"
+                            fill="#fff"
+                    />
+                </svg>
+            </a>
+            <a href="/oauth2/authorization/google" class="social-btn btn-google round" title="구글 로그인">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="구글 로고" />
+            </a>
+        </div>
     </div>
 </section>
 </body>

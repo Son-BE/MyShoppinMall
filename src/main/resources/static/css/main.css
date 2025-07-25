@@ -5,7 +5,6 @@ body {
     color: #111;
 }
 
-/* 컨테이너 구조 */
 .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -15,7 +14,6 @@ body {
     margin: 0 auto;
 }
 
-/* 상품 카드 */
 .product-card {
     background-color: #fff;
     border: 1px solid #eee;
@@ -49,7 +47,6 @@ body {
     padding: 0 12px 12px 12px;
 }
 
-/* 필터 폼 */
 .filter-form {
     max-width: 1200px;
     margin: 0 auto;
@@ -92,7 +89,6 @@ body {
     background-color: #333;
 }
 
-/* 페이지네이션 */
 .pagination {
     max-width: 1200px;
     margin: 40px auto;
@@ -123,7 +119,6 @@ body {
     border-color: #111;
 }
 
-/* 경고 메시지 */
 .alert {
     background-color: #ffe0e0;
     color: #c00;
@@ -133,5 +128,44 @@ body {
     margin: 20px auto;
     max-width: 800px;
     border-radius: 6px;
-    box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.side-banner {
+    position: fixed;
+    top: 200px;
+    width: 160px;
+    padding: 12px;
+    background-color: #fff;
+    border: 1px solid #eee;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+    font-size: 14px;
+    text-align: center;
+    z-index: 100;
+}
+
+.left-banner {
+    left: 20px;
+}
+
+.right-banner {
+    right: 20px;
+}
+
+.floating-box {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 140px;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    font-size: 13px;
+}
+
+@media (max-width: 1300px) {
+    .side-banner {
+        display: none;
+    }
 }

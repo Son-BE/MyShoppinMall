@@ -4,46 +4,35 @@ body {
     background-color: #fafafa;
     color: #111;
 }
-.cart-container {
-    max-width: 900px;
-    margin: 0 auto 40px;
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
-}
 
 .cart-title {
+    max-width: 960px;
+    margin: 60px auto 30px;
     font-size: 2rem;
     font-weight: 600;
-    border-bottom: 2px solid #000;
     padding-bottom: 12px;
-    margin-bottom: 40px;
-    text-align: left;
+    border-bottom: 2px solid #000;
 }
 
 .cart-table {
-    width: 100%;
+    width: 90%;
+    max-width: 960px;
+    margin: 0 auto 40px;
     border-collapse: collapse;
-    margin-bottom: 30px;
 }
 
-.cart-table th,
-.cart-table td {
-    padding: 18px 12px;
-    font-size: 15px;
+.cart-table th, td {
+    padding: 16px;
     text-align: center;
     border-bottom: 1px solid #ddd;
-    vertical-align: middle;
+    font-size: 14px;
 }
 
 .cart-table th {
     background-color: #fafafa;
-    font-weight: 500;
     color: #222;
-    font-size: 14px;
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .cart-table td img {
@@ -54,49 +43,75 @@ body {
 }
 
 .cart-total {
+    max-width: 960px;
+    margin: 20px auto 10px; /* 테이블과 cart-actions 사이에 위치 */
     font-size: 1.4rem;
     font-weight: 600;
     text-align: right;
-    margin-top: 10px;
     color: #000;
 }
 
 .cart-actions {
-    margin-top: 40px;
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 12px;
+    max-width: 960px;
+    margin: 0 auto 60px;
+    padding-top: 10px;
+}
+
+.cart-actions form,
+.cart-actions button {
+    margin: 0;
 }
 
 .cart-actions button {
-    padding: 12px 22px;
+    padding: 12px 24px;
     font-size: 14px;
     background-color: #000;
     color: #fff;
     border: none;
     border-radius: 6px;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease;
     cursor: pointer;
 }
 
 .cart-actions button:hover {
     background-color: #333;
 }
+.empty-cart-message {
+    text-align: center;
+    padding: 50px 0;
+    font-size: 1.2rem;
+    color: #555;
+}
 
-/* 모바일 대응 */
+.go-shopping-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #111;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.go-shopping-button:hover {
+    background-color: #333;
+}
+
 @media (max-width: 768px) {
-    .cart-table th,
-    .cart-table td {
-        padding: 12px 6px;
-        font-size: 13px;
-    }
-
     .cart-actions {
         flex-direction: column;
-        align-items: flex-end;
+        align-items: center;
+        gap: 10px;
     }
 
     .cart-actions button {
         width: 100%;
+        max-width: 300px;
     }
 }

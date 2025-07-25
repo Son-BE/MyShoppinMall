@@ -14,15 +14,18 @@
 <body>
 <header>
     <div class="top-bar">
-        <h2 th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">
+        <h2 th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
             <i class="fa-solid fa-store" aria-hidden="true"></i>
             병의's 쇼핑몰
         </h2>
         <div class="user-info">
-            <div th:if="${#authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/members/profile}" aria-label="프로필 페이지 이동">
-                    <i class="fa-solid fa-user" aria-hidden="true"></i>
-                    <span th:text="${#authentication.name} + '님'"></span>
+            <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
+                <span th:text="${#authentication.name} + '님'" style="align-self: center;"></span>
+
+                <a th:href="@{/members/profile}" class="profile-button" aria-label="프로필 페이지 이동">
+                    <button type="submit" class="logout-button" aria-label="로그아웃">
+                        <i class="fa-solid fa-user" aria-hidden="true"></i> 내 정보
+                    </button>
                 </a>
                 <form th:action="@{/logout}" method="post" style="display:inline;">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -30,12 +33,13 @@
                         <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
                     </button>
                 </form>
+                <div th:if="${!#authorization.expression('isAuthenticated()')}">
+                    <a th:href="@{/login}" class="login-button" title="로그인" aria-label="로그인 페이지 이동">
+                        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                    </a>
+                </div>
             </div>
-            <div th:if="${!#authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/login}" title="로그인" aria-label="로그인 페이지 이동">
-                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
-                </a>
-            </div>
+
         </div>
     </div>
 

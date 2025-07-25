@@ -67,9 +67,6 @@ public class CartViewController {
             if (item.getItem().getImageUrl() != null && !item.getItem().getImageUrl().isEmpty()) {
                 imagePath = item.getItem().getImageUrl();  // S3 URL 사용
             }
-//            if (item.getItem().getItemImages() != null && !item.getItem().getItemImages().isEmpty()) {
-//                imagePath = item.getItem().getItemImages().get(0).getImagePath();
-//            }
 
             return CartItemResponseDto.builder()
                     .cartItemId(item.getId())
