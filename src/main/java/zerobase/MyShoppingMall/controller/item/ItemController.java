@@ -61,22 +61,34 @@ public class ItemController {
     public String getItemDetail(@PathVariable Long id,
                                 @AuthenticationPrincipal CustomUserDetails userDetails,
                                 Model model) {
-        ItemResponseDto item = itemService.getItemWithCache(id);
-        List<Review> reviews = reviewRepository.findByItemIdOrderByCreatedAtDesc(id);
+        try {
+            ItemResponseDto item = itemService.getItemWithCache(id);
+            if (item == null) {
+                model.addAttribute("errorMessage", "해당 상품을 찾을 수 없습니다.");
+                return "error/404";
+            }
 
+            List<Review> reviews = reviewRepository.findByItemIdOrderByCreatedAtDesc(id);
 
-        boolean canWriteReview = true;
-        if (userDetails != null) {
-            Long memberId = userDetails.getMember().getId();
-            canWriteReview = !reviewRepository.existsByItemIdAndMemberId(id, memberId);
+            boolean canWriteReview = true;
+            if (userDetails != null) {
+                Long memberId = userDetails.getMember().getId();
+                canWriteReview = !reviewRepository.existsByItemIdAndMemberId(id, memberId);
+            }
+
+            model.addAttribute("item", item);
+            model.addAttribute("reviews", reviews);
+            model.addAttribute("averageRating", reviewService.getAverageRating(id));
+            model.addAttribute("canWriteReview", canWriteReview);
+
+            return "user/detail";
+        } catch (Exception e) {
+            // 예외 발생 시 로그 출력 및 에러 페이지 이동
+            e.printStackTrace(); // 또는 log.error("에러 발생", e);
+            model.addAttribute("errorMessage", "상품 상세 정보를 불러오는 중 문제가 발생했습니다.");
+            return "error/500";
         }
-
-        model.addAttribute("item", item);
-        model.addAttribute("reviews", reviews);
-        model.addAttribute("averageRating", reviewService.getAverageRating(id));
-        model.addAttribute("canWriteReview", canWriteReview);
-
-        return "user/detail";
     }
+
 
 }
