@@ -3,8 +3,6 @@ package zerobase.MyShoppingMall.Admin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import zerobase.MyShoppingMall.dto.item.ItemRequestDto;
 import zerobase.MyShoppingMall.dto.item.ItemResponseDto;
-import zerobase.MyShoppingMall.entity.Item;
 import zerobase.MyShoppingMall.service.item.ItemService;
 import zerobase.MyShoppingMall.type.ItemCategory;
 import zerobase.MyShoppingMall.type.ItemSubCategory;
@@ -32,13 +29,6 @@ public class AdminItemController {
 
     private final ItemService itemService;
 
-    //    // 상품 등록
-//    @PostMapping("/create")
-//    public String createItem(@ModelAttribute ItemRequestDto itemRequestDto,
-//                             @RequestParam("imageFile") MultipartFile imageFile) {
-//        itemService.createItem(itemRequestDto,imageFile);
-//        return "redirect:/admin/items";
-//    }
     @PostMapping("/create")
     public String createItem(@ModelAttribute ItemRequestDto requestDto) throws IOException {
         itemService.createItem(requestDto);

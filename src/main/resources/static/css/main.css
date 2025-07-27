@@ -154,14 +154,21 @@ body {
 
 .floating-box {
     position: fixed;
-    bottom: 100px;
-    right: 20px;
-    width: 140px;
+    bottom: 50px;
+    left: 20px;
     background: white;
-    border: 1px solid #ccc;
     padding: 10px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-    font-size: 13px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    width: 120px;
+    font-family: 'Noto Sans KR', sans-serif;
+    z-index: 1000;
+}
+.floating-box h4 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: 600;
 }
 
 @media (max-width: 1300px) {

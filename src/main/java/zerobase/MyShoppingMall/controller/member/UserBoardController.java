@@ -47,9 +47,6 @@ public class UserBoardController {
                 case RETURN:
                     categoryName = "교환/환불 문의";
                     break;
-                case REVIEW:
-                    categoryName = "상품 후기";
-                    break;
                 case EVENT:
                     categoryName = "이벤트";
                     break;
@@ -94,7 +91,18 @@ public class UserBoardController {
     }
 
     @GetMapping("/write")
-    public String writeForm(Model model) {
+    public String writeForm(@RequestParam(required = false) BoardCategory category,
+                            @AuthenticationPrincipal CustomUserDetails userDetails,
+                            RedirectAttributes redirectAttributes,
+                            Model model) {
+
+        if (category != null) {
+            if (isAdminOnlyCategory(category) && !isAdmin(userDetails)) {
+                redirectAttributes.addFlashAttribute("error", "해당 게시판은 관리자만 글을 작성할 수 있습니다.");
+                return "redirect:/board?category=" + category;
+            }
+        }
+
         model.addAttribute("board", new UserBoard());
         model.addAttribute("categories", BoardCategory.values());
         return "board/write";
@@ -125,7 +133,14 @@ public class UserBoardController {
 
     @PostMapping("/write")
     public String write(@ModelAttribute UserBoard userBoard,
-                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        RedirectAttributes redirectAttributes) {
+
+        if (isAdminOnlyCategory(userBoard.getCategory()) && !isAdmin(userDetails)) {
+            redirectAttributes.addFlashAttribute("error", "해당 게시판은 관리자만 글을 작성할 수 있습니다.");
+            return "redirect:/board?category=" + userBoard.getCategory();
+        }
+
         userBoardService.createBoard(userBoard, userDetails.getMember());
         return "redirect:/board?category=" + userBoard.getCategory();
     }
@@ -174,6 +189,20 @@ public class UserBoardController {
         UserBoard board = userBoardService.findBoardById(id);
         commentService.writeComment(content, board, userDetails.getMember());
         return "redirect:/board/" + id;
+    }
+
+    // 관리자 권한 체크
+    private boolean isAdmin(CustomUserDetails userDetails) {
+        if (userDetails == null) return false;
+        return userDetails.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    // 관리자만 글쓰기
+    private boolean isAdminOnlyCategory(BoardCategory category) {
+        return category == BoardCategory.NOTICE
+                || category == BoardCategory.QNA
+                || category == BoardCategory.EVENT;
     }
 
 }

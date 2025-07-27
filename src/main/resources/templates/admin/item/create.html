@@ -137,7 +137,8 @@
                 <label for="category" class="form-label required">카테고리</label>
                 <select class="form-select" id="category" name="category" required>
                     <option value="">카테고리 선택</option>
-                    <option th:each="cat : ${categories}" th:value="${cat.name()}" th:text="${cat.displayName}"></option>
+                    <option th:each="cat : ${categories}" th:value="${cat.name()}"
+                            th:text="${cat.displayName}"></option>
                 </select>
             </div>
 
@@ -158,7 +159,8 @@
             <!-- 재고 -->
             <div class="mb-3">
                 <label for="quantity" class="form-label required">재고 수량</label>
-                <input type="number" class="form-control" id="quantity" th:field="*{quantity}" min="0" step="1" required/>
+                <input type="number" class="form-control" id="quantity" th:field="*{quantity}" min="0" step="1"
+                       required/>
             </div>
 
             <!-- 이미지 업로드 -->

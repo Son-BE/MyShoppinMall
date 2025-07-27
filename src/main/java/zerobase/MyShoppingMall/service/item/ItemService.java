@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemService {
     private final ItemRepository itemRepository;
-//    private final ItemImageService itemImageService;
-//    private final ItemImageRepository itemImageRepository;
     private final S3UploadService s3UploadService;
     private final CartItemRepository cartItemRepository;
     private final WishListRepository wishListRepository;
@@ -137,11 +135,6 @@ public class ItemService {
             String imageUrl = s3UploadService.uploadFile(imageFile);
             item.setImageUrl(imageUrl);
         }
-
-//        if (imageFile != null && !imageFile.isEmpty()) {
-//            itemImageService.deleteItemImage(item.getId());
-//            itemImageService.saveItemImage(item.getId(), imageFile);
-//        }
 
         ItemResponseDto updatedDto = ItemResponseDto.fromEntity(item);
         cacheItem(updatedDto); // 수정 후 캐싱 갱신

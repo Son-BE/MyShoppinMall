@@ -2,6 +2,7 @@ package zerobase.MyShoppingMall.controller.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,9 +10,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import zerobase.MyShoppingMall.dto.item.ItemResponseDto;
+import zerobase.MyShoppingMall.entity.Review;
+import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
+import zerobase.MyShoppingMall.repository.item.ReviewRepository;
 import zerobase.MyShoppingMall.service.item.ItemService;
+import zerobase.MyShoppingMall.service.item.ReviewServiceImpl;
 import zerobase.MyShoppingMall.type.Gender;
-import zerobase.MyShoppingMall.type.ItemSubCategory;
 
 import java.util.List;
 
@@ -21,6 +25,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
+    private final ReviewServiceImpl reviewService;
+    private final ReviewRepository reviewRepository;
 
     @GetMapping
     public String getItemsPage(
@@ -52,9 +58,24 @@ public class ItemController {
     }
 
     @GetMapping("/detail/{id}")
-    public String getItemDetail(@PathVariable Long id, Model model) {
+    public String getItemDetail(@PathVariable Long id,
+                                @AuthenticationPrincipal CustomUserDetails userDetails,
+                                Model model) {
         ItemResponseDto item = itemService.getItemWithCache(id);
+        List<Review> reviews = reviewRepository.findByItemIdOrderByCreatedAtDesc(id);
+
+
+        boolean canWriteReview = true;
+        if (userDetails != null) {
+            Long memberId = userDetails.getMember().getId();
+            canWriteReview = !reviewRepository.existsByItemIdAndMemberId(id, memberId);
+        }
+
         model.addAttribute("item", item);
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("averageRating", reviewService.getAverageRating(id));
+        model.addAttribute("canWriteReview", canWriteReview);
+
         return "user/detail";
     }
 

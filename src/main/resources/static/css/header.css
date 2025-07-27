@@ -4,107 +4,122 @@
     box-sizing: border-box;
 }
 
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #fafafa;
+    color: #111;
+}
+
+/* 헤더 */
 header {
     background-color: #fff;
     position: sticky;
     top: 0;
     z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
-    border-bottom: 1px solid #eee;
 }
-.login-button {
-    padding: 6px 12px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    background-color: #f6f6f6;
-    color: #111;
-    border-radius: 4px;
+
+/* 상단바: 로고 + 유저정보 */
+.top-bar {
+    position: relative;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* 로고 클릭시 커서 표시 */
+.top-bar h2 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0; /* 혹시 기본 margin 있다면 제거 */
+    font-size: 24px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    z-index: 10; /* 유저정보 위에 올라오도록 */
+}
+
+
+.user-info {
+    /* 기존 스타일 유지 */
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: nowrap;
+    position: relative; /* z-index 겹침 방지용 */
+    z-index: 20;
+}
+
+/* 내 정보, 로그아웃 버튼 스타일 통일 */
+.logout-button, .login-button {
     display: flex;
     align-items: center;
     gap: 6px;
+    padding: 6px 14px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+}
+
+.login-button {
+    background-color: #f6f6f6;
+    color: #111;
+    border-color: #ccc;
+    text-decoration: none;
 }
 
 .login-button:hover {
     background-color: #eaeaea;
     color: #000;
 }
+
 .logout-button {
-    padding: 6px 12px;
-    font-size: 14px;
-    border: none;
     background-color: #111;
     color: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    border: none;
 }
 
 .logout-button:hover {
     background-color: #333;
+    color: #fff;
 }
 
-/* 상단 바 (로고 + 유저 정보) */
-.top-bar {
-    padding: 20px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #fff;
-    position: sticky;  /* 화면 상단에 고정 */
-    top: 0;  /* 페이지 상단 고정 */
-    z-index: 10;  /* 다른 요소보다 위에 표시 */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  /* 그림자 효과 */
+/* 프로필 내 정보 버튼 */
+.profile-button button.logout-button {
+    padding: 6px 12px;
 }
 
-
-.top-bar h2 {
-    font-size: 24px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.user-info {
-    display: flex;
-    gap: 18px;
-    font-size: 14px;
-}
-
-.user-info a {
-    text-decoration: none;
-    color: #111;
-    transition: color 0.2s ease;
-}
-
-.user-info a:hover {
-    color: #888;
-}
-
-/* 네비게이션 바 */
+/* nav 메뉴 (메인 네비게이션) */
 .main-nav {
     display: flex;
     justify-content: center;
-    gap: 50px;
+    gap: 48px;
     background-color: #fafafa;
     border-top: 1px solid #eee;
     border-bottom: 1px solid #eee;
     padding: 14px 0;
     position: sticky;
-    top: 60px;  /* 상단 바 바로 아래에 고정 */
-    z-index: 5;  /* 네비게이션 바가 상단 바 바로 아래로 고정 */
+    top: 64px; /* 상단바 높이 + 여유 */
+    z-index: 900;
 }
 
 .main-nav a {
     font-size: 15px;
     font-weight: 500;
     color: #111;
-    position: relative;
     text-decoration: none;
+    position: relative;
+    padding: 4px 0;
 }
 
 .main-nav a::after {
@@ -112,13 +127,13 @@ header {
     position: absolute;
     bottom: -3px;
     left: 0;
-    height: 1px;
-    width: 0%;
+    height: 2px;
+    width: 0;
     background-color: #111;
     transition: width 0.3s ease;
 }
 
-.main-nav a:hover::after {
+.main-nav a:hover::after,
+.main-nav a.active::after {
     width: 100%;
-
 }

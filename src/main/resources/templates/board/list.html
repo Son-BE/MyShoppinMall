@@ -9,17 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/board_list.css"/>
     <link rel="stylesheet" href="/css/header.css">
-    <style>
-
-    </style>
 
 </head>
 <body>
 <header>
     <div class="top-bar">
         <h2 th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
-            <i class="fa-solid fa-store" aria-hidden="true"></i>
-            병의's 쇼핑몰
+            SonStarMall
         </h2>
         <div class="user-info">
             <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
@@ -55,7 +51,7 @@
     </nav>
 </header>
 
-<div class="main-container"> <!-- main-container 추가 -->
+<div class="main-container">
     <aside class="sidebar">
         <h2><i class="fa-solid fa-bars"></i> 게시판 메뉴</h2>
         <ul>
@@ -72,9 +68,13 @@
         <div class="board-list">
             <h1><i class="fa-solid fa-comments"></i> <span th:text="${categoryName}">게시판</span></h1>
 
-            <a href="/board/write" class="write-btn">
+            <a th:if="${#authorization.expression('isAuthenticated()') and
+           (#authorization.expression('hasRole(''ROLE_ADMIN'')') or
+            (selectedCategory != 'NOTICE' and selectedCategory != 'QNA' and selectedCategory != 'EVENT'))}"
+               th:href="@{/board/write(category=${selectedCategory})}" class="write-btn">
                 <i class="fa-solid fa-pen"></i> 글쓰기
             </a>
+
 
             <table class="board-table">
                 <thead>

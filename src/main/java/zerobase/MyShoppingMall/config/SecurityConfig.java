@@ -87,10 +87,16 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/signup", "/register-form", "/oauth2/**").permitAll()
+                        .requestMatchers("/guest/**").anonymous()
+                        .requestMatchers(HttpMethod.POST, "/items/*/reviews").authenticated()
+                        .requestMatchers("/items/**").permitAll()
+                        .requestMatchers("/board/").permitAll()
                         .requestMatchers(STATIC_RESOURCES).permitAll()
-                        .requestMatchers("/board/**", "/order/**", "/user/cart/**", "/user/wishList").authenticated()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/order/**", "/user/cart/**", "/user/wishList").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/board/write").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/board/write").authenticated()
                         .requestMatchers("/members/**").hasRole("USER")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

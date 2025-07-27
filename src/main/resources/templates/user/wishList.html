@@ -8,194 +8,194 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/wishlist.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<!--    <style>-->
+<!--        * {-->
+<!--            margin: 0;-->
+<!--            padding: 0;-->
+<!--            box-sizing: border-box;-->
+<!--        }-->
 
-        header {
-            background-color: #fff;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            border-bottom: 1px solid #eee;
-        }
+<!--        header {-->
+<!--            background-color: #fff;-->
+<!--            position: sticky;-->
+<!--            top: 0;-->
+<!--            z-index: 1000;-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            border-bottom: 1px solid #eee;-->
+<!--        }-->
 
-        /* 상단 바 (로고 + 유저 정보) */
-        .top-bar {
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #fff;
-            position: sticky;  /* 화면 상단에 고정 */
-            top: 0;  /* 페이지 상단 고정 */
-            z-index: 10;  /* 다른 요소보다 위에 표시 */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  /* 그림자 효과 */
-        }
+<!--        /* 상단 바 (로고 + 유저 정보) */-->
+<!--        .top-bar {-->
+<!--            padding: 20px 40px;-->
+<!--            display: flex;-->
+<!--            justify-content: space-between;-->
+<!--            align-items: center;-->
+<!--            background-color: #fff;-->
+<!--            position: sticky;  /* 화면 상단에 고정 */-->
+<!--            top: 0;  /* 페이지 상단 고정 */-->
+<!--            z-index: 10;  /* 다른 요소보다 위에 표시 */-->
+<!--            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  /* 그림자 효과 */-->
+<!--        }-->
 
 
-        .top-bar h2 {
-            font-size: 24px;
-            font-weight: 700;
-            cursor: pointer;
-        }
+<!--        .top-bar h2 {-->
+<!--            font-size: 24px;-->
+<!--            font-weight: 700;-->
+<!--            cursor: pointer;-->
+<!--        }-->
 
-        .user-info {
-            display: flex;
-            gap: 18px;
-            font-size: 14px;
-        }
+<!--        .user-info {-->
+<!--            display: flex;-->
+<!--            gap: 18px;-->
+<!--            font-size: 14px;-->
+<!--        }-->
 
-        .user-info a {
-            text-decoration: none;
-            color: #111;
-            transition: color 0.2s ease;
-        }
+<!--        .user-info a {-->
+<!--            text-decoration: none;-->
+<!--            color: #111;-->
+<!--            transition: color 0.2s ease;-->
+<!--        }-->
 
-        .user-info a:hover {
-            color: #888;
-        }
+<!--        .user-info a:hover {-->
+<!--            color: #888;-->
+<!--        }-->
 
-        /* 네비게이션 바 */
-        .main-nav {
-            display: flex;
-            justify-content: center;
-            gap: 50px;
-            background-color: #fafafa;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-            padding: 14px 0;
-            position: sticky;
-            top: 60px;  /* 상단 바 바로 아래에 고정 */
-            z-index: 5;  /* 네비게이션 바가 상단 바 바로 아래로 고정 */
-        }
+<!--        /* 네비게이션 바 */-->
+<!--        .main-nav {-->
+<!--            display: flex;-->
+<!--            justify-content: center;-->
+<!--            gap: 50px;-->
+<!--            background-color: #fafafa;-->
+<!--            border-top: 1px solid #eee;-->
+<!--            border-bottom: 1px solid #eee;-->
+<!--            padding: 14px 0;-->
+<!--            position: sticky;-->
+<!--            top: 60px;  /* 상단 바 바로 아래에 고정 */-->
+<!--            z-index: 5;  /* 네비게이션 바가 상단 바 바로 아래로 고정 */-->
+<!--        }-->
 
-        .main-nav a {
-            font-size: 15px;
-            font-weight: 500;
-            color: #111;
-            position: relative;
-            text-decoration: none;
-        }
+<!--        .main-nav a {-->
+<!--            font-size: 15px;-->
+<!--            font-weight: 500;-->
+<!--            color: #111;-->
+<!--            position: relative;-->
+<!--            text-decoration: none;-->
+<!--        }-->
 
-        .main-nav a::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0;
-            height: 1px;
-            width: 0%;
-            background-color: #111;
-            transition: width 0.3s ease;
-        }
+<!--        .main-nav a::after {-->
+<!--            content: '';-->
+<!--            position: absolute;-->
+<!--            bottom: -3px;-->
+<!--            left: 0;-->
+<!--            height: 1px;-->
+<!--            width: 0%;-->
+<!--            background-color: #111;-->
+<!--            transition: width 0.3s ease;-->
+<!--        }-->
 
-        .main-nav a:hover::after {
-            width: 100%;
-        }
+<!--        .main-nav a:hover::after {-->
+<!--            width: 100%;-->
+<!--        }-->
 
-    </style>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #fafafa;
-            color: #111;
-        }
+<!--    </style>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            margin: 0;-->
+<!--            font-family: 'Noto Sans KR', sans-serif;-->
+<!--            background-color: #fafafa;-->
+<!--            color: #111;-->
+<!--        }-->
 
-        .wishlist-title {
-            max-width: 960px;
-            margin: 60px auto 30px;
-            font-size: 2rem;
-            font-weight: 600;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #000;
-        }
+<!--        .wishlist-title {-->
+<!--            max-width: 960px;-->
+<!--            margin: 60px auto 30px;-->
+<!--            font-size: 2rem;-->
+<!--            font-weight: 600;-->
+<!--            padding-bottom: 12px;-->
+<!--            border-bottom: 2px solid #000;-->
+<!--        }-->
 
-        .wishlist-table {
-            width: 90%;
-            max-width: 960px;
-            margin: 0 auto 40px;
-            border-collapse: collapse;
-        }
+<!--        .wishlist-table {-->
+<!--            width: 90%;-->
+<!--            max-width: 960px;-->
+<!--            margin: 0 auto 40px;-->
+<!--            border-collapse: collapse;-->
+<!--        }-->
 
-        .wishlist-table th, td {
-            padding: 16px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-            font-size: 14px;
-        }
+<!--        .wishlist-table th, td {-->
+<!--            padding: 16px;-->
+<!--            text-align: center;-->
+<!--            border-bottom: 1px solid #ddd;-->
+<!--            font-size: 14px;-->
+<!--        }-->
 
-        .wishlist-table th {
-            background-color: #fafafa;
-            color: #222;
-            font-weight: 500;
-            text-transform: uppercase;
-        }
+<!--        .wishlist-table th {-->
+<!--            background-color: #fafafa;-->
+<!--            color: #222;-->
+<!--            font-weight: 500;-->
+<!--            text-transform: uppercase;-->
+<!--        }-->
 
-        .wishlist-table td img {
-            width: 90px;
-            height: auto;
-            border-radius: 4px;
-            object-fit: cover;
-        }
+<!--        .wishlist-table td img {-->
+<!--            width: 90px;-->
+<!--            height: auto;-->
+<!--            border-radius: 4px;-->
+<!--            object-fit: cover;-->
+<!--        }-->
 
-        .icon-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            color: #333;
-        }
+<!--        .icon-button {-->
+<!--            background: none;-->
+<!--            border: none;-->
+<!--            cursor: pointer;-->
+<!--            font-size: 16px;-->
+<!--            color: #333;-->
+<!--        }-->
 
-        .icon-button:hover {
-            color: #000;
-        }
+<!--        .icon-button:hover {-->
+<!--            color: #000;-->
+<!--        }-->
 
-        .clear-btn {
-            display: block;
-            margin: 0 auto 60px;
-            padding: 12px 22px;
-            font-size: 14px;
-            background-color: #000;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
+<!--        .clear-btn {-->
+<!--            display: block;-->
+<!--            margin: 0 auto 60px;-->
+<!--            padding: 12px 22px;-->
+<!--            font-size: 14px;-->
+<!--            background-color: #000;-->
+<!--            color: #fff;-->
+<!--            border: none;-->
+<!--            border-radius: 6px;-->
+<!--            transition: all 0.2s ease;-->
+<!--            cursor: pointer;-->
+<!--        }-->
 
-        .clear-btn:hover {
-            background-color: #333;
-        }
+<!--        .clear-btn:hover {-->
+<!--            background-color: #333;-->
+<!--        }-->
 
-        p {
-            text-align: center;
-            margin: 100px auto;
-            color: #666;
-            font-size: 16px;
-        }
+<!--        p {-->
+<!--            text-align: center;-->
+<!--            margin: 100px auto;-->
+<!--            color: #666;-->
+<!--            font-size: 16px;-->
+<!--        }-->
 
-        @media (max-width: 768px) {
-            th, td {
-                padding: 10px;
-                font-size: 12px;
-            }
+<!--        @media (max-width: 768px) {-->
+<!--            th, td {-->
+<!--                padding: 10px;-->
+<!--                font-size: 12px;-->
+<!--            }-->
 
-            td img {
-                width: 60px;
-            }
+<!--            td img {-->
+<!--                width: 60px;-->
+<!--            }-->
 
-            .clear-btn {
-                width: 90%;
-            }
-        }
+<!--            .clear-btn {-->
+<!--                width: 90%;-->
+<!--            }-->
+<!--        }-->
 
-    </style>
+<!--    </style>-->
 
 
 </head>
@@ -203,8 +203,7 @@
 <header>
     <div class="top-bar">
         <h2 th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
-            <i class="fa-solid fa-store" aria-hidden="true"></i>
-            병의's 쇼핑몰
+            SonStarMall
         </h2>
         <div class="user-info">
             <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">

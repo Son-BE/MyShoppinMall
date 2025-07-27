@@ -154,6 +154,99 @@ form:last-child button:hover:not(:disabled) {
     cursor: default;
 }
 
+ .product-reviews {
+     max-width: 600px;
+     margin: 40px auto 80px;
+     font-family: 'Noto Sans KR', sans-serif;
+     color: #222;
+     border-top: 1px solid #ddd;
+     padding-top: 40px;
+ }
+
+.product-reviews h2 {
+    margin-bottom: 24px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    border-bottom: 2px solid #222;
+    padding-bottom: 8px;
+}
+
+.average-rating {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+.average-rating .stars {
+    font-size: 1.6rem;
+    color: #f5a623;
+}
+.average-rating .score {
+    color: #555;
+}
+
+.review-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 40px;
+}
+.review-item {
+    border-bottom: 1px solid #ddd;
+    padding: 16px 0;
+}
+.review-header {
+    display: flex;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 8px;
+}
+.review-rating {
+    color: #f5a623;
+}
+.review-content {
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+.review-form {
+    border: 1px solid #ddd;
+    padding: 16px;
+    border-radius: 4px;
+}
+.review-form h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+.review-form label {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    color: #444;
+}
+.review-form select,
+.review-form textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+.review-form button {
+    background-color: #222;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+.review-form button:hover {
+    background-color: #555;
+}
 /* 반응형 */
 @media (max-width: 520px) {
     .image-section, .info-section, .actions {

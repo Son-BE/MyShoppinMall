@@ -15,8 +15,7 @@
     <!-- 상단 바: 로고 + 유저 정보 -->
     <div class="top-bar">
         <h2 th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">
-            <i class="fa-solid fa-store" aria-hidden="true"></i>
-            병의's 쇼핑몰
+            SonStarMall
         </h2>
         <div class="user-info">
             <div th:if="${#authorization.expression('isAuthenticated()')}">
