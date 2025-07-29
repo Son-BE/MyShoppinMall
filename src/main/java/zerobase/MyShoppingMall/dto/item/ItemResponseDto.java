@@ -28,10 +28,11 @@ public class ItemResponseDto {
     private ItemCategory category;
     private ItemSubCategory subCategory;
     private Gender gender;
+    private boolean isWish;
 
     public ItemResponseDto(Long id, String itemName, String itemComment, int price, int quantity, String deleteType,
                            String imagePath, LocalDateTime createdAt, LocalDateTime updatedAt,
-                           ItemCategory category, ItemSubCategory subCategory, Gender gender) {
+                           ItemCategory category, ItemSubCategory subCategory, Gender gender, boolean isWish) {
         this.id = id;
         this.itemName = itemName;
         this.itemComment = itemComment;
@@ -44,13 +45,10 @@ public class ItemResponseDto {
         this.category = category;
         this.subCategory = subCategory;
         this.gender = gender;
+        this.isWish = isWish;
     }
 
     public static ItemResponseDto fromEntity(Item item) {
-//        String imagePath = null;
-//        if (item.getItemImages() != null && !item.getItemImages().isEmpty()) {
-//            imagePath = "/images/" + item.getItemImages().get(0).getItemPath();
-//        }
 
         ItemResponseDto dto = ItemResponseDto.builder()
                 .id(item.getId())
@@ -65,7 +63,7 @@ public class ItemResponseDto {
                 .subCategory(item.getSubCategory())
                 .gender(item.getGender())
                 .imagePath(item.getImageUrl())
-//                .imagePath(imagePath)
+                .isWish(item.isWish())
                 .build();
 
         return dto;
@@ -77,5 +75,8 @@ public class ItemResponseDto {
 
     public String getFormattedPrice() {
         return String.format("%,d", price);
+    }
+
+    public void setIsWish(boolean isWish) {
     }
 }

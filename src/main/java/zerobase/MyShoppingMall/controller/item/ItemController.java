@@ -62,14 +62,15 @@ public class ItemController {
                                 @AuthenticationPrincipal CustomUserDetails userDetails,
                                 Model model) {
         try {
-            ItemResponseDto item = itemService.getItemWithCache(id);
+
+            ItemResponseDto item = itemService.getItemWithCache(id, userDetails.getMember().getId());
+
             if (item == null) {
                 model.addAttribute("errorMessage", "해당 상품을 찾을 수 없습니다.");
                 return "error/404";
             }
 
             List<Review> reviews = reviewRepository.findByItemIdOrderByCreatedAtDesc(id);
-
             boolean canWriteReview = true;
             if (userDetails != null) {
                 Long memberId = userDetails.getMember().getId();
@@ -83,8 +84,7 @@ public class ItemController {
 
             return "user/detail";
         } catch (Exception e) {
-            // 예외 발생 시 로그 출력 및 에러 페이지 이동
-            e.printStackTrace(); // 또는 log.error("에러 발생", e);
+            e.printStackTrace(); // 예외 처리 로그
             model.addAttribute("errorMessage", "상품 상세 정보를 불러오는 중 문제가 발생했습니다.");
             return "error/500";
         }

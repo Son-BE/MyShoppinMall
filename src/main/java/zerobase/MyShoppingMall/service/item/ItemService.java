@@ -177,10 +177,13 @@ public class ItemService {
     }
 
     // 상품 조회 (캐시 우선 조회)
-    public ItemResponseDto getItemWithCache(Long itemId) {
+    public ItemResponseDto getItemWithCache(Long itemId, Long memberId) {
         try {
             ItemResponseDto dto = getCachedItem(itemId);
             log.info("getItemWithCache() → itemId: {} 정상 조회 완료", itemId);
+            boolean isWish = wishListRepository.existsByMemberIdAndItemId(memberId, itemId);
+            dto.setIsWish(isWish);
+
             return dto;
         } catch (Exception e) {
             log.error("getItemWithCache() → itemId: {} 조회 중 예외 발생: {}", itemId, e.getMessage(), e);
@@ -268,6 +271,5 @@ public class ItemService {
 
         return itemsPage.map(ItemResponseDto::fromEntity);
     }
-
 
 }

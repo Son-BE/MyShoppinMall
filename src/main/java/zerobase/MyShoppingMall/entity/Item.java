@@ -32,6 +32,9 @@ public class Item {
     private String imageUrl;
     private char deleteType;
 
+    @Transient
+    private boolean isWish;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -56,7 +59,12 @@ public class Item {
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     private List<WishList> wishLists;
 
-//    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
-//    private List<ItemImage> itemImages;
+    public boolean isWish() {
+        return isWish;
+    }
+
+    public void setWish(boolean isWish) {
+        this.isWish = isWish;
+    }
 
 }
