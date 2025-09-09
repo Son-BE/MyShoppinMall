@@ -10,5 +10,5 @@ public enum OrderStatus {
     CANCEL_REQUESTED,
     CANCEL_APPROVED,
     CANCELLED,// 주문 취소
-    RETURNED // 반품
+    RETURN_REQUESTED, RETURNED // 반품
 }

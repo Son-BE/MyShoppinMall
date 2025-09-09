@@ -118,10 +118,23 @@ public class UserBoardController {
     @GetMapping("/my-posts")
     public String myPosts(Model model,
                           @AuthenticationPrincipal CustomUserDetails userDetails) {
-            String username = userDetails.getNickname();
-            List<UserBoard> myBoards = userBoardService.findByMemberName(username);
-            model.addAttribute("myBoards", myBoards);
-            return "board/my-posts";
+        String username = userDetails.getNickname();
+        List<UserBoard> myBoards = userBoardService.findByMemberName(username);
+
+        // 통계 계산
+        int totalViews = myBoards.stream()
+                .mapToInt(UserBoard::getViewCount)
+                .sum();
+
+        long secretCount = myBoards.stream()
+                .filter(UserBoard::isSecret)
+                .count();
+
+        model.addAttribute("myBoards", myBoards);
+        model.addAttribute("totalViews", totalViews);
+        model.addAttribute("secretCount", secretCount);
+
+        return "board/my-posts";
     }
 
     @GetMapping("/secret/{id}")

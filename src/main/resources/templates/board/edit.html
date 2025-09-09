@@ -2,260 +2,737 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8"/>
-    <title>게시글 수정</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          crossorigin="anonymous"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 수정 | SonStarMall</title>
+
+    <!-- Font Awesome & Google Font -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
     <style>
+        :root {
+            --primary: #0070f3;
+            --primary-hover: #0051cc;
+            --secondary: #ff3366;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text-dark: #1a1a1a;
+            --text-gray: #666;
+            --text-light: #999;
+            --bg-white: #ffffff;
+            --bg-light: #f8fafc;
+            --bg-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
         body {
-            margin: 0;
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #fff;
-            color: #111;
+            font-family:'Inter', sans-serif;
+            background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color:var(--text-dark);
+            line-height:1.6;
+            min-height:100vh;
         }
 
-        .board-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        body::before {
+            content:'';
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background: radial-gradient(circle at 20% 80%, rgba(120,119,198,0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255,119,198,0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120,219,255,0.3) 0%, transparent 50%);
+            z-index:-1;
+            animation:backgroundMove 20s ease-in-out infinite;
         }
 
-        label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #34495e;
+        @keyframes backgroundMove {
+            0%,100%{transform:scale(1) rotate(0deg);}
+            50%{transform:scale(1.1) rotate(5deg);}
         }
 
-
-        input[type="text"],
-        textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ccd6dd;
-            border-radius: 6px;
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        textarea {
-            resize: vertical;
-        }
-
-        button {
-            background-color: transparent;
-            border: 1px solid #ccc;
-            padding: 6px 12px;
-            font-size: 13px;
-            cursor: pointer;
-            color: #111;
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
-        }
-
-        button:hover {
-            background-color: #f0f0f0;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-top: 1.5rem;
-            color: #34495e;
-            text-decoration: none;
-        }
-
-        .back-link:hover {
-            color: #e67e22;
-        }
-    </style>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Header */
         header {
-            background-color: #fff;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            border-bottom: 1px solid #eee;
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            backdrop-filter:blur(20px);
+            background:rgba(255,255,255,0.85);
+            border-bottom:1px solid rgba(255,255,255,0.2);
+            box-shadow:var(--shadow-lg);
+            z-index:1000;
         }
+
+        .header-container {
+            max-width:1400px;
+            margin:0 auto;
+            padding:0 2rem;
+        }
+
+        .top-bar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:1rem 0;
+            border-bottom:1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            font-size:2rem;
+            font-weight:700;
+            background:linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            cursor:pointer;
+            transition:transform .3s;
+        }
+
+        .logo:hover{transform:scale(1.05);}
+
+        .user-info {
+            display:flex;
+            gap:1rem;
+            align-items:center;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .auth-button {
+            display:inline-flex;
+            align-items:center;
+            gap:.5rem;
+            padding:.75rem 1.5rem;
+            font-size:.875rem;
+            font-weight:500;
+            text-decoration:none;
+            border-radius:var(--radius-lg);
+            transition:all .3s;
+            border:none;
+            cursor:pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .auth-button:hover::before {
+            left: 100%;
+        }
+
         .login-button {
-            padding: 6px 12px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            background-color: #f6f6f6;
-            color: #111;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            background:rgba(255,255,255,0.1);
+            color:var(--text-dark);
+            border:1px solid rgba(255,255,255,0.2);
         }
 
         .login-button:hover {
-            background-color: #eaeaea;
-            color: #000;
+            background:rgba(255,255,255,0.2);
+            transform:translateY(-2px);
         }
+
         .logout-button {
-            padding: 6px 12px;
-            font-size: 14px;
-            border: none;
-            background-color: #111;
-            color: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            background:linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color:#fff;
         }
 
         .logout-button:hover {
-            background-color: #333;
+            transform:translateY(-2px);
+            box-shadow:var(--shadow);
         }
 
-        /* 상단 바 (로고 + 유저 정보) */
-        .top-bar {
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #fff;
-            position: sticky;  /* 화면 상단에 고정 */
-            top: 0;  /* 페이지 상단 고정 */
-            z-index: 10;  /* 다른 요소보다 위에 표시 */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  /* 그림자 효과 */
-        }
-
-
-        .top-bar h2 {
-            font-size: 24px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .user-info {
-            display: flex;
-            gap: 18px;
-            font-size: 14px;
-        }
-
-        .user-info a {
-            text-decoration: none;
-            color: #111;
-            transition: color 0.2s ease;
-        }
-
-        .user-info a:hover {
-            color: #888;
-        }
-
-        /* 네비게이션 바 */
+        /* Navigation */
         .main-nav {
-            display: flex;
-            justify-content: center;
-            gap: 50px;
-            background-color: #fafafa;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-            padding: 14px 0;
-            position: sticky;
-            top: 60px;  /* 상단 바 바로 아래에 고정 */
-            z-index: 5;  /* 네비게이션 바가 상단 바 바로 아래로 고정 */
+            display:flex;
+            justify-content:center;
+            gap:3rem;
+            padding:1rem 0;
         }
 
         .main-nav a {
-            font-size: 15px;
-            font-weight: 500;
-            color: #111;
+            display:flex;
+            align-items:center;
+            gap:.5rem;
+            font-size:.95rem;
+            font-weight:500;
+            color:var(--text-dark);
+            text-decoration:none;
+            padding:.75rem 1rem;
+            border-radius:var(--radius);
+            transition:all .3s;
             position: relative;
-            text-decoration: none;
         }
 
-        .main-nav a::after {
+        .main-nav a::before {
             content: '';
             position: absolute;
-            bottom: -3px;
-            left: 0;
-            height: 1px;
-            width: 0%;
-            background-color: #111;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             transition: width 0.3s ease;
         }
 
-        .main-nav a:hover::after {
-            width: 100%;
-
+        .main-nav a:hover::before,
+        .main-nav a.active::before {
+            width: 80%;
         }
 
+        .main-nav a:hover {
+            color:var(--primary);
+            background:rgba(0,112,243,0.05);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 140px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 2rem;
+            min-height: calc(100vh - 140px);
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-gray);
+            font-size: 1rem;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-family: inherit;
+            background: rgba(255,255,255,0.8);
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            resize: vertical;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255,255,255,1);
+            box-shadow: 0 0 0 3px rgba(0,112,243,0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-textarea {
+            min-height: 200px;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(0,112,243,0.05);
+            border-radius: var(--radius);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-group:hover {
+            border-color: rgba(0,112,243,0.1);
+        }
+
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            font-weight: 500;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.9);
+            color: var(--text-dark);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,1);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Form validation styles */
+        .form-input:invalid {
+            border-color: var(--error);
+        }
+
+        .form-input:valid {
+            border-color: var(--success);
+        }
+
+        /* Animation */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading state */
+        .btn-loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width:768px) {
+            .header-container {
+                padding: 0 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .main-nav {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 1rem 0;
+            }
+
+            .main-nav a {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem 0;
+            }
+        }
+
+        @media (max-width:480px) {
+            .form-container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .form-input {
+                padding: 0.875rem 1rem;
+            }
+
+            .btn {
+                padding: 0.875rem 1.5rem;
+            }
+        }
+
+        /* Focus trap for accessibility */
+        .form-input:focus,
+        .checkbox-input:focus,
+        .btn:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body>
 <header>
-    <div class="top-bar">
-        <h2 th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
-            SonStarMall
-        </h2>
-        <div class="user-info">
-            <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
-                <span th:text="${#authentication.name} + '님'" style="align-self: center;"></span>
-
-                <a th:href="@{/members/profile}" class="profile-button" aria-label="프로필 페이지 이동">
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-user" aria-hidden="true"></i> 내 정보
-                    </button>
-                </a>
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
-                    </button>
-                </form>
+    <div class="header-container">
+        <div class="top-bar">
+            <h2 class="logo" th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">SonStarMall</h2>
+            <div class="user-info">
+                <div th:if="${#authorization.expression('isAuthenticated()')}">
+                    <span class="user-name" th:text="${#authentication.name} + '님'"></span>
+                    <a th:href="@{/members/profile}" class="auth-button logout-button" aria-label="프로필 페이지 이동">
+                        <i class="fa-solid fa-user"></i> 내 정보
+                    </a>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="auth-button logout-button" aria-label="로그아웃">
+                            <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+                        </button>
+                    </form>
+                </div>
                 <div th:if="${!#authorization.expression('isAuthenticated()')}">
-                    <a th:href="@{/login}" class="login-button" title="로그인" aria-label="로그인 페이지 이동">
-                        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                    <a th:href="@{/login}" class="auth-button login-button" aria-label="로그인">
+                        <i class="fa-solid fa-right-to-bracket"></i> 로그인
                     </a>
                 </div>
             </div>
-
         </div>
+        <nav class="main-nav">
+            <a href="/items"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="/user/cart"><i class="fa-solid fa-cart-shopping"></i> 장바구니</a>
+            <a href="/user/wishList"><i class="fa-solid fa-heart"></i> 찜 목록</a>
+            <a href="/orders/myOrder"><i class="fa-solid fa-book"></i> 주문 내역</a>
+            <a href="/board?category=NOTICE" class="active"><i class="fa-solid fa-comments"></i> 게시판</a>
+        </nav>
+    </div>
+</header>
+
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa-solid fa-pen-to-square"></i>
+            게시글 수정
+        </h1>
+        <p class="page-subtitle">게시글 내용을 수정할 수 있습니다</p>
     </div>
 
-    <nav class="main-nav">
-        <a href="/items"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
-        <a href="/user/cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> 장바구니</a>
-        <a href="/user/wishList"><i class="fa-solid fa-heart" aria-hidden="true"></i> 찜 목록</a>
-        <a href="/orders/myOrder"><i class="fa-solid fa-book" aria-hidden="true"></i> 주문 내역</a>
-        <a href="/board?category=NOTICE"><i class="fa-solid fa-comments" aria-hidden="true"></i> 게시판</a>
-    </nav>
-</header>
-<div class="board-container">
-    <h1><i class="fa-solid fa-pen-to-square"></i> 게시글 수정</h1>
+    <div class="form-container">
+        <form th:action="@{'/board/edit/' + ${board.id}}" th:object="${board}" method="post" id="editForm">
+            <div class="form-group">
+                <label for="title" class="form-label">
+                    <i class="fa-solid fa-heading"></i>
+                    제목
+                </label>
+                <input type="text" th:field="*{title}" id="title" class="form-input"
+                       required placeholder="게시글 제목을 입력하세요"
+                       maxlength="100" />
+            </div>
 
-    <form th:action="@{'/board/edit/' + ${board.id}}" th:object="${board}" method="post">
-        <label for="title">제목</label>
-        <input type="text" th:field="*{title}" id="title" required/>
+            <div class="form-group">
+                <label for="content" class="form-label">
+                    <i class="fa-solid fa-align-left"></i>
+                    내용
+                </label>
+                <textarea th:field="*{content}" id="content" class="form-input form-textarea"
+                          required placeholder="게시글 내용을 입력하세요"
+                          maxlength="5000"></textarea>
+            </div>
 
-        <label for="content">내용</label>
-        <textarea th:field="*{content}" id="content" rows="10" required></textarea>
+            <div class="checkbox-group">
+                <input type="checkbox" name="secret" id="secret" class="checkbox-input"
+                       th:checked="${board.secret}"/>
+                <label for="secret" class="checkbox-label">
+                    <i class="fa-solid fa-lock"></i>
+                    비밀글로 설정
+                </label>
+            </div>
 
-        <label>
-            <input type="checkbox" name="secret"
-                   th:checked="${board.secret}"/> 비밀글
-        </label>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fa-solid fa-check"></i>
+                    수정 완료
+                </button>
+                <a th:href="@{/board}" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    목록으로 돌아가기
+                </a>
+            </div>
+        </form>
+    </div>
+</main>
 
-        <button type="submit"><i class="fa-solid fa-check"></i> 수정 완료</button>
-    </form>
+<script>
+    // Character counter for textarea
+    const contentTextarea = document.getElementById('content');
+    const titleInput = document.getElementById('title');
 
-    <a th:href="@{/board}" class="back-link"><i class="fa-solid fa-arrow-left"></i> 목록으로 돌아가기</a>
-</div>
+    // Add character counter
+    function addCharacterCounter(element, maxLength) {
+        const counter = document.createElement('div');
+        counter.style.cssText = `
+            text-align: right;
+            font-size: 0.875rem;
+            color: var(--text-gray);
+            margin-top: 0.5rem;
+        `;
+
+        const updateCounter = () => {
+            const remaining = maxLength - element.value.length;
+            counter.textContent = `${element.value.length}/${maxLength}`;
+            counter.style.color = remaining < 50 ? 'var(--warning)' : 'var(--text-gray)';
+        };
+
+        element.addEventListener('input', updateCounter);
+        element.parentNode.appendChild(counter);
+        updateCounter();
+    }
+
+    addCharacterCounter(titleInput, 100);
+    addCharacterCounter(contentTextarea, 5000);
+
+    // Form validation
+    const form = document.getElementById('editForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function(e) {
+        const title = titleInput.value.trim();
+        const content = contentTextarea.value.trim();
+
+        if (!title || !content) {
+            e.preventDefault();
+            alert('제목과 내용을 모두 입력해주세요.');
+            return;
+        }
+
+        if (title.length > 100) {
+            e.preventDefault();
+            alert('제목은 100자 이내로 입력해주세요.');
+            return;
+        }
+
+        if (content.length > 5000) {
+            e.preventDefault();
+            alert('내용은 5000자 이내로 입력해주세요.');
+            return;
+        }
+
+        // Show loading state
+        submitBtn.classList.add('btn-loading');
+        submitBtn.disabled = true;
+    });
+
+    // Auto-resize textarea
+    contentTextarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.max(this.scrollHeight, 200) + 'px';
+    });
+
+    // Add active class to current nav item
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.main-nav a').forEach(link => {
+            if (currentPath.includes('/board') && link.getAttribute('href').includes('/board')) {
+                link.classList.add('active');
+            }
+        });
+    });
+
+    // Prevent form submission on Enter key in title field
+    titleInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            contentTextarea.focus();
+        }
+    });
+
+    // Add save draft functionality (optional)
+    let draftTimer;
+    function saveDraft() {
+        const title = titleInput.value;
+        const content = contentTextarea.value;
+        const secret = document.getElementById('secret').checked;
+
+        localStorage.setItem('board_edit_draft', JSON.stringify({
+            title, content, secret, timestamp: Date.now()
+        }));
+    }
+
+    function loadDraft() {
+        const draft = localStorage.getItem('board_edit_draft');
+        if (draft) {
+            try {
+                const data = JSON.parse(draft);
+                // Only load if draft is less than 1 hour old
+                if (Date.now() - data.timestamp < 3600000) {
+                    if (confirm('저장된 임시 초안이 있습니다. 불러오시겠습니까?')) {
+                        titleInput.value = data.title || '';
+                        contentTextarea.value = data.content || '';
+                        document.getElementById('secret').checked = data.secret || false;
+                    }
+                }
+            } catch (e) {
+                localStorage.removeItem('board_edit_draft');
+            }
+        }
+    }
+
+    // Auto-save draft every 30 seconds
+    [titleInput, contentTextarea].forEach(element => {
+        element.addEventListener('input', function() {
+            clearTimeout(draftTimer);
+            draftTimer = setTimeout(saveDraft, 30000);
+        });
+    });
+
+    // Clear draft on successful submission
+    form.addEventListener('submit', function() {
+        localStorage.removeItem('board_edit_draft');
+    });
+
+    // Load draft on page load
+    // loadDraft();
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+S to save (submit form)
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            form.submit();
+        }
+
+        // Escape to go back
+        if (e.key === 'Escape') {
+            if (confirm('작성 중인 내용이 있습니다. 정말로 나가시겠습니까?')) {
+                window.history.back();
+            }
+        }
+    });
+</script>
 </body>
 </html>

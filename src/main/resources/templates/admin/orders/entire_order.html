@@ -5,6 +5,10 @@
     <title>전체 주문 목록</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
+    <!-- CSRF 토큰 메타 -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
     <!-- Bootstrap & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
@@ -38,103 +42,540 @@
             vertical-align: middle;
         }
 
-        .pagination a, .pagination .current {
-            margin: 0 4px;
-            padding: 6px 12px;
-            border-radius: 4px;
-            text-decoration: none;
-        }
-
-        .pagination a {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            color: #007bff;
-        }
-
-        .pagination .current {
-            background-color: #007bff;
+        .table thead th {
+            background-color: #343a40;
             color: white;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* 각 상태별 색상 */
+        .status-waiting { background-color: #e9ecef; color: #495057; }
+        .status-paid { background-color: #cff4fc; color: #055160; }
+        .status-ordered { background-color: #cfe2ff; color: #084298; }
+        .status-shipped-waiting { background-color: #fff3cd; color: #664d03; }
+        .status-shipped { background-color: #e7c3ff; color: #6f42c1; }
+        .status-delivered { background-color: #d1e7dd; color: #0f5132; }
+        .status-cancel-requested { background-color: #fff3cd; color: #664d03; }
+        .status-cancel-approved { background-color: #f8d7da; color: #721c24; }
+        .status-cancelled { background-color: #f8d7da; color: #721c24; }
+        .status-return-requested { background-color: #e7c3ff; color: #6f42c1; }
+        .status-returned { background-color: #e9ecef; color: #495057; }
+
+        .filter-section {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e1bee7;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
             font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.25rem;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
         }
     </style>
 </head>
 <body class="bg-light">
 
+<!-- 성공/에러 메시지 -->
+<div th:if="${message}" class="alert alert-success alert-dismissible fade show m-3" role="alert">
+    <i class="fas fa-check-circle me-2"></i>
+    <span th:text="${message}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<div th:if="${error}" class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    <span th:text="${error}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
 <!-- 네비게이션 바 -->
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/dashboard">관리자 대시보드</a>
+        <a class="navbar-brand" href="/admin/orders/entire">
+            <i class="fas fa-tachometer-alt me-2"></i>관리자 대시보드
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarNav" aria-controls="navbarNav"
                 aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/admin/orders/entire">
+                        <i class="fas fa-list me-1"></i>전체 주문
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/orders/paid_orders">
+                        <i class="fas fa-credit-card me-1"></i>결제 완료
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/orders/cancel_requests">
+                        <i class="fas fa-times-circle me-1"></i>취소 요청
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/orders/return_requests">
+                        <i class="fas fa-undo me-1"></i>반품 요청
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" href="#" th:text="${#authentication.name}">관리자</a>
                 </li>
-                <form th:action="@{/logout}" method="post" class="mb-0">
-                    <button type="submit" class="btn btn-outline-light btn-sm ms-2">로그아웃</button>
-                </form>
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post" class="mb-0">
+                        <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-outline-light btn-sm ms-2">로그아웃</button>
+                    </form>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
 
 <!-- 전체 주문 목록 -->
-<div class="container py-5">
+<div class="container py-4">
     <div class="card p-4">
-        <h2 class="mb-4 text-center"><i class="fas fa-list me-2"></i>전체 주문 목록</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">
+                <i class="fas fa-list me-2 text-primary"></i>전체 주문 목록
+            </h2>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-info btn-sm" onclick="location.reload()">
+                    <i class="fas fa-sync-alt me-1"></i>새로고침
+                </button>
+                <span class="badge bg-primary fs-6" th:text="'총 ' + ${ordersPage.totalElements} + '건'"></span>
+            </div>
+        </div>
 
-        <div class="table-responsive">
-            <table class="table table-striped table-hover text-center align-middle">
-                <thead>
-                <tr>
-                    <th>주문 ID</th>
-                    <th>회원명</th>
-                    <th>주문 상태</th>
-                    <th>주문 날짜</th>
-                    <th>총 금액</th>
-                    <th>상세보기</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="order : ${orders}">
-                    <td th:text="${order.orderId}">1</td>
-                    <td th:text="${order.memberName}">홍길동</td>
-                    <td th:text="${order.orderStatus}">WAITING</td>
-                    <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">2025-07-26</td>
-                    <td th:text="'₩' + ${#numbers.formatInteger(order.totalPrice, 3, 'COMMA')}">100,000원</td>
-                    <td>
-                        <a th:href="@{'/admin/orders/' + ${order.orderId}}" class="btn btn-outline-primary btn-sm">상세보기</a>
-                    </td>
-                </tr>
-                <tr th:if="${orders.size() == 0}">
-                    <td colspan="6" class="text-center text-muted">주문 내역이 없습니다.</td>
-                </tr>
-                </tbody>
-            </table>
+        <!-- 상태별 통계 (선택사항) -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-number text-secondary" id="waitingCount">-</div>
+                <div class="stat-label">결제 대기</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number text-info" id="paidCount">-</div>
+                <div class="stat-label">결제 완료</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number text-primary" id="orderedCount">-</div>
+                <div class="stat-label">주문 확정</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number text-success" id="deliveredCount">-</div>
+                <div class="stat-label">배송 완료</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number text-warning" id="cancelRequestedCount">-</div>
+                <div class="stat-label">취소 요청</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number text-danger" id="cancelledCount">-</div>
+                <div class="stat-label">주문 취소</div>
+            </div>
+        </div>
+
+        <!-- 필터 섹션 -->
+        <div class="filter-section">
+            <h5 class="mb-3">
+                <i class="fas fa-filter me-2"></i>필터 및 검색
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">주문 상태</label>
+                    <select class="form-select" id="statusFilter">
+                        <option value="">전체 상태</option>
+                        <option value="WAITING">결제 대기</option>
+                        <option value="PAID">결제 완료</option>
+                        <option value="ORDERED">주문 확정</option>
+                        <option value="SHIPPED_WAITING">배송 대기</option>
+                        <option value="SHIPPED">배송 중</option>
+                        <option value="DELIVERED">배송 완료</option>
+                        <option value="CANCEL_REQUESTED">취소 요청</option>
+                        <option value="CANCEL_APPROVED">취소 승인</option>
+                        <option value="CANCELLED">주문 취소</option>
+                        <option value="RETURN_REQUESTED">반품 요청</option>
+                        <option value="RETURNED">반품 완료</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">회원명 검색</label>
+                    <input type="text" class="form-control" id="memberNameFilter" placeholder="회원명 입력">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">주문번호 검색</label>
+                    <input type="text" class="form-control" id="orderIdFilter" placeholder="주문번호 입력">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="d-grid">
+                        <button class="btn btn-primary" onclick="applyFilters()">
+                            <i class="fas fa-search me-1"></i>검색
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 주문 테이블 -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>주문번호</th>
+                        <th>회원명</th>
+                        <th>수령인</th>
+                        <th>주문 상태</th>
+                        <th>주문 날짜</th>
+                        <th>총 금액</th>
+                        <th width="200">관리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td>
+                            <strong th:text="${order.orderId}">1</strong>
+                        </td>
+                        <td th:text="${order.memberName}">홍길동</td>
+                        <td th:text="${order.receiverName}">홍길동</td>
+                        <td>
+                            <span th:switch="${order.orderStatus.name()}" class="status-badge">
+                                <span th:case="'WAITING'" class="status-waiting">
+                                    <i class="fas fa-hourglass-half me-1"></i>결제 대기
+                                </span>
+                                <span th:case="'PAID'" class="status-paid">
+                                    <i class="fas fa-credit-card me-1"></i>결제 완료
+                                </span>
+                                <span th:case="'ORDERED'" class="status-ordered">
+                                    <i class="fas fa-check me-1"></i>주문 확정
+                                </span>
+                                <span th:case="'SHIPPED_WAITING'" class="status-shipped-waiting">
+                                    <i class="fas fa-clock me-1"></i>배송 대기
+                                </span>
+                                <span th:case="'SHIPPED'" class="status-shipped">
+                                    <i class="fas fa-truck me-1"></i>배송 중
+                                </span>
+                                <span th:case="'DELIVERED'" class="status-delivered">
+                                    <i class="fas fa-check-circle me-1"></i>배송 완료
+                                </span>
+                                <span th:case="'CANCEL_REQUESTED'" class="status-cancel-requested">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>취소 요청
+                                </span>
+                                <span th:case="'CANCEL_APPROVED'" class="status-cancel-approved">
+                                    <i class="fas fa-thumbs-up me-1"></i>취소 승인
+                                </span>
+                                <span th:case="'CANCELLED'" class="status-cancelled">
+                                    <i class="fas fa-times-circle me-1"></i>주문 취소
+                                </span>
+                                <span th:case="'RETURN_REQUESTED'" class="status-return-requested">
+                                    <i class="fas fa-undo me-1"></i>반품 요청
+                                </span>
+                                <span th:case="'RETURNED'" class="status-returned">
+                                    <i class="fas fa-undo-alt me-1"></i>반품 완료
+                                </span>
+                                <span th:case="*" class="badge bg-secondary" th:text="${order.orderStatus}">
+                                    기타
+                                </span>
+                            </span>
+                        </td>
+                        <td th:text="${#temporals.format(order.orderDate, 'MM-dd HH:mm')}">2025-07-26</td>
+                        <td>
+                            <strong th:text="'₩' + ${#numbers.formatInteger(order.totalPrice, 3, 'COMMA')}">100,000원</strong>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <!-- 상세보기 -->
+                                <a th:href="@{'/orders/' + ${order.orderId} + '/details'}"
+                                   class="btn btn-outline-info btn-sm" title="상세보기">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+
+                                <!-- 상태별 액션 버튼들 -->
+                                <div th:switch="${order.orderStatus.name()}">
+                                    <!-- 결제 완료 → 주문 확정 -->
+                                    <form th:case="'PAID'" th:action="@{'/admin/orders/' + ${order.orderId} + '/confirm'}"
+                                          method="post" style="display: inline;">
+                                        <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                        <button type="submit" class="btn btn-success btn-sm"
+                                                onclick="return confirm('주문을 확정하시겠습니까?')" title="주문 확정">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+
+                                    <!-- 취소 요청 관리 -->
+                                    <div th:case="'CANCEL_REQUESTED'" class="d-inline-flex gap-1">
+                                        <form th:action="@{'/admin/orders/' + ${order.orderId} + '/approve-cancel'}"
+                                              method="post" style="display: inline;">
+                                            <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <button type="submit" class="btn btn-success btn-sm"
+                                                    onclick="return confirm('취소를 승인하시겠습니까?')" title="취소 승인">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        <form th:action="@{'/admin/orders/' + ${order.orderId} + '/reject-cancel'}"
+                                              method="post" style="display: inline;">
+                                            <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                    onclick="return confirm('취소를 거부하시겠습니까?')" title="취소 거부">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- 반품 요청 관리 -->
+                                    <div th:case="'RETURN_REQUESTED'" class="d-inline-flex gap-1">
+                                        <form th:action="@{'/admin/orders/' + ${order.orderId} + '/approve-return'}"
+                                              method="post" style="display: inline;">
+                                            <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <button type="submit" class="btn btn-warning btn-sm"
+                                                    onclick="return confirm('반품을 승인하시겠습니까?')" title="반품 승인">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        <form th:action="@{'/admin/orders/' + ${order.orderId} + '/reject-return'}"
+                                              method="post" style="display: inline;">
+                                            <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                    onclick="return confirm('반품을 거부하시겠습니까?')" title="반품 거부">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- 상태 직접 변경 (드롭다운) -->
+                                <div class="dropdown d-inline">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                            data-bs-toggle="dropdown" title="상태 변경">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><h6 class="dropdown-header">상태 변경</h6></li>
+                                        <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'WAITING')">결제 대기</button></li>
+                                        <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'PAID')">결제 완료</button></li>
+                                        <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'ORDERED')">주문 확정</button></li>
+                                        <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'SHIPPED_WAITING')">배송 대기</button></li>
+                                        <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'SHIPPED')">배송 중</button></li>
+                                        <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'DELIVERED')">배송 완료</button></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><button class="dropdown-item text-danger" onclick="changeStatus([[${order.orderId}]], 'CANCELLED')">주문 취소</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${orders.size() == 0}">
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <i class="fas fa-inbox fa-3x mb-3 d-block text-secondary"></i>
+                            <h5>주문 내역이 없습니다.</h5>
+                            <p>고객의 주문이 있으면 여기에 표시됩니다.</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- 페이징 -->
-        <div class="pagination d-flex justify-content-center mt-4">
-            <span th:if="${currentPage > 0}">
-                <a th:href="@{/admin/orders/entire(page=${currentPage - 1})}">이전</a>
-            </span>
-            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                <a th:if="${i != currentPage}" th:href="@{/admin/orders/entire(page=${i})}" th:text="${i + 1}"></a>
-                <span th:if="${i == currentPage}" class="current" th:text="${i + 1}"></span>
-            </span>
-            <span th:if="${currentPage < totalPages - 1}">
-                <a th:href="@{/admin/orders/entire(page=${currentPage + 1})}">다음</a>
-            </span>
-        </div>
+        <nav th:if="${totalPages > 1}" aria-label="Page navigation" class="mt-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted">
+                        총 <strong th:text="${ordersPage.totalElements}"></strong>건 중
+                        <strong th:text="${currentPage * 10 + 1}"></strong>-<strong th:text="${T(java.lang.Math).min((currentPage + 1) * 10, ordersPage.totalElements)}"></strong>건 표시
+                    </small>
+                </div>
+
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/orders/entire(page=${currentPage - 1})}" aria-label="Previous">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    <li class="page-item" th:each="i : ${#numbers.sequence(T(java.lang.Math).max(0, currentPage - 2), T(java.lang.Math).min(totalPages - 1, currentPage + 2))}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/admin/orders/entire(page=${i})}" th:text="${i + 1}"></a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/orders/entire(page=${currentPage + 1})}" aria-label="Next">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
     </div>
 </div>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 통계 로드
+        loadStatistics();
+
+        // 필터 이벤트 리스너
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    });
+
+    // 통계 로드
+    async function loadStatistics() {
+        try {
+            const response = await fetch('/admin/orders/api/statistics');
+            if (response.ok) {
+                const stats = await response.json();
+
+                document.getElementById('waitingCount').textContent = stats.waitingCount || 0;
+                document.getElementById('paidCount').textContent = stats.paidCount || 0;
+                document.getElementById('orderedCount').textContent = stats.orderedCount || 0;
+                document.getElementById('deliveredCount').textContent = stats.deliveredCount || 0;
+                document.getElementById('cancelRequestedCount').textContent = stats.cancel_requestedCount || 0;
+                document.getElementById('cancelledCount').textContent = stats.cancelledCount || 0;
+            }
+        } catch (error) {
+            console.error('통계 로드 실패:', error);
+        }
+    }
+
+    // 필터 적용
+    function applyFilters() {
+        const status = document.getElementById('statusFilter').value;
+        const memberName = document.getElementById('memberNameFilter').value;
+        const orderId = document.getElementById('orderIdFilter').value;
+
+        let url = '/admin/orders/entire?';
+        const params = new URLSearchParams();
+
+        if (status) {
+            window.location.href = `/admin/orders/status/${status}`;
+            return;
+        }
+
+        if (memberName) params.append('memberName', memberName);
+        if (orderId) params.append('orderId', orderId);
+
+        window.location.href = url + params.toString();
+    }
+
+    // 상태 변경
+    async function changeStatus(orderId, status) {
+        if (!confirm(`주문 상태를 '${getStatusName(status)}'로 변경하시겠습니까?`)) {
+            return;
+        }
+
+        try {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+            const response = await fetch(`/admin/orders/api/${orderId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: `status=${status}`
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('상태가 변경되었습니다.');
+                location.reload();
+            } else {
+                alert('상태 변경에 실패했습니다: ' + (result.error || '알 수 없는 오류'));
+            }
+        } catch (error) {
+            console.error('상태 변경 실패:', error);
+            alert('상태 변경 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 상태명 반환
+    function getStatusName(status) {
+        const statusNames = {
+            'WAITING': '결제 대기',
+            'PAID': '결제 완료',
+            'ORDERED': '주문 확정',
+            'SHIPPED_WAITING': '배송 대기',
+            'SHIPPED': '배송 중',
+            'DELIVERED': '배송 완료',
+            'CANCEL_REQUESTED': '취소 요청',
+            'CANCEL_APPROVED': '취소 승인',
+            'CANCELLED': '주문 취소',
+            'RETURN_REQUESTED': '반품 요청',
+            'RETURNED': '반품 완료'
+        };
+        return statusNames[status] || status;
+    }
+
+    // Enter 키로 검색
+    document.getElementById('memberNameFilter').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') applyFilters();
+    });
+
+    document.getElementById('orderIdFilter').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') applyFilters();
+    });
+</script>
 
 </body>
 </html>

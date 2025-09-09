@@ -62,7 +62,17 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 
 
-	//HttpServletRequest
+	// 더미 데이터 생성을 위한 Faker 라이브러리
+	implementation 'net.datafaker:datafaker:2.0.2'
+
+	// CSV 파일 처리 (실제 상품 데이터 로드용)
+	implementation 'com.opencsv:opencsv:5.8'
+
+	// JSON 처리 개선
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+	// 개발/테스트 환경에서만 사용
+	testImplementation 'net.datafaker:datafaker:2.0.2'
 
 
 	compileOnly 'org.projectlombok:lombok'
@@ -72,6 +82,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }
 
 tasks.named('test') {

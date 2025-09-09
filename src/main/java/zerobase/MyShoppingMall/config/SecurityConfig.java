@@ -20,6 +20,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import zerobase.MyShoppingMall.oAuth2.*;
 
 import java.io.IOException;
@@ -36,18 +38,11 @@ public class SecurityConfig {
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationSuccessHandler jwtSuccessHandler;
+
     private static final String[] STATIC_RESOURCES = {
             "/images/**", "/css/**", "/js/**", "/favicon.ico"
     };
 
-    /**
-     * /api/** 경로 전용
-     * CSRF 비활성화, 세션 사용 안 함 (STATELESS), 폼 로그인/HTTP Basic 비활성화
-     * 일부 /api/members/** 및 /api/cart/** 요청은 모두 허용
-     * 나머지 /api/** 요청은 JWT 인증 필터를 통해 인증 필요
-     * jwtAuthenticationFilter를 Spring Security 필터 체인에 등록
-     * 토큰 기반 인증 처리
-     */
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -58,8 +53,12 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/members/check-nickname").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/members/join", "/api/members/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/members/check-email").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/recommendations/**").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/api/recommendations/**").permitAll()
+
                         .requestMatchers("/api/members/**").authenticated()
                         .requestMatchers("/api/cart/**").authenticated()
                         .requestMatchers("/api/wishList/**").authenticated()
@@ -71,20 +70,22 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * /, /login, /signup, /register-form, /oauth2/**, 정적 리소스 → 모두 허용
-     * /board/**, /order/**, /user/cart/**, /user/wishList → 로그인 필요
-     * /admin/** → ADMIN 권한 필요
-     * /members/** → USER 권한 필요
-     * OAuth2 사용자 정보는 CustomOAuth2UserService와 CustomOidcUserService로 처리
-     * 로그인 성공 시 JWT 성공 핸들러로 처리
-     * 로그아웃 성공 시 사용자 정의 핸들러 사용
-     * 세션 무효화
-     */
     @Bean
     @Order(2)
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**", "/oauth2/**", "/admin/upload-and-classify", "/admin/upload/**")
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                )
+
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/signup", "/register-form", "/oauth2/**").permitAll()
                         .requestMatchers("/guest/**").anonymous()
@@ -92,6 +93,9 @@ public class SecurityConfig {
                         .requestMatchers("/items/**").permitAll()
                         .requestMatchers("/board/").permitAll()
                         .requestMatchers(STATIC_RESOURCES).permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
+                        // 🔧 수정: Chrome DevTools 요청 허용
+                        .requestMatchers("/.well-known/**").permitAll()
                         .requestMatchers("/order/**", "/user/cart/**", "/user/wishList").authenticated()
                         .requestMatchers(HttpMethod.GET, "/board/write").authenticated()
                         .requestMatchers(HttpMethod.POST, "/board/write").authenticated()
@@ -115,7 +119,20 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutSuccessHandler(customLogoutSuccessHandler)
                         .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID", "XSRF-TOKEN")
                         .permitAll()
+                )
+
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            log.debug("인증 필요: {}", request.getRequestURI());
+                            response.sendRedirect("/login");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            log.warn("접근 거부: {} - {}", request.getRequestURI(), accessDeniedException.getMessage());
+                            response.sendRedirect("/login");
+                        })
                 );
 
         return http.build();

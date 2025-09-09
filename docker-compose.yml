@@ -1,59 +1,151 @@
-version: '3.8'
+  version: '3.8'
 
-services:
-  mysql:
-    image: mysql:8.0
-    container_name: shop-mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: hi092787!!!
-      MYSQL_DATABASE: SonStar
-      MYSQL_USER: SonStar
-      MYSQL_PASSWORD: hi092787!!!
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
-    networks:
-      - shop-network
+  services:
+    mysql:
+      image: mysql:8.0
+      container_name: shop-mysql
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: hi092787!!!
+        MYSQL_DATABASE: SonStar
+        MYSQL_USER: SonStar
+        MYSQL_PASSWORD: hi092787!!!
+      ports:
+        - "3307:3306"
+      volumes:
+        - mysql-data:/var/lib/mysql
+      networks:
+        - shop-network
+      healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+        timeout: 20s
+        retries: 10
 
-  redis:
-    image: redis:7.0
-    container_name: shop-redis
-    restart: always
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    networks:
-      - shop-network
+    redis:
+      image: redis:7.0
+      container_name: shop-redis
+      restart: always
+      ports:
+        - "6379:6379"
+      volumes:
+        - redis-data:/data
+      networks:
+        - shop-network
+      healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        interval: 10s
+        timeout: 3s
+        retries: 5
 
-  springboot:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: myshop-app
-    container_name: shop-app
-    restart: always
-    ports:
-      - "8080:8080"
-    depends_on:
-      - mysql
-      - redis
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://shop-mysql:3306/SonStar
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: hi092787!!!
-      SPRING_DATA_REDIS_HOST: shop-redis
-      SPRING_DATA_REDIS_PORT: "6379"
-    networks:
-      - shop-network
+    # 추천 API (FastAPI)
+    recommend-api:
+      build:
+        context: ./flask-api
+        dockerfile: Dockerfile
+      image: recommend-api
+      container_name: recommend-api
+      restart: always
+      ports:
+        - "5000:5000"
+      depends_on:
+        mysql:
+          condition: service_healthy
+        redis:
+          condition: service_healthy
+      environment:
+        MYSQL_HOST: shop-mysql
+        MYSQL_PORT: 3306
+        MYSQL_DATABASE: SonStar
+        MYSQL_USER: root
+        MYSQL_PASSWORD: hi092787!!!
+        REDIS_HOST: shop-redis
+        REDIS_PORT: 6379
+        PYTHON_UNBUFFERED: 1
+      networks:
+        - shop-network
+      volumes:
+        - recommend-data:/app/data
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
+        start_period: 60s
 
-volumes:
-  mysql-data:
-  redis-data:
+    # 이미지 분류 API (Flask)
+    image-classifier-api:
+      build:
+        context: ./image-classifier
+        dockerfile: Dockerfile
+      image: image-classifier-api
+      container_name: image-classifier-api
+      restart: always
+      ports:
+        - "5051:5000"  # 컨테이너 내부는 5000, 외부는 5051
+      environment:
+        FLASK_ENV: production
+        PYTHONUNBUFFERED: 1
+        MODEL_PATH: /app/models/fashion_classifier.pth
+        CUDA_VISIBLE_DEVICES: "0"
+      networks:
+        - shop-network
+      volumes:
+        - classifier-models:/app/models
+        - classifier-logs:/app/logs
+        - /usr/local/cuda:/usr/local/cuda:ro
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
+        start_period: 120s  # 모델 로딩 시간 고려
+      # 리소스 제한
+      deploy:
+        resources:
+          limits:
+            memory: 4G
+            cpus: '2.0'
+          reservations:
+            memory: 2G
+            cpus: '1.0'
 
-networks:
-  shop-network:
-    name: shop-network
-    driver: bridge
+    springboot:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      image: myshop-app
+      container_name: shop-app
+      restart: always
+      ports:
+        - "8080:8080"
+      depends_on:
+        mysql:
+          condition: service_healthy
+        redis:
+          condition: service_healthy
+        recommend-api:
+          condition: service_healthy
+        image-classifier-api:
+          condition: service_healthy
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:mysql://shop-mysql:3306/SonStar
+        SPRING_DATASOURCE_USERNAME: root
+        SPRING_DATASOURCE_PASSWORD: hi092787!!!
+        SPRING_DATA_REDIS_HOST: shop-redis
+        SPRING_DATA_REDIS_PORT: "6379"
+        RECOMMENDATION_API_URL: http://recommend-api:5000
+        IMAGE_CLASSIFIER_API_URL: http://image-classifier-api:5000
+      networks:
+        - shop-network
+
+  volumes:
+    mysql-data:
+    redis-data:
+    recommend-data:
+    classifier-models:  # 모델 파일 저장용
+    classifier-logs:    # 로그 파일 저장용
+
+  networks:
+    shop-network:
+      name: shop-network
+      driver: bridge

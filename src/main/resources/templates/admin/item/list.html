@@ -1,296 +1,724 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-    <title>상품 목록</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>상품 목록 | SonStarMall 관리자</title>
+
+    <!-- Font Awesome & Google Font -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/item_list.css">
+
     <style>
-        body {
-            background-color: #fff;
-            font-family: 'Noto Sans KR', sans-serif;
-            color: #333;
-        }
-
-        .navbar {
-            background-color: #000;
-            border-bottom: 1px solid #eee;
-        }
-
-        .navbar .navbar-brand,
-        .navbar .nav-link {
-            color: #fff;
-        }
-
-        .navbar .nav-link:hover {
-            color: #f5f5f5;
-        }
-
-        .sidebar .nav-link {
-            color: #333;
-            font-weight: 500;
-        }
-
-        .sidebar .nav-link:hover {
-            background-color: #f8f8f8;
-            color: #000;
-        }
-
-        .sidebar .nav-link.active {
-            background-color: #333;
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .sidebar i {
-            width: 18px;
-            margin-right: 8px;
-        }
-
-        .table {
-            margin-top: 2rem;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            width: 100%;
-        }
-
-        .table th,
-        .table td {
-            text-align: center;
-            vertical-align: middle;
-            padding: 15px;
-        }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #f8f8f8;
-        }
-
-        .btn-primary {
-            background-color: #000;
-            border-color: #000;
-        }
-
-        .btn-primary:hover {
-            background-color: #333;
-            border-color: #333;
-        }
-
-        .btn-secondary {
-            background-color: #f5f5f5;
-            border-color: #f5f5f5;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background-color: #ddd;
-            border-color: #ccc;
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: #000;
-            border-color: #000;
-            color: #fff;
-        }
-
-        .pagination .page-link {
-            color: #333;
-        }
-
-        .pagination .page-item.disabled .page-link {
-            color: #ccc;
-        }
-
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 0.875rem;
-        }
-
-        /* 여백 및 배치 조정 */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        h2 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1.5rem;
-        }
-
-        .pagination {
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        .mb-3 {
-            margin-bottom: 1.5rem;
-        }
-
-        .btn-secondary.ms-2 {
-            margin-top: 1rem;
-        }
-
-        .table th {
-            background-color: #f8f8f8;
-            font-weight: bold;
-        }
-
-        .table td {
-            color: #555;
-        }
-
-        .btn-danger {
-            background-color: #f44336;
-            border-color: #f44336;
-        }
-
-        .btn-danger:hover {
-            background-color: #e53935;
-            border-color: #e53935;
-        }
-
-        .action-btn {
+        /* 색상 스와치 스타일 */
+        .color-swatches {
             display: flex;
-            justify-content: center;
-            gap: 1rem;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .color-label {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+            text-align: center;
+        }
+
+        .primary-color {
+            border: 2px solid #007bff;
+        }
+
+        .secondary-color {
+            border: 1px solid #6c757d;
+            opacity: 0.8;
+        }
+
+        .no-color {
+            background: repeating-linear-gradient(
+                    45deg,
+                    #f8f9fa,
+                    #f8f9fa 4px,
+                    #e9ecef 4px,
+                    #e9ecef 8px
+            );
+            border: 1px dashed #ccc;
+        }
+
+        /* 테이블 헤더 조정 */
+        .products-table th:nth-child(6) {
+            min-width: 80px;
+        }
+
+        /* 색상 툴팁 */
+        .color-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 5px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .color-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .color-swatch:hover .color-tooltip {
+            opacity: 1;
         }
     </style>
 </head>
+
 <body>
-
-<nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/dashboard">관리자 대시보드</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarNav" aria-controls="navbarNav"
-                aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#" th:text="${#authentication.name}">관리자</a>
-                </li>
-                <form th:action="@{/logout}" method="post" class="mb-0">
-                    <button type="submit" class="btn btn-outline-dark btn-sm ms-2">로그아웃</button>
-                </form>
-
-
-            </ul>
+<!-- Admin Header -->
+<header class="admin-header">
+    <div class="header-content">
+        <a href="/dashboard" class="admin-brand">
+            <i class="fa-solid fa-chart-line"></i>
+            SonStarMall 관리자
+        </a>
+        <div class="header-actions">
+            <div class="admin-user">
+                <i class="fa-solid fa-user-shield"></i>
+                <span th:text="${#authentication.name}">관리자</span>
+            </div>
+            <form th:action="@{/logout}" method="post" style="margin:0;">
+                <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}"/>
+                <button type="submit" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    로그아웃
+                </button>
+            </form>
         </div>
     </div>
-</nav>
+</header>
 
-<div class="container">
-    <h2>상품 목록</h2>
-    <table class="table table-striped table-bordered">
+<!-- Main Content -->
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            상품 목록
+        </h1>
+        <div class="header-actions-buttons">
+            <a href="/admin/items/create" class="btn btn-add">
+                <i class="fa-solid fa-plus"></i>
+                상품 등록
+            </a>
+            <a href="/dashboard" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i>
+                대시보드
+            </a>
+        </div>
+    </div>
 
-        <thead>
-        <tr>
-            <th>이름</th>
-            <th>상품이미지</th>
-            <th>내용</th>
-            <th>가격</th>
-            <th>재고</th>
-            <th>카테고리</th>
-            <th>하위 카테고리</th>
-            <th>성별</th>
-            <th>액션</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="item : ${items}">
-            <td th:text="${item.itemName}">이름</td>
-            <td>
-                <img th:if="${item.imageUrl != null and item.imageUrl != ''}"
-                     th:src="${item.imageUrl}"
-                     alt="상품 이미지" style="width: 100px;" />
-                <img th:unless="${item.imageUrl != null and item.imageUrl != ''}"
-                     src="/images/default.jpg"
-                     alt="기본 이미지" style="width: 100px;" />
-            </td>
-            <td th:text="${item.itemComment}">내용</td>
-            <td th:text="${item.formattedPrice}">가격</td>
-            <td th:text="${item.quantity}">재고</td>
-            <td th:text="${item.category}">카테고리</td>
-            <td th:text="${item.subCategory}">하위 카테고리</td>
-            <td th:text="${item.gender}">성별</td>
-            <td class="action-btn">
-                <a th:href="@{/admin/items/edit/{id}(id=${item.id})}" class="btn btn-primary btn-sm">수정</a>
-                <button class="btn btn-danger btn-sm" th:onclick="'deleteItem(' + ${item.id} + ')'">삭제</button>
-            </td>
-        </tr>
-        </tbody>
+    <div class="content-container">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h3 class="filter-title">
+                <i class="fa-solid fa-filter"></i>
+                필터 옵션
+            </h3>
+            <form method="get" action="/admin/items" class="filter-form">
+                <select name="category" class="filter-select" onchange="this.form.submit()">
+                    <option value="" th:selected="${category == null}">전체 카테고리</option>
+                    <option th:each="cat : ${T(zerobase.MyShoppingMall.type.ItemCategory).values()}"
+                            th:value="${cat}"
+                            th:text="${cat}"
+                            th:selected="${cat == category}"></option>
+                </select>
+                <div class="stats-info">
+                    총 <strong th:text="${#lists.size(items)}">0</strong>개 상품
+                </div>
+            </form>
+        </div>
 
-    </table>
-    <nav aria-label="Page navigation" class="mt-4">
-        <ul class="pagination">
-            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/admin/items(page=${currentPage - 1}, category=${category})}">이전</a>
-            </li>
+        <!-- Table Section -->
+        <div class="table-section">
+            <div th:if="${!#lists.isEmpty(items)}">
+                <table class="products-table">
+                    <thead>
+                    <tr>
+                        <th>상품명</th>
+                        <th>이미지</th>
+                        <th>가격</th>
+                        <th>재고</th>
+                        <th>카테고리</th>
+                        <th>색상</th>
+                        <th>성별</th>
+                        <th>연령대</th>
+                        <th>스타일</th>
+                        <th>시즌</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${items}">
+                        <td>
+                            <div class="product-name" th:text="${item.itemName}" th:title="${item.itemName}">상품명</div>
+                        </td>
+                        <td>
+                            <img th:if="${item.imageUrl != null and item.imageUrl != ''}"
+                                 th:src="${item.imageUrl}"
+                                 alt="상품 이미지" class="product-image"/>
+                        </td>
+                        <td>
+                            <span class="product-price" th:text="${item.formattedPrice}">가격</span>
+                        </td>
+                        <td>
+                            <span class="product-stock"
+                                  th:classappend="${item.quantity > 50} ? 'stock-high' : (${item.quantity > 10} ? 'stock-medium' : 'stock-low')"
+                                  th:text="${item.quantity} + '개'">재고</span>
+                        </td>
+                        <td>
+                            <span class="category-badge" th:text="${item.category}">카테고리</span>
+                        </td>
+                        <td>
+                            <div class="color-swatches">
+                                <!-- 주 색상 -->
+                                <div th:if="${item.primaryColor != null}"
+                                     class="color-swatch primary-color"
+                                     th:style="'background-color:' + ${item.primaryColor.hexCode}">
+                                    <div class="color-tooltip" th:text="'주: ' + ${item.primaryColor.displayName}"></div>
+                                </div>
 
-            <li class="page-item"
-                th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                th:classappend="${i == currentPage} ? 'active'">
-                <a class="page-link"
-                   th:href="@{/admin/items(page=${i}, category=${category})}"
-                   th:text="${i + 1}">1</a>
-            </li>
+                                <!-- 보조 색상 -->
+                                <div th:if="${item.secondaryColor != null}"
+                                     class="color-swatch secondary-color"
+                                     th:style="'background-color:' + ${item.secondaryColor.hexCode}">
+                                    <div class="color-tooltip" th:text="'보조: ' + ${item.secondaryColor.displayName}"></div>
+                                </div>
 
-            <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/admin/items(page=${currentPage + 1}, category=${category})}">다음</a>
-            </li>
-        </ul>
-    </nav>
+                                <!-- 색상 정보가 없는 경우 -->
+                                <div th:if="${item.primaryColor == null}" class="color-swatch no-color">
+                                    <div class="color-tooltip">색상 미설정</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="gender-badge"
+                                 th:classappend="${item.gender == T(zerobase.MyShoppingMall.type.Gender).MALE} ? 'male' : 'female'">
+                                <i th:class="${item.gender == T(zerobase.MyShoppingMall.type.Gender).MALE} ? 'fa-solid fa-mars' : 'fa-solid fa-venus'"></i>
+                                <span th:text="${item.gender == T(zerobase.MyShoppingMall.type.Gender).MALE} ? '남성' : '여성'"></span>
+                            </div>
+                        </td>
+                        <td th:text="${item.ageGroup}">연령대</td>
+                        <td th:text="${item.style}">스타일</td>
+                        <td th:text="${item.season}">시즌</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:href="@{/admin/items/edit/{id}(id=${item.id})}" class="btn btn-edit">
+                                    <i class="fa-solid fa-pen"></i>
+                                    수정
+                                </a>
+                                <button type="button" class="btn btn-delete"
+                                        onclick="showDeleteModal(this)"
+                                        th:data-item-id="${item.id}"
+                                        th:data-item-name="${item.itemName}">
+                                    <i class="fa-solid fa-trash"></i>
+                                    삭제
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <form method="get" action="/admin/items" class="mb-3">
-        <select name="category" class="form-select" onchange="this.form.submit()">
-            <option value="" th:selected="${category == null}">전체</option>
-            <option th:each="cat : ${T(zerobase.MyShoppingMall.type.ItemCategory).values()}"
-                    th:value="${cat}"
-                    th:text="${cat}"
-                    th:selected="${cat == category}"></option>
-        </select>
-    </form>
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${#lists.isEmpty(items)}">
+                <i class="fa-solid fa-box-open"></i>
+                <h3>등록된 상품이 없습니다</h3>
+                <p>새로운 상품을 등록해보세요!</p>
+                <a href="/admin/items/create" class="btn btn-add" style="margin-top: 1rem;">
+                    <i class="fa-solid fa-plus"></i>
+                    첫 상품 등록하기
+                </a>
+            </div>
+        </div>
 
-    <div class="d-flex justify-content-end mt-3">
-        <a href="/admin/items/create" class="btn btn-secondary ms-2">상품 등록하기</a>
-        <a href="javascript:history.back()" class="btn btn-secondary ms-2">뒤로가기</a>
+        <!-- Pagination -->
+        <div class="pagination-section" th:if="${totalPages > 1}">
+            <nav aria-label="상품 목록 페이지네이션">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/items(page=${currentPage - 1}, category=${category})}"
+                           aria-label="이전 페이지">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/admin/items(page=${i}, category=${category})}"
+                           th:text="${i + 1}">1</a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/items(page=${currentPage + 1}, category=${category})}"
+                           aria-label="다음 페이지">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</main>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-content">
+        <div class="modal-title">
+            <i class="fa-solid fa-exclamation-triangle" style="color: var(--error); margin-right: 0.5rem;"></i>
+            상품 삭제 확인
+        </div>
+        <div class="modal-message">
+            <strong id="deleteItemName"></strong> 상품을 정말 삭제하시겠습니까?<br>
+            삭제된 상품은 복구할 수 없습니다.
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn confirm" onclick="confirmDelete()">
+                <i class="fa-solid fa-trash"></i>
+                삭제
+            </button>
+            <button class="modal-btn cancel" onclick="closeDeleteModal()">
+                <i class="fa-solid fa-times"></i>
+                취소
+            </button>
+        </div>
     </div>
 </div>
 
 <script>
-    function deleteItem(itemId) {
-        if (confirm('정말 삭제하시겠습니까?')) {
-            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+    let deleteItemId = null;
 
-            fetch('/admin/items/' + itemId, {
-                method: 'DELETE',
-                headers: {
-                    [csrfHeader]: csrfToken
+    // 색상 enum과 hex 코드 매핑 (JavaScript에서도 사용)
+    const colorMapping = {
+        'BLACK': '#000000',
+        'WHITE': '#FFFFFF',
+        'GRAY': '#808080',
+        'RED': '#FF0000',
+        'BLUE': '#0000FF',
+        'GREEN': '#00FF00',
+        'YELLOW': '#FFFF00',
+        'ORANGE': '#FFA500',
+        'PURPLE': '#800080',
+        'PINK': '#FFC0CB',
+        'BROWN': '#A52A2A',
+        'NAVY': '#000080',
+        'BEIGE': '#FFE4B5',
+        'SILVER': '#C0C0C0'
+    };
+
+    function showDeleteModal(el) {
+        deleteItemId = el.dataset.itemId;
+        const name = el.dataset.itemName;
+        document.getElementById('deleteItemName').textContent = name;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        deleteItemId = null;
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    function confirmDelete() {
+        if (!deleteItemId) return;
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        const confirmBtn = document.querySelector('.modal-btn.confirm');
+        const originalText = confirmBtn.innerHTML;
+        confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 삭제 중...';
+        confirmBtn.disabled = true;
+
+        fetch('/admin/items/' + deleteItemId, {
+            method: 'DELETE',
+            headers: {
+                [csrfHeader]: csrfToken
+            }
+        })
+            .then(response => {
+                if (response.status === 204) {
+                    closeDeleteModal();
+                    showSuccessMessage('상품이 성공적으로 삭제되었습니다.');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error('삭제 실패');
                 }
             })
-                .then(response => {
-                    if (response.status === 204) {
-                        alert('삭제되었습니다.');
-                        location.reload();
-                    } else {
-                        alert('삭제에 실패했습니다.');
-                    }
-                })
-                .catch(error => alert('삭제 요청 중 오류가 발생했습니다.'));
-        }
+            .catch(error => {
+                console.error('삭제 오류:', error);
+                showErrorMessage('상품 삭제에 실패했습니다. 다시 시도해주세요.');
+                confirmBtn.innerHTML = originalText;
+                confirmBtn.disabled = false;
+            });
     }
-</script>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    function showSuccessMessage(message) {
+        const toast = createToast(message, 'success');
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+
+    function showErrorMessage(message) {
+        const toast = createToast(message, 'error');
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 4000);
+    }
+
+    function createToast(message, type) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-lg);
+            color: white;
+            font-weight: 500;
+            z-index: 3000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
+        `;
+
+        if (type === 'success') {
+            toast.style.background = 'var(--success)';
+            toast.innerHTML = `<i class="fa-solid fa-check-circle"></i>${message}`;
+        } else {
+            toast.style.background = 'var(--error)';
+            toast.innerHTML = `<i class="fa-solid fa-exclamation-circle"></i>${message}`;
+        }
+
+        toast.classList.add('toast');
+        return toast;
+    }
+
+    // 토스트 표시 스타일
+    const toastStyle = document.createElement('style');
+    toastStyle.textContent = `
+        .toast.show {
+            opacity: 1 !important;
+            transform: translateX(0) !important;
+        }
+    `;
+    document.head.appendChild(toastStyle);
+
+    // 모달 외부 클릭 시 닫기
+    document.getElementById('deleteModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // ESC 키로 모달 닫기
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+
+    // 색상 스와치 클릭 시 색상 정보 표시
+    function showColorInfo(primaryColor, secondaryColor, itemName) {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            cursor: pointer;
+        `;
+
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            max-width: 400px;
+            cursor: default;
+        `;
+
+        let colorInfo = `<h3 style="margin-top: 0; margin-bottom: 1rem;">${itemName} - 색상 정보</h3>`;
+
+        if (primaryColor) {
+            const primaryHex = colorMapping[primaryColor] || '#CCCCCC';
+            colorInfo += `
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+                    <div style="width: 40px; height: 40px; background: ${primaryHex}; border: 2px solid #007bff; border-radius: 8px;"></div>
+                    <div>
+                        <div style="font-weight: 600;">주 색상</div>
+                        <div style="color: #666; font-size: 14px;">${primaryColor}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (secondaryColor) {
+            const secondaryHex = colorMapping[secondaryColor] || '#CCCCCC';
+            colorInfo += `
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+                    <div style="width: 40px; height: 40px; background: ${secondaryHex}; border: 1px solid #6c757d; border-radius: 8px;"></div>
+                    <div>
+                        <div style="font-weight: 600;">보조 색상</div>
+                        <div style="color: #666; font-size: 14px;">${secondaryColor}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        content.innerHTML = colorInfo;
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+
+        content.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function () {
+        // 테이블 행 호버 효과
+        const tableRows = document.querySelectorAll('.products-table tbody tr');
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', function () {
+                this.style.transform = 'translateX(5px)';
+            });
+
+            row.addEventListener('mouseleave', function () {
+                this.style.transform = 'translateX(0)';
+            });
+        });
+
+        // 이미지 로딩 에러 처리
+        const productImages = document.querySelectorAll('.product-image');
+        productImages.forEach(img => {
+            img.addEventListener('error', function () {
+                this.src = '/images/default.jpg';
+                this.alt = '기본 이미지';
+            });
+        });
+
+        // 색상 스와치 클릭 이벤트
+        const colorSwatches = document.querySelectorAll('.color-swatches');
+        colorSwatches.forEach(swatchGroup => {
+            swatchGroup.addEventListener('click', function() {
+                const row = this.closest('tr');
+                const itemName = row.querySelector('.product-name').textContent;
+                // 실제 구현에서는 row에서 색상 데이터를 추출해야 합니다
+                // 여기서는 예시로 설정
+                showColorInfo('BLACK', 'WHITE', itemName);
+            });
+        });
+
+        // 상품명 툴팁
+        const productNames = document.querySelectorAll('.product-name');
+        productNames.forEach(name => {
+            if (name.scrollWidth > name.clientWidth) {
+                name.style.cursor = 'help';
+            }
+        });
+
+        // 재고 상태에 따른 추가 스타일링
+        const stockElements = document.querySelectorAll('.product-stock');
+        stockElements.forEach(stock => {
+            const quantity = parseInt(stock.textContent);
+            if (quantity === 0) {
+                stock.textContent = '품절';
+                stock.classList.add('stock-out');
+                stock.style.background = 'rgba(239,68,68,0.2)';
+                stock.style.color = 'var(--error)';
+            }
+        });
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function (e) {
+            // Alt + N: 새 상품 등록
+            if (e.altKey && e.key === 'n') {
+                e.preventDefault();
+                window.location.href = '/admin/items/create';
+            }
+
+            // Alt + D: 대시보드로
+            if (e.altKey && e.key === 'd') {
+                e.preventDefault();
+                window.location.href = '/dashboard';
+            }
+        });
+
+        // 페이지네이션 키보드 네비게이션
+        document.addEventListener('keydown', function (e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+            // 왼쪽 화살표: 이전 페이지
+            if (e.key === 'ArrowLeft') {
+                const prevBtn = document.querySelector('.page-item:not(.disabled) .page-link[aria-label="이전 페이지"]');
+                if (prevBtn) {
+                    e.preventDefault();
+                    prevBtn.click();
+                }
+            }
+
+            // 오른쪽 화살표: 다음 페이지
+            if (e.key === 'ArrowRight') {
+                const nextBtn = document.querySelector('.page-item:not(.disabled) .page-link[aria-label="다음 페이지"]');
+                if (nextBtn) {
+                    e.preventDefault();
+                    nextBtn.click();
+                }
+            }
+        });
+
+        // 필터 선택 시 애니메이션
+        const filterSelect = document.querySelector('.filter-select');
+        if (filterSelect) {
+            filterSelect.addEventListener('change', function () {
+                const statsInfo = document.querySelector('.stats-info');
+                if (statsInfo) {
+                    statsInfo.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 필터링 중...';
+                }
+            });
+        }
+
+        // URL 파라미터에서 메시지 확인
+        const urlParams = new URLSearchParams(window.location.search);
+        const message = urlParams.get('message');
+        const type = urlParams.get('type');
+
+        if (message) {
+            if (type === 'success') {
+                showSuccessMessage(decodeURIComponent(message));
+            } else if (type === 'error') {
+                showErrorMessage(decodeURIComponent(message));
+            }
+
+            const newUrl = window.location.pathname + (urlParams.toString().replace(/[?&](message|type)=[^&]*/g, '').replace(/^&/, '?') || '');
+            window.history.replaceState({}, '', newUrl);
+        }
+    });
+
+    // 상품 이미지 클릭 시 확대 보기
+    function showImageModal(imageSrc, itemName) {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            cursor: pointer;
+        `;
+
+        const img = document.createElement('img');
+        img.src = imageSrc;
+        img.alt = itemName;
+        img.style.cssText = `
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+        `;
+
+        modal.appendChild(img);
+        document.body.appendChild(modal);
+
+        modal.addEventListener('click', function () {
+            document.body.removeChild(modal);
+        });
+    }
+
+    // 이미지에 클릭 이벤트 추가
+    document.addEventListener('DOMContentLoaded', function () {
+        const productImages = document.querySelectorAll('.product-image');
+        productImages.forEach(img => {
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', function () {
+                const itemName = this.closest('tr').querySelector('.product-name').textContent;
+                showImageModal(this.src, itemName);
+            });
+        });
+    });
+</script>
 </body>
 </html>

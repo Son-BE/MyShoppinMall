@@ -22,34 +22,34 @@ public class LoginViewController {
     private final MemberService memberService;
     private final ItemService itemService;
 
-    @GetMapping("/")
-    public String initPage(
-            @RequestParam(value = "gender", required = false) String gender,
-            @RequestParam(value = "sort", required = false, defaultValue = "latest") String sort,
-            @RequestParam(value = "category", required = false) String subCategory,
-            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
-            Model model) {
-
-        Gender genderEnum = null;
-        if (gender != null && !gender.isEmpty()) {
-            try {
-                genderEnum = Gender.valueOf(gender.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                genderEnum = null;
-            }
-        }
-
-        Page<ItemResponseDto> itemPage = itemService.findItems(genderEnum, sort, subCategory, page, 16);
-
-        model.addAttribute("items", itemPage.getContent());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", itemPage.getTotalPages());
-        model.addAttribute("selectedGender", gender);
-        model.addAttribute("selectedSort", sort);
-        model.addAttribute("selectedCategory", subCategory);
-
-        return "mainPage";
-    }
+//    @GetMapping("/")
+//    public String initPage(
+//            @RequestParam(value = "gender", required = false) String gender,
+//            @RequestParam(value = "sort", required = false, defaultValue = "latest") String sort,
+//            @RequestParam(value = "category", required = false) String subCategory,
+//            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+//            Model model) {
+//
+//        Gender genderEnum = null;
+//        if (gender != null && !gender.isEmpty()) {
+//            try {
+//                genderEnum = Gender.valueOf(gender.toUpperCase());
+//            } catch (IllegalArgumentException e) {
+//                genderEnum = null;
+//            }
+//        }
+//
+//        Page<ItemResponseDto> itemPage = itemService.findItems(genderEnum, sort, subCategory, page, 16);
+//
+//        model.addAttribute("items", itemPage.getContent());
+//        model.addAttribute("currentPage", page);
+//        model.addAttribute("totalPages", itemPage.getTotalPages());
+//        model.addAttribute("selectedGender", gender);
+//        model.addAttribute("selectedSort", sort);
+//        model.addAttribute("selectedCategory", subCategory);
+//
+//        return "mainPage";
+//    }
 
 
     @GetMapping("/login")

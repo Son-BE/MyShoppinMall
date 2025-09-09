@@ -22,7 +22,8 @@
 //                                              @RequestParam("imageFile") MultipartFile imageFile) {
 //        try {
 //            itemImageService.saveItemImage(itemId, imageFile);
-//            return ResponseEntity.ok("이미지 업로드 성공");
+//            return ResponseEntity.ok("
+//            이미지 업로드 성공");
 //        } catch (IOException e) {
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 //                    .body("이미지 업로드 실패: " + e.getMessage());

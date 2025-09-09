@@ -111,7 +111,4 @@ public class JwtTokenProvider {
                 .build().parseClaimsJws(token).getBody().getSubject();
     }
 
-
-
-
 }

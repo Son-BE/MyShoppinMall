@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import zerobase.MyShoppingMall.entity.Item;
-import zerobase.MyShoppingMall.type.Gender;
-import zerobase.MyShoppingMall.type.ItemCategory;
-import zerobase.MyShoppingMall.type.ItemSubCategory;
+import zerobase.MyShoppingMall.type.*;
+
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -28,11 +27,25 @@ public class ItemResponseDto {
     private ItemCategory category;
     private ItemSubCategory subCategory;
     private Gender gender;
+    private AgeGroup ageGroup;
+    private Styles style;
+    private Season season;
     private boolean isWish;
 
+    private Color primaryColor;
+    private Color secondaryColor;
+
+    private String recommendationReason;    // 추천 사유
+    private Double recommendationScore;     // 추천 점수
+    private Double popularityScore;         // 인기 점수
+
+    @Builder
     public ItemResponseDto(Long id, String itemName, String itemComment, int price, int quantity, String deleteType,
                            String imagePath, LocalDateTime createdAt, LocalDateTime updatedAt,
-                           ItemCategory category, ItemSubCategory subCategory, Gender gender, boolean isWish) {
+                           ItemCategory category, ItemSubCategory subCategory, Gender gender,
+                           AgeGroup ageGroup, Styles style, Season season, boolean isWish,
+                           Color primaryColor, Color secondaryColor,
+                           String recommendationReason, Double recommendationScore, Double popularityScore) {
         this.id = id;
         this.itemName = itemName;
         this.itemComment = itemComment;
@@ -45,12 +58,19 @@ public class ItemResponseDto {
         this.category = category;
         this.subCategory = subCategory;
         this.gender = gender;
+        this.ageGroup = ageGroup;
+        this.style = style;
+        this.season = season;
         this.isWish = isWish;
+        this.primaryColor = primaryColor;
+        this.secondaryColor = secondaryColor;
+        this.recommendationReason = recommendationReason;
+        this.recommendationScore = recommendationScore;
+        this.popularityScore = popularityScore;
     }
 
     public static ItemResponseDto fromEntity(Item item) {
-
-        ItemResponseDto dto = ItemResponseDto.builder()
+        return ItemResponseDto.builder()
                 .id(item.getId())
                 .itemName(item.getItemName())
                 .itemComment(item.getItemComment())
@@ -62,11 +82,14 @@ public class ItemResponseDto {
                 .category(item.getCategory())
                 .subCategory(item.getSubCategory())
                 .gender(item.getGender())
+                .ageGroup(item.getAgeGroup())
+                .style(item.getStyle())
+                .season(item.getSeason())
                 .imagePath(item.getImageUrl())
                 .isWish(item.isWish())
+                .primaryColor(item.getPrimaryColor())
+                .secondaryColor(item.getSecondaryColor())
                 .build();
-
-        return dto;
     }
 
     public String getImageUrl() {
@@ -78,5 +101,26 @@ public class ItemResponseDto {
     }
 
     public void setIsWish(boolean isWish) {
+        this.isWish = isWish;
+    }
+
+    public Long getItemId() {
+        return id;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public String getRecommendationReason() {
+        return recommendationReason != null ? recommendationReason : "추천 상품";
+    }
+
+    public Double getRecommendationScore() {
+        return recommendationScore != null ? recommendationScore : 0.0;
+    }
+
+    public Double getPopularityScore() {
+        return popularityScore != null ? popularityScore : 0.0;
     }
 }

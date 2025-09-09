@@ -1,119 +1,774 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/>
-    <title>게시판 목록</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 목록 | SonStarMall</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          crossorigin="anonymous"/>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="/css/board_list.css"/>
-    <link rel="stylesheet" href="/css/header.css">
+    <!-- Font Awesome & Google Font -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
+    <style>
+        :root {
+            --primary: #0070f3;
+            --primary-hover: #0051cc;
+            --secondary: #ff3366;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text-dark: #1a1a1a;
+            --text-gray: #666;
+            --text-light: #999;
+            --bg-white: #ffffff;
+            --bg-light: #f8fafc;
+            --bg-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family:'Inter', sans-serif;
+            background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color:var(--text-dark);
+            line-height:1.6;
+            min-height:100vh;
+        }
+
+        body::before {
+            content:'';
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background: radial-gradient(circle at 20% 80%, rgba(120,119,198,0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255,119,198,0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120,219,255,0.3) 0%, transparent 50%);
+            z-index:-1;
+            animation:backgroundMove 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundMove {
+            0%,100%{transform:scale(1) rotate(0deg);}
+            50%{transform:scale(1.1) rotate(5deg);}
+        }
+
+        /* Header */
+        header {
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            backdrop-filter:blur(20px);
+            background:rgba(255,255,255,0.85);
+            border-bottom:1px solid rgba(255,255,255,0.2);
+            box-shadow:var(--shadow-lg);
+            z-index:1000;
+        }
+
+        .header-container {
+            max-width:1400px;
+            margin:0 auto;
+            padding:0 2rem;
+        }
+
+        .top-bar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:1rem 0;
+            border-bottom:1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            font-size:2rem;
+            font-weight:700;
+            background:linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            cursor:pointer;
+            transition:transform .3s;
+        }
+
+        .logo:hover{transform:scale(1.05);}
+
+        .user-info {
+            display:flex;
+            gap:1rem;
+            align-items:center;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .auth-button {
+            display:inline-flex;
+            align-items:center;
+            gap:.5rem;
+            padding:.75rem 1.5rem;
+            font-size:.875rem;
+            font-weight:500;
+            text-decoration:none;
+            border-radius:var(--radius-lg);
+            transition:all .3s;
+            border:none;
+            cursor:pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .auth-button:hover::before {
+            left: 100%;
+        }
+
+        .login-button {
+            background:rgba(255,255,255,0.1);
+            color:var(--text-dark);
+            border:1px solid rgba(255,255,255,0.2);
+        }
+
+        .login-button:hover {
+            background:rgba(255,255,255,0.2);
+            transform:translateY(-2px);
+        }
+
+        .logout-button {
+            background:linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color:#fff;
+        }
+
+        .logout-button:hover {
+            transform:translateY(-2px);
+            box-shadow:var(--shadow);
+        }
+
+        /* Navigation */
+        .main-nav {
+            display:flex;
+            justify-content:center;
+            gap:3rem;
+            padding:1rem 0;
+        }
+
+        .main-nav a {
+            display:flex;
+            align-items:center;
+            gap:.5rem;
+            font-size:.95rem;
+            font-weight:500;
+            color:var(--text-dark);
+            text-decoration:none;
+            padding:.75rem 1rem;
+            border-radius:var(--radius);
+            transition:all .3s;
+            position: relative;
+        }
+
+        .main-nav a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            transition: width 0.3s ease;
+        }
+
+        .main-nav a:hover::before,
+        .main-nav a.active::before {
+            width: 80%;
+        }
+
+        .main-nav a:hover {
+            color:var(--primary);
+            background:rgba(0,112,243,0.05);
+        }
+
+        /* Layout */
+        .content-container {
+            margin-top:140px;
+            max-width:1200px;
+            margin-left:auto;
+            margin-right:auto;
+            padding:2rem;
+            min-height:calc(100vh - 140px);
+            display:grid;
+            grid-template-columns:250px 1fr;
+            gap:2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background:rgba(255,255,255,0.95);
+            backdrop-filter:blur(20px);
+            border-radius:var(--radius-xl);
+            padding:1.5rem;
+            box-shadow:var(--shadow-xl);
+            border:1px solid rgba(255,255,255,0.2);
+            height: fit-content;
+            position: sticky;
+            top: 160px;
+        }
+
+        .sidebar h2 {
+            font-size:1.25rem;
+            font-weight:600;
+            color:var(--text-dark);
+            margin-bottom:1rem;
+            display:flex;
+            align-items:center;
+            gap:.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.75rem;
+        }
+
+        .sidebar ul {
+            list-style:none;
+            display:flex;
+            flex-direction:column;
+            gap:.5rem;
+        }
+
+        .sidebar a {
+            color:var(--text-dark);
+            text-decoration:none;
+            padding:.75rem 1rem;
+            border-radius:var(--radius);
+            transition:all .3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar a.selected {
+            background:linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar a:hover:not(.selected) {
+            background:rgba(0,112,243,0.05);
+            color:var(--primary);
+            transform: translateX(5px);
+        }
+
+        /* Board Content */
+        .board-section {
+            background:rgba(255,255,255,0.95);
+            backdrop-filter:blur(20px);
+            border-radius:var(--radius-xl);
+            padding:2rem;
+            box-shadow:var(--shadow-xl);
+            border:1px solid rgba(255,255,255,0.2);
+        }
+
+        .board-header {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .board-header h1 {
+            font-size:1.75rem;
+            font-weight:700;
+            background:linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            display:flex;
+            align-items:center;
+            gap:.5rem;
+        }
+
+        .write-btn {
+            background:linear-gradient(135deg, var(--primary), var(--accent));
+            color:#fff;
+            padding:.75rem 1.25rem;
+            font-weight:500;
+            border:none;
+            border-radius:var(--radius-lg);
+            display:inline-flex;
+            align-items:center;
+            gap:.5rem;
+            text-decoration:none;
+            transition:all .3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .write-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .write-btn:hover::before {
+            left: 100%;
+        }
+
+        .write-btn:hover {
+            transform:translateY(-2px);
+            box-shadow:var(--shadow-lg);
+        }
+
+        /* Table */
+        .board-table {
+            width:100%;
+            border-collapse:collapse;
+            margin-bottom: 2rem;
+        }
+
+        .board-table th, .board-table td {
+            padding:1rem;
+            text-align:left;
+            border-bottom:1px solid var(--border);
+        }
+
+        .board-table th {
+            background:linear-gradient(135deg, rgba(0,112,243,0.05), rgba(124,58,237,0.05));
+            font-weight:600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .board-table th:first-child {
+            border-radius: var(--radius) 0 0 0;
+        }
+
+        .board-table th:last-child {
+            border-radius: 0 var(--radius) 0 0;
+        }
+
+        .board-table td {
+            transition: background-color 0.3s ease;
+        }
+
+        .board-table tr:hover td {
+            background-color: rgba(0,112,243,0.02);
+        }
+
+        .board-table td a {
+            color:var(--text-dark);
+            text-decoration:none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .board-table td a:hover {
+            color: var(--primary);
+        }
+
+        .board-table .lock-icon {
+            color: var(--warning);
+            margin-right: 0.5rem;
+        }
+
+        .board-table .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-gray);
+        }
+
+        .board-table .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .board-table td[data-label]::before {
+            content:attr(data-label) ": ";
+            font-weight:600;
+            display:none;
+        }
+
+        /* My Posts Link */
+        .my-posts-link {
+            display:inline-flex;
+            align-items:center;
+            gap:.5rem;
+            color:var(--primary);
+            text-decoration:none;
+            font-weight:500;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+            background: rgba(0,112,243,0.05);
+        }
+
+        .my-posts-link:hover {
+            background: rgba(0,112,243,0.1);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Stats */
+        .board-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, rgba(0,112,243,0.1), rgba(124,58,237,0.1));
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-gray);
+        }
+
+        /* Responsive */
+        @media (max-width:768px) {
+            .content-container {
+                display:block;
+                padding:1rem;
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                margin-bottom:1.5rem;
+                position: static;
+            }
+
+            .board-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .board-table th,
+            .board-table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.875rem;
+            }
+
+            .main-nav {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 1rem 0;
+            }
+
+            .main-nav a {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem 0;
+            }
+        }
+
+        @media (max-width:480px) {
+            .board-header {
+                flex-direction:column;
+                align-items:flex-start;
+                gap:1rem;
+            }
+
+            .board-header h1 {
+                font-size:1.5rem;
+            }
+
+            .board-section {
+                padding: 1.5rem;
+            }
+
+            .sidebar {
+                padding: 1rem;
+            }
+
+            .board-stats {
+                flex-direction: column;
+            }
+
+            /* Mobile table styling */
+            .board-table,
+            .board-table thead,
+            .board-table tbody,
+            .board-table th,
+            .board-table td,
+            .board-table tr {
+                display: block;
+            }
+
+            .board-table thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            .board-table tr {
+                border: 1px solid var(--border);
+                margin-bottom: 1rem;
+                border-radius: var(--radius);
+                background: rgba(255,255,255,0.5);
+                padding: 1rem;
+            }
+
+            .board-table td {
+                border: none;
+                padding: 0.5rem 0;
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+            }
+
+            .board-table td[data-label]::before {
+                content: attr(data-label) ": ";
+                position: absolute;
+                left: 0;
+                width: 45%;
+                padding-left: 0;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 600;
+                color: var(--text-gray);
+                display: block;
+            }
+        }
+
+        /* Animation */
+        .board-section,
+        .sidebar {
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
 <header>
-    <div class="top-bar">
-        <h2 th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
-            SonStarMall
-        </h2>
-        <div class="user-info">
-            <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
-                <span th:text="${#authentication.name} + '님'" style="align-self: center;"></span>
-
-                <a th:href="@{/members/profile}" class="profile-button" aria-label="프로필 페이지 이동">
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-user" aria-hidden="true"></i> 내 정보
-                    </button>
-                </a>
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
-                    </button>
-                </form>
+    <div class="header-container">
+        <div class="top-bar">
+            <h2 class="logo" th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">SonStarMall</h2>
+            <div class="user-info">
+                <div th:if="${#authorization.expression('isAuthenticated()')}">
+                    <span class="user-name" th:text="${#authentication.name} + '님'"></span>
+                    <a th:href="@{/members/profile}" class="auth-button logout-button" aria-label="프로필 페이지 이동">
+                        <i class="fa-solid fa-user"></i> 내 정보
+                    </a>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="auth-button logout-button" aria-label="로그아웃">
+                            <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+                        </button>
+                    </form>
+                </div>
                 <div th:if="${!#authorization.expression('isAuthenticated()')}">
-                    <a th:href="@{/login}" class="login-button" title="로그인" aria-label="로그인 페이지 이동">
-                        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                    <a th:href="@{/login}" class="auth-button login-button" aria-label="로그인">
+                        <i class="fa-solid fa-right-to-bracket"></i> 로그인
                     </a>
                 </div>
             </div>
-
         </div>
+        <nav class="main-nav">
+            <a href="/items"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="/user/cart"><i class="fa-solid fa-cart-shopping"></i> 장바구니</a>
+            <a href="/user/wishList"><i class="fa-solid fa-heart"></i> 찜 목록</a>
+            <a href="/orders/myOrder"><i class="fa-solid fa-book"></i> 주문 내역</a>
+            <a href="/board?category=NOTICE" class="active"><i class="fa-solid fa-comments"></i> 게시판</a>
+        </nav>
     </div>
-
-    <nav class="main-nav">
-        <a href="/items"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
-        <a href="/user/cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> 장바구니</a>
-        <a href="/user/wishList"><i class="fa-solid fa-heart" aria-hidden="true"></i> 찜 목록</a>
-        <a href="/orders/myOrder"><i class="fa-solid fa-book" aria-hidden="true"></i> 주문 내역</a>
-        <a href="/board?category=NOTICE"><i class="fa-solid fa-comments" aria-hidden="true"></i> 게시판</a>
-    </nav>
 </header>
 
-<div class="main-container">
+<div class="content-container">
     <aside class="sidebar">
-        <h2><i class="fa-solid fa-bars"></i> 게시판 메뉴</h2>
+        <h2><i class="fa-solid fa-list"></i> 게시판 메뉴</h2>
         <ul>
             <li th:each="cat : ${categories}">
                 <a th:href="@{/board(category=${cat})}"
                    th:text="${cat}"
-                   th:classappend="${selectedCategory == cat} ? 'selected' : ''"
-                   href="#">카테고리</a>
+                   th:classappend="${selectedCategory == cat} ? 'selected' : ''">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
             </li>
         </ul>
     </aside>
 
-    <section class="board-content">
-        <div class="board-list">
-            <h1><i class="fa-solid fa-comments"></i> <span th:text="${categoryName}">게시판</span></h1>
-
-            <a th:if="${#authorization.expression('isAuthenticated()') and
-           (#authorization.expression('hasRole(''ROLE_ADMIN'')') or
-            (selectedCategory != 'NOTICE' and selectedCategory != 'QNA' and selectedCategory != 'EVENT'))}"
+    <section class="board-section">
+        <div class="board-header">
+            <h1>
+                <i class="fa-solid fa-comments"></i>
+                <span th:text="${categoryName}">게시판</span>
+            </h1>
+            <a th:if="${#authorization.expression('isAuthenticated()') and (#authorization.expression('hasRole(''ROLE_ADMIN'')') or (selectedCategory != 'NOTICE' and selectedCategory != 'QNA' and selectedCategory != 'EVENT'))}"
                th:href="@{/board/write(category=${selectedCategory})}" class="write-btn">
                 <i class="fa-solid fa-pen"></i> 글쓰기
             </a>
-
-
-            <table class="board-table">
-                <thead>
-                <tr>
-                    <th>번호</th>
-                    <th>제목</th>
-                    <th>작성자</th>
-                    <th>작성일</th>
-                    <th>조회수</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="board, stat : ${boards}">
-                    <td data-label="번호" th:text="${stat.index + 1}">1</td>
-                    <td data-label="제목">
-                        <a th:if="${board.secret}"
-                           th:href="@{|/board/secret/${board.id}|}"><i class="fa-solid fa-lock"></i> 비밀글입니다.</a>
-                        <a th:unless="${board.secret}"
-                           th:href="@{|/board/${board.id}|}"
-                           th:text="${board.title}"></a>
-                    </td>
-                    <td data-label="작성자" th:text="${board.member != null ? board.member.nickName : '알 수 없음'}">작성자</td>
-                    <td data-label="작성일" th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd')}">날짜</td>
-                    <td data-label="조회수" th:text="${board.viewCount}">0</td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(boards)}">
-                    <td colspan="5" style="text-align:center; padding: 24px; color: #666;">
-                        작성된 게시글이 없습니다.
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-
-            <a href="/board/my-posts" class="my-posts-link">
-                <i class="fa-solid fa-user-pen"></i> 내 게시글
-            </a>
         </div>
+
+        <div class="board-stats">
+            <div class="stat-item">
+                <div class="stat-number" th:text="${#lists.size(boards)}">0</div>
+                <div class="stat-label">총 게시글</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">0</div>
+                <div class="stat-label">오늘 작성</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">0</div>
+                <div class="stat-label">이번 주</div>
+            </div>
+        </div>
+
+        <table class="board-table">
+            <thead>
+            <tr>
+                <th style="width: 10%;">번호</th>
+                <th style="width: 45%;">제목</th>
+                <th style="width: 15%;">작성자</th>
+                <th style="width: 15%;">작성일</th>
+                <th style="width: 15%;">조회수</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="board, stat : ${boards}">
+                <td data-label="번호" th:text="${stat.index + 1}"></td>
+                <td data-label="제목">
+                    <a th:if="${board.secret}" th:href="@{|/board/secret/${board.id}|}">
+                        <i class="fa-solid fa-lock lock-icon"></i> 비밀글입니다.
+                    </a>
+                    <a th:unless="${board.secret}" th:href="@{|/board/${board.id}|}" th:text="${board.title}"></a>
+                </td>
+                <td data-label="작성자" th:text="${board.member != null ? board.member.nickName : '알 수 없음'}"></td>
+                <td data-label="작성일" th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd')}"></td>
+                <td data-label="조회수" th:text="${board.viewCount}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(boards)}">
+                <td colspan="5" class="empty-state">
+                    <i class="fa-solid fa-inbox"></i>
+                    <h3>작성된 게시글이 없습니다</h3>
+                    <p>첫 번째 게시글을 작성해보세요!</p>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <a href="/board/my-posts" class="my-posts-link">
+            <i class="fa-solid fa-user-pen"></i> 내 게시글 보기
+        </a>
     </section>
 </div>
 
+<script>
+    // Add active class to current nav item
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.main-nav a').forEach(link => {
+            if (link.getAttribute('href') === currentPath ||
+                (currentPath.includes('/board') && link.getAttribute('href').includes('/board'))) {
+                link.classList.add('active');
+            }
+        });
+    });
+
+    // Smooth hover effects for table rows
+    document.querySelectorAll('.board-table tbody tr').forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+        });
+
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
+
+    // Add click animation to buttons
+    document.querySelectorAll('.write-btn, .my-posts-link').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            // Create ripple effect
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(255,255,255,0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            `;
+
+            this.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+
+    // Add ripple animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 </body>
 </html>

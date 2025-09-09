@@ -19,14 +19,37 @@ public class S3UploadService {
     private String bucket;
 
     public String uploadFile(MultipartFile multipartFile) throws IOException {
-        String originalFilename = UUID.randomUUID() + "-" + multipartFile.getOriginalFilename();
+        String originalFilename = multipartFile.getOriginalFilename();
+        String extension = getFileExtension(originalFilename);
 
+        // UUID 기반으로 파일명 생성 (중복 방지)
+        String fileName = UUID.randomUUID().toString() + extension;
+
+        // 메타데이터 설정
         ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(multipartFile.getContentType());
         metadata.setContentLength(multipartFile.getSize());
+        metadata.setContentType(multipartFile.getContentType());
 
-        s3.putObject(bucket, originalFilename, multipartFile.getInputStream(), metadata);
+        // S3에 업로드
+        s3.putObject(bucket, fileName, multipartFile.getInputStream(), metadata);
 
-        return s3.getUrl(bucket, originalFilename).toString();
+        // 접근 가능한 URL 반환
+        return s3.getUrl(bucket, fileName).toString();
+    }
+
+    public void deleteFile(String imageUrl) {
+        String fileName = extractFileNameFromUrl(imageUrl);
+        if (s3.doesObjectExist(bucket, fileName)) {
+            s3.deleteObject(bucket, fileName);
+        }
+    }
+
+    private String getFileExtension(String filename) {
+        if (filename == null || !filename.contains(".")) return "";
+        return filename.substring(filename.lastIndexOf("."));
+    }
+
+    private String extractFileNameFromUrl(String imageUrl) {
+        return imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
     }
 }

@@ -3,6 +3,7 @@ package zerobase.MyShoppingMall.Admin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,11 +46,14 @@ public class AdminItemController {
     }
 
     //상품 수정
-    @PutMapping("/{itemId}")
+    @PutMapping(path = "/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ItemResponseDto> updateItem(
             @PathVariable Long itemId,
             @ModelAttribute ItemRequestDto dto,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
+
+        log.info("▶▶▶ updateItem() 호출, itemId={}", itemId);
+        log.info("▶▶▶ 받은 데이터: {}", dto);
 
         ItemResponseDto response = itemService.updateItemWithImage(itemId, dto, imageFile);
         return ResponseEntity.ok(response);

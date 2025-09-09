@@ -3,240 +3,858 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>관리자 대시보드</title>
+    <title>관리자 대시보드 | SonStarMall</title>
 
-    <!-- Google Fonts + Bootstrap -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <!-- Font Awesome & Google Font -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
     <style>
+        :root {
+            --primary: #0070f3;
+            --primary-hover: #0051cc;
+            --secondary: #ff3366;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text-dark: #1a1a1a;
+            --text-gray: #666;
+            --text-light: #999;
+            --bg-white: #ffffff;
+            --bg-light: #f8fafc;
+            --bg-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
         body {
-            background-color: #ffffff;
-            font-family: 'Noto Sans KR', sans-serif;
-            color: #111111;
+            font-family:'Inter', sans-serif;
+            background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color:var(--text-dark);
+            line-height:1.6;
+            min-height:100vh;
         }
 
-        .navbar {
-            background-color: #000000;
-            border-bottom: 1px solid #e0e0e0;
+        body::before {
+            content:'';
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background: radial-gradient(circle at 20% 80%, rgba(120,119,198,0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255,119,198,0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120,219,255,0.3) 0%, transparent 50%);
+            z-index:-1;
+            animation:backgroundMove 20s ease-in-out infinite;
         }
 
-        .navbar .navbar-brand,
-        .navbar .nav-link {
-            color: #ffffff;
-            font-weight: 500;
+        @keyframes backgroundMove {
+            0%,100%{transform:scale(1) rotate(0deg);}
+            50%{transform:scale(1.1) rotate(5deg);}
         }
 
-        .navbar .nav-link:hover {
-            color: #f5f5f5;
+        /* Header */
+        .admin-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            backdrop-filter: blur(20px);
+            background: rgba(26, 26, 26, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            padding: 1rem 2rem;
         }
 
-        .sidebar {
-            background-color: #f9f9f9;
-            height: 100vh;
-            padding-top: 2rem;
-            border-right: 1px solid #e0e0e0;
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .sidebar .nav-link {
-            color: #333333;
-            font-weight: 500;
-            padding: 10px 15px;
-            transition: background-color 0.2s ease;
-        }
-
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            background-color: #ececec;
-            color: #000;
-        }
-
-        .card {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            background-color: #ffffff;
-        }
-
-        .card-title {
-            font-size: 1.2rem;
-            color: #111111;
-            font-weight: 600;
-        }
-
-        .card-body span {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #222222;
-        }
-
-        .table th {
-            background-color: #f7f7f7;
-            color: #222222;
-        }
-
-        .table td {
-            color: #444444;
-        }
-
-        h1 {
-            font-size: 1.8rem;
+        .admin-brand {
+            font-size: 1.5rem;
             font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin-brand i {
+            color: var(--primary);
+            font-size: 1.75rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .admin-user {
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, var(--error), #dc2626);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Layout */
+        .admin-layout {
+            margin-top: 80px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 2rem 0;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255,255,255,0.2);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar-title {
+            padding: 0 2rem 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .nav-section {
             margin-bottom: 1.5rem;
         }
 
-        /* 버튼 스타일 */
-        .btn-outline-dark {
-            border-color: #000;
-            color: #000;
+        .nav-item {
+            margin-bottom: 0.25rem;
         }
 
-        .btn-outline-dark:hover {
-            background-color: #000;
-            color: #fff;
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 2rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(0,112,243,0.05);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, rgba(0,112,243,0.1), rgba(124,58,237,0.1));
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Submenu */
+        .nav-submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .nav-submenu.show {
+            max-height: 300px;
+        }
+
+        .nav-submenu .nav-link {
+            padding-left: 3.5rem;
+            font-size: 0.9rem;
+            border-left: none;
+        }
+
+        .nav-submenu .nav-link::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--text-light);
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-submenu .nav-link:hover::before,
+        .nav-submenu .nav-link.active::before {
+            background: var(--primary);
+        }
+
+        .nav-toggle {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-toggle.expanded {
+            transform: rotate(90deg);
+        }
+
+        /* Main Content */
+        .main-content {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .page-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-gray);
+            font-size: 1rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card:nth-child(2)::before {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .stat-card:nth-child(3)::before {
+            background: linear-gradient(135deg, var(--secondary), #e11d48);
+        }
+
+        .stat-card:nth-child(4)::before {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        }
+
+        .stat-card:nth-child(5)::before {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-gray);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-card:nth-child(1) .stat-icon { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); }
+        .stat-card:nth-child(2) .stat-icon { background: linear-gradient(135deg, var(--success), #059669); }
+        .stat-card:nth-child(3) .stat-icon { background: linear-gradient(135deg, var(--secondary), #e11d48); }
+        .stat-card:nth-child(4) .stat-icon { background: linear-gradient(135deg, var(--accent), #8b5cf6); }
+        .stat-card:nth-child(5) .stat-icon { background: linear-gradient(135deg, var(--warning), #d97706); }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--error);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: linear-gradient(135deg, rgba(0,112,243,0.05), rgba(124,58,237,0.05));
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 2px solid rgba(0,112,243,0.1);
+        }
+
+        .quick-actions h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: rgba(255,255,255,0.9);
+            border: 2px solid transparent;
+            border-radius: var(--radius);
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255,255,255,1);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            color: var(--primary);
+        }
+
+        .action-btn i {
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        /* Animation */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-number {
+            animation: countUp 0.6s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .admin-layout {
+                grid-template-columns: 250px 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .sidebar {
+                position: static;
+                order: 2;
+            }
+
+            .main-content {
+                order: 1;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                padding: 1rem;
+            }
+
+            .admin-layout {
+                padding: 1rem;
+            }
+
+            .main-content,
+            .sidebar {
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-card {
+                padding: 1.5rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .quick-actions {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 
 <body th:with="uri=${#httpServletRequest?.requestURI}">
 
-<nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">관리자 대시보드</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item">
-                    <a class="nav-link" href="#" th:text="${#authentication.name}">관리자</a>
-                </li>
-                <form th:action="@{/logout}" method="post" class="mb-0">
-                    <button type="submit" class="btn btn-outline-dark btn-sm ms-2">로그아웃</button>
-                </form>
-            </ul>
+<!-- Admin Header -->
+<header class="admin-header">
+    <div class="header-content">
+        <div class="admin-brand">
+            <i class="fa-solid fa-chart-line"></i>
+            SonStarMall 관리자
+        </div>
+        <div class="header-actions">
+            <div class="admin-user">
+                <i class="fa-solid fa-user-shield"></i>
+                <span th:text="${#authentication.name}">관리자</span>
+            </div>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    로그아웃
+                </button>
+            </form>
         </div>
     </div>
-</nav>
+</header>
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- 사이드바 -->
-        <nav class="col-md-3 col-lg-2 sidebar collapse d-md-block">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="/dashboard"
-                       th:classappend="${uri != null and uri.startsWith('/dashboard')} ? ' active'">
-                        <i class="fas fa-chart-line me-2"></i> 대시보드
-                    </a>
-                </li>
+<!-- Admin Layout -->
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-title">
+            <i class="fa-solid fa-bars"></i>
+            관리 메뉴
+        </div>
 
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#memberSub" role="button"
-                       aria-expanded="false" aria-controls="memberSub"
-                       th:classappend="${uri != null and uri.startsWith('/admin/members')} ? ' active'">
-                        <i class="fas fa-users me-2"></i> 회원 관리
-                    </a>
-                    <div class="collapse ps-3"
-                         id="memberSub"
-                         th:classappend="${uri != null and uri.startsWith('/admin/members')} ? ' show'">
-                        <a class="nav-link" href="/admin/members"
-                           th:classappend="${uri == '/admin/members'} ? ' active'">전체 회원</a>
-                        <a class="nav-link" href="/admin/members/new"
-                           th:classappend="${uri == '/admin/members/new'} ? ' active'">신규 회원</a>
-                    </div>
-                </li>
+        <div class="nav-section">
+            <div class="nav-item">
+                <a href="/dashboard" class="nav-link"
+                   th:classappend="${uri != null and uri.startsWith('/dashboard')} ? ' active'">
+                    <i class="fa-solid fa-chart-line"></i>
+                    대시보드
+                </a>
+            </div>
 
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#orderSub" role="button" aria-expanded="false"
-                       aria-controls="orderSub">
-                        <i class="fas fa-box me-2"></i> 주문 관리
-                    </a>
-                    <div class="collapse ps-3" id="orderSub">
-                        <a class="nav-link" href="/admin/orders/entire">전체 주문</a>
-                        <a class="nav-link" href="/admin/orders/waiting_order">배송 대기 주문</a>
-                        <a class="nav-link" href="/admin/orders/cancel_requests">취소 요청</a>
-                    </div>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#itemSub" role="button" aria-expanded="false"
-                       aria-controls="itemSub">
-                        <i class="fas fa-boxes-stacked me-2"></i> 상품 관리
-                    </a>
-                    <div class="collapse ps-3" id="itemSub">
-                        <a class="nav-link" href="/admin/items/create">상품 등록</a>
-                        <a class="nav-link" href="/admin/items">상품 목록</a>
-                    </div>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/points/grant"
-                       th:classappend="${uri != null and uri.startsWith('/admin/points')} ? ' active'">
-                        <i class="fas fa-coins me-2"></i> 포인트 관리
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#settlementSub" role="button" aria-expanded="false"
-                       aria-controls="settlementSub">
-                        <i class="fas fa-money-bill-wave me-2"></i> 정산 시스템
-                    </a>
-                    <div class="collapse ps-3" id="settlementSub">
-                        <a class="nav-link" href="/admin/settlements">정산 목록</a>
-                    </div>
-                </li>
-            </ul>
-        </nav>
-
-        <!-- 메인 콘텐츠 -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <h1 class="mt-4">대시보드</h1>
-
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">총 회원 수</h5>
-                            <p><span th:text="${totalMembers}">0</span></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">신규 회원 가입 수(최근 7일)</h5>
-                            <p><span th:text="${newMembers}">0</span></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">남성 회원 수</h5>
-                            <p><span th:text="${maleMembers}">0</span></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">여성 회원 수</h5>
-                            <p><span th:text="${femaleMembers}">0</span></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">최근 1개월 가입자</h5>
-                            <p><span th:text="${monthlyNewMembers}">0</span></p>
-                        </div>
-                    </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="toggleSubmenu('memberSub', this)"
+                   th:classappend="${uri != null and uri.startsWith('/admin/members')} ? ' active'">
+                    <i class="fa-solid fa-users"></i>
+                    회원 관리
+                    <i class="fa-solid fa-chevron-right nav-toggle ms-auto"></i>
+                </a>
+                <div class="nav-submenu" id="memberSub"
+                     th:classappend="${uri != null and uri.startsWith('/admin/members')} ? ' show'">
+                    <a href="/admin/members" class="nav-link"
+                       th:classappend="${uri == '/admin/members'} ? ' active'">전체 회원</a>
+                    <a href="/admin/members/new" class="nav-link"
+                       th:classappend="${uri == '/admin/members/new'} ? ' active'">신규 회원</a>
                 </div>
             </div>
-        </main>
-    </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="toggleSubmenu('orderSub', this)">
+                    <i class="fa-solid fa-box"></i>
+                    주문 관리
+                    <i class="fa-solid fa-chevron-right nav-toggle ms-auto"></i>
+                </a>
+                <div class="nav-submenu" id="orderSub">
+                    <a href="/admin/orders/entire" class="nav-link">전체 주문</a>
+                    <a href="/admin/orders/waiting_order" class="nav-link">배송 대기 주문</a>
+                    <a href="/admin/orders/cancel_requests" class="nav-link">취소 요청</a>
+                </div>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="toggleSubmenu('itemSub', this)">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    상품 관리
+                    <i class="fa-solid fa-chevron-right nav-toggle ms-auto"></i>
+                </a>
+                <div class="nav-submenu" id="itemSub">
+                    <a href="/admin/items/create" class="nav-link">상품 등록</a>
+                    <a href="/admin/items" class="nav-link">상품 목록</a>
+                </div>
+            </div>
+
+            <div class="nav-item">
+                <a href="/admin/points/grant" class="nav-link"
+                   th:classappend="${uri != null and uri.startsWith('/admin/points')} ? ' active'">
+                    <i class="fa-solid fa-coins"></i>
+                    포인트 관리
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="toggleSubmenu('settlementSub', this)">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                    정산 시스템
+                    <i class="fa-solid fa-chevron-right nav-toggle ms-auto"></i>
+                </a>
+                <div class="nav-submenu" id="settlementSub">
+                    <a href="/admin/settlements" class="nav-link">정산 목록</a>
+                </div>
+            </div>
+
+            <div class="nav-item">
+                <a href="/admin/imageUploader" class="nav-link">
+                    이미지 업로더
+                </a>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fa-solid fa-chart-bar"></i>
+                관리자 대시보드
+            </h1>
+            <p class="page-subtitle">SonStarMall의 전반적인 현황을 한눈에 확인하세요</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">총 회원 수</div>
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${totalMembers}">0</div>
+                <div class="stat-change positive">
+                    <i class="fa-solid fa-arrow-up"></i>
+                    전체 등록 회원
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">신규 회원 (7일)</div>
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${newMembers}">0</div>
+                <div class="stat-change positive">
+                    <i class="fa-solid fa-arrow-up"></i>
+                    최근 7일간 가입
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">남성 회원</div>
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-mars"></i>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${maleMembers}">0</div>
+                <div class="stat-change">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    전체 회원 중
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">여성 회원</div>
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-venus"></i>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${femaleMembers}">0</div>
+                <div class="stat-change">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    전체 회원 중
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">월간 신규 회원</div>
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${monthlyNewMembers}">0</div>
+                <div class="stat-change positive">
+                    <i class="fa-solid fa-arrow-up"></i>
+                    최근 1개월
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h3>
+                <i class="fa-solid fa-bolt"></i>
+                빠른 작업
+            </h3>
+            <div class="action-grid">
+                <a href="/admin/items/create" class="action-btn">
+                    <i class="fa-solid fa-plus"></i>
+                    상품 등록
+                </a>
+                <a href="/admin/members" class="action-btn">
+                    <i class="fa-solid fa-users"></i>
+                    회원 관리
+                </a>
+                <a href="/admin/orders/entire" class="action-btn">
+                    <i class="fa-solid fa-box"></i>
+                    주문 관리
+                </a>
+                <a href="/admin/points/grant" class="action-btn">
+                    <i class="fa-solid fa-coins"></i>
+                    포인트 지급
+                </a>
+            </div>
+        </div>
+    </main>
 </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Toggle submenu
+    function toggleSubmenu(submenuId, trigger) {
+        const submenu = document.getElementById(submenuId);
+        const toggle = trigger.querySelector('.nav-toggle');
+
+        submenu.classList.toggle('show');
+        toggle.classList.toggle('expanded');
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate stat numbers
+        const statNumbers = document.querySelectorAll('.stat-number');
+
+        const animateNumber = (element, target) => {
+            const duration = 1500;
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current).toLocaleString();
+            }, 16);
+        };
+
+        // Animate stats when they come into view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = parseInt(entry.target.getAttribute('data-target') || entry.target.textContent.replace(/,/g, ''));
+                    animateNumber(entry.target, target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+
+        statNumbers.forEach(stat => {
+            const originalValue = stat.textContent.replace(/,/g, '');
+            stat.setAttribute('data-target', originalValue);
+            stat.textContent = '0';
+            observer.observe(stat);
+        });
+
+        // Auto-expand active submenus
+        const activeLinks = document.querySelectorAll('.nav-link.active');
+        activeLinks.forEach(link => {
+            const submenu = link.parentElement.querySelector('.nav-submenu');
+            if (submenu && !submenu.classList.contains('show')) {
+                const trigger = link.parentElement.querySelector('.nav-link[onclick]');
+                if (trigger) {
+                    const toggle = trigger.querySelector('.nav-toggle');
+                    submenu.classList.add('show');
+                    if (toggle) toggle.classList.add('expanded');
+                }
+            }
+        });
+
+        // Add hover effects to stat cards
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(-4px) scale(1)';
+            });
+        });
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Alt + D for Dashboard
+        if (e.altKey && e.key === 'd') {
+            e.preventDefault();
+            window.location.href = '/dashboard';
+        }
+
+        // Alt + M for Members
+        if (e.altKey && e.key === 'm') {
+            e.preventDefault();
+            window.location.href = '/admin/members';
+        }
+
+        // Alt + O for Orders
+        if (e.altKey && e.key === 'o') {
+            e.preventDefault();
+            window.location.href = '/admin/orders/entire';
+        }
+    });
+</script>
 </body>
 </html>

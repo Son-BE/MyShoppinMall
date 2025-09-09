@@ -3,6 +3,7 @@ package zerobase.MyShoppingMall.service.order;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -21,8 +22,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class IamportService {
 
-
-    private final WebClient webClient;
+    @Qualifier("iamportWebClient")
+    private final WebClient iamportWebClient;
 
     @Value("${iamport.api.key}")
     private String apiKey;
@@ -37,7 +38,7 @@ public class IamportService {
                 throw new IllegalStateException("아임포트 토큰 발급 실패");
             }
 
-            IamportPaymentResponse response = webClient.get()
+            IamportPaymentResponse response = iamportWebClient.get()
                     .uri("https://api.iamport.kr/payments/" + impUid)
                     .header("Authorization", token)
                     .retrieve()
@@ -66,7 +67,7 @@ public class IamportService {
         try {
             IamportTokenRequest tokenRequest = new IamportTokenRequest(apiKey, apiSecret);
 
-            IamportTokenResponse tokenResponse = webClient.post()
+            IamportTokenResponse tokenResponse = iamportWebClient.post()
                     .uri("https://api.iamport.kr/users/getToken")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(tokenRequest)
@@ -94,7 +95,7 @@ public class IamportService {
             body.put("amount", amount);
         }
 
-        JsonNode response = webClient.post()
+        JsonNode response = iamportWebClient.post()
                 .uri("https://api.iamport.kr/payments/cancel")
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .contentType(MediaType.APPLICATION_JSON)

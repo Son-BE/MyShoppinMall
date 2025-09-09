@@ -2,284 +2,976 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title th:text="'게시글 | ' + ${board.title}">게시글 상세</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'게시글 | ' + ${board.title}">게시글 상세 | SonStarMall</title>
+
+    <!-- Font Awesome & Google Font -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          crossorigin="anonymous">
+          crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
     <style>
-        .board-detail {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        :root {
+            --primary: #0070f3;
+            --primary-hover: #0051cc;
+            --secondary: #ff3366;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text-dark: #1a1a1a;
+            --text-gray: #666;
+            --text-light: #999;
+            --bg-white: #ffffff;
+            --bg-light: #f8fafc;
+            --bg-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
         }
 
-        h2 {
-            margin-bottom: 2rem;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #111;
-            border-bottom: 2px solid #111;
-            padding-bottom: 0.5rem;
-        }
-
-        h1 {
-            margin-bottom: 1rem;
-            color: #2c3e50;
-        }
-
-        .meta {
-            font-size: 0.9rem;
-            color: #7f8c8d;
-            margin-bottom: 2rem;
-        }
-
-        .content {
-            line-height: 1.6;
-            color: #2c3e50;
-            margin-bottom: 2rem;
-        }
-
-        .actions a, .actions form {
-            margin-right: 1rem;
-            display: inline-block;
-        }
-
-        button {
-            background-color: transparent;
-            border: 1px solid #ccc;
-            padding: 6px 12px;
-            font-size: 13px;
-            cursor: pointer;
-            color: #111;
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
-        }
-
-        button:hover {
-            background-color: #f0f0f0;
-        }
-
-        .back-link {
-            text-decoration: none;
-            color: #34495e;
-        }
-
-        .back-link:hover {
-            color: #0077cc;
-        }
-    </style>
-    <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        header {
-            background-color: #fff;
-            position: sticky;
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
             top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundMove 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundMove {
+            0%, 100% {
+                transform: scale(1) rotate(0deg);
+            }
+            50% {
+                transform: scale(1.1) rotate(5deg);
+            }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-lg);
             z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            border-bottom: 1px solid #eee;
-        }
-        .login-button {
-            padding: 6px 12px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            background-color: #f6f6f6;
-            color: #111;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
-        .login-button:hover {
-            background-color: #eaeaea;
-            color: #000;
-        }
-        .logout-button {
-            padding: 6px 12px;
-            font-size: 14px;
-            border: none;
-            background-color: #111;
-            color: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .logout-button:hover {
-            background-color: #333;
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
         }
 
         .top-bar {
-            padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #fff;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .top-bar h2 {
-            font-size: 24px;
+        .logo {
+            font-size: 2rem;
             font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             cursor: pointer;
+            transition: transform .3s;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
         }
 
         .user-info {
             display: flex;
-            gap: 18px;
-            font-size: 14px;
+            gap: 1rem;
+            align-items: center;
         }
 
-        .user-info a {
+        .user-name {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .auth-button {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .75rem 1.5rem;
+            font-size: .875rem;
+            font-weight: 500;
             text-decoration: none;
-            color: #111;
-            transition: color 0.2s ease;
+            border-radius: var(--radius-lg);
+            transition: all .3s;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
-        .user-info a:hover {
-            color: #888;
+        .auth-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
 
+        .auth-button:hover::before {
+            left: 100%;
+        }
+
+        .login-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dark);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .logout-button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: #fff;
+        }
+
+        .logout-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Navigation */
         .main-nav {
             display: flex;
             justify-content: center;
-            gap: 50px;
-            background-color: #fafafa;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-            padding: 14px 0;
-            position: sticky;
-            top: 60px;
-            z-index: 5;
+            gap: 3rem;
+            padding: 1rem 0;
         }
 
         .main-nav a {
-            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .95rem;
             font-weight: 500;
-            color: #111;
-            position: relative;
+            color: var(--text-dark);
             text-decoration: none;
+            padding: .75rem 1rem;
+            border-radius: var(--radius);
+            transition: all .3s;
+            position: relative;
         }
 
-        .main-nav a::after {
+        .main-nav a::before {
             content: '';
             position: absolute;
-            bottom: -3px;
-            left: 0;
-            height: 1px;
-            width: 0%;
-            background-color: #111;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             transition: width 0.3s ease;
         }
 
-        .main-nav a:hover::after {
-            width: 100%;
-
+        .main-nav a:hover::before,
+        .main-nav a.active::before {
+            width: 80%;
         }
 
+        .main-nav a:hover {
+            color: var(--primary);
+            background: rgba(0, 112, 243, 0.05);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 140px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 2rem;
+            min-height: calc(100vh - 140px);
+        }
+
+        /* Article Container */
+        .article-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 2rem 2.5rem;
+            border-bottom: 2px solid var(--border);
+            background: linear-gradient(135deg, rgba(0, 112, 243, 0.05), rgba(124, 58, 237, 0.05));
+        }
+
+        .article-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .article-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: center;
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-icon {
+            color: var(--primary);
+        }
+
+        .author-badge {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .view-count {
+            background: rgba(0, 112, 243, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Article Content */
+        .article-content {
+            padding: 2.5rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+            white-space: pre-wrap;
+        }
+
+        /* Article Actions */
+        .article-actions {
+            padding: 2rem 2.5rem;
+            border-top: 2px solid var(--border);
+            background: rgba(0, 112, 243, 0.02);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .action-left,
+        .action-right {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-dark);
+            border: 2px solid var(--border);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--error), #dc2626);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        /* Comments Section */
+        .comments-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+
+        .comments-header {
+            padding: 2rem 2.5rem 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .comments-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .comment-count {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+        }
+
+        /* Comment Form */
+        .comment-form {
+            padding: 2rem 2.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comment-textarea {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.8);
+            color: var(--text-dark);
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .comment-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.1);
+        }
+
+        .comment-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        /* Comment List */
+        .comment-list {
+            list-style: none;
+        }
+
+        .comment-item {
+            padding: 1.5rem 2.5rem;
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.3s ease;
+        }
+
+        .comment-item:hover {
+            background: rgba(0, 112, 243, 0.02);
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .comment-date {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+        }
+
+        .comment-content {
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding-left: 0.5rem;
+        }
+
+        .no-comments {
+            padding: 3rem 2.5rem;
+            text-align: center;
+            color: var(--text-gray);
+        }
+
+        .no-comments i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        /* Secret Post Badge */
+        .secret-badge {
+            background: linear-gradient(135deg, var(--warning), #f59e0b);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Animation */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .article-header,
+            .article-content,
+            .article-actions,
+            .comments-header,
+            .comment-form,
+            .comment-item {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+
+            .article-title {
+                font-size: 1.5rem;
+            }
+
+            .article-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .article-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-left,
+            .action-right {
+                justify-content: center;
+            }
+
+            .main-nav {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 1rem 0;
+            }
+
+            .main-nav a {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .article-header,
+            .article-content,
+            .article-actions,
+            .comments-header,
+            .comment-form,
+            .comment-item {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .article-title {
+                font-size: 1.25rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1.25rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Loading Animation */
+        .btn-loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 <body>
 <header>
-    <div class="top-bar">
-        <h2 th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
-            SonStarMall
-        </h2>
-        <div class="user-info">
-            <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
-                <span th:text="${#authentication.name} + '님'" style="align-self: center;"></span>
-
-                <a th:href="@{/members/profile}" class="profile-button" aria-label="프로필 페이지 이동">
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-user" aria-hidden="true"></i> 내 정보
-                    </button>
-                </a>
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
-                    </button>
-                </form>
+    <div class="header-container">
+        <div class="top-bar">
+            <h2 class="logo" th:onclick="|window.location.href='/items'|" tabindex="0" role="button"
+                aria-label="홈으로 이동">SonStarMall</h2>
+            <div class="user-info">
+                <div th:if="${#authorization.expression('isAuthenticated()')}">
+                    <span class="user-name" th:text="${#authentication.name} + '님'"></span>
+                    <a th:href="@{/members/profile}" class="auth-button logout-button" aria-label="프로필 페이지 이동">
+                        <i class="fa-solid fa-user"></i> 내 정보
+                    </a>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <div th:if="${_csrf != null}">
+                            <input type="hidden"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}" />
+                        </div>
+                        <button type="submit" class="auth-button logout-button" aria-label="로그아웃">
+                            <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+                        </button>
+                    </form>
+                </div>
                 <div th:if="${!#authorization.expression('isAuthenticated()')}">
-                    <a th:href="@{/login}" class="login-button" title="로그인" aria-label="로그인 페이지 이동">
-                        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                    <a th:href="@{/login}" class="auth-button login-button" aria-label="로그인">
+                        <i class="fa-solid fa-right-to-bracket"></i> 로그인
                     </a>
                 </div>
             </div>
-
         </div>
+        <nav class="main-nav">
+            <a href="/items"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="/user/cart"><i class="fa-solid fa-cart-shopping"></i> 장바구니</a>
+            <a href="/user/wishList"><i class="fa-solid fa-heart"></i> 찜 목록</a>
+            <a href="/orders/myOrder"><i class="fa-solid fa-book"></i> 주문 내역</a>
+            <a href="/board?category=NOTICE" class="active"><i class="fa-solid fa-comments"></i> 게시판</a>
+        </nav>
     </div>
-
-    <nav class="main-nav">
-        <a href="/items"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
-        <a href="/user/cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> 장바구니</a>
-        <a href="/user/wishList"><i class="fa-solid fa-heart" aria-hidden="true"></i> 찜 목록</a>
-        <a href="/orders/myOrder"><i class="fa-solid fa-book" aria-hidden="true"></i> 주문 내역</a>
-        <a href="/board?category=NOTICE"><i class="fa-solid fa-comments" aria-hidden="true"></i> 게시판</a>
-    </nav>
 </header>
-<div class="board-detail">
-    <h1 th:text="${board.title}">제목</h1>
 
-    <div class="meta">
-        <span><i class="fa-solid fa-user"></i>
-            <span th:text="${board.member != null ? board.member.nickName : '알 수 없음'}"></span>
-        </span> |
-        <span><i class="fa-solid fa-clock"></i>
-            <span th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
-                    <p>조회수: <span th:text="${board.viewCount}">0</span></p>
+<main class="main-content">
+    <!-- Article Container -->
+    <article class="article-container">
+        <!-- Article Header -->
+        <header class="article-header">
+            <h1 class="article-title">
+                <span th:if="${board.secret}" class="secret-badge">
+                    <i class="fa-solid fa-lock"></i>
+                    비밀글
+                </span>
+                <span th:text="${board.title}">제목</span>
+            </h1>
 
-        </span>
-    </div>
+            <div class="article-meta">
+                <div class="meta-item">
+                    <i class="fa-solid fa-user meta-icon"></i>
+                    <span class="author-badge"
+                          th:text="${board.member != null ? board.member.nickName : '알 수 없음'}">작성자</span>
+                </div>
 
-    <div class="content" th:text="${board.content}">게시글 내용</div>
+                <div class="meta-item">
+                    <i class="fa-solid fa-calendar meta-icon"></i>
+                    <span th:text="${#temporals.format(board.createdAt, 'yyyy년 MM월 dd일 HH:mm')}">작성일</span>
+                </div>
 
-    <div class="actions">
-        <a th:href="@{/board}" class="back-link"><i class="fa-solid fa-arrow-left"></i> 목록</a>
+                <div class="meta-item">
+                    <i class="fa-solid fa-eye meta-icon"></i>
+                    <span class="view-count">조회 <span th:text="${board.viewCount}">0</span></span>
+                </div>
+            </div>
+        </header>
 
-        <span th:if="${#authentication.name == board.member?.nickName}">
-            <a th:href="@{/board/edit/{id}(id=${board.id})}"><i class="fa-solid fa-pen"></i> 수정</a>
-            <form th:action="@{/board/delete/{id}(id=${board.id})}" method="post" style="display:inline;">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <button type="submit"><i class="fa-solid fa-trash"></i> 삭제</button>
+        <!-- Article Content -->
+        <div class="article-content" th:text="${board.content}">
+            게시글 내용이 표시됩니다.
+        </div>
+
+        <!-- Article Actions -->
+        <footer class="article-actions">
+            <div class="action-left">
+                <a th:href="@{/board}" class="btn btn-secondary">
+                    <i class="fa-solid fa-list"></i>
+                    목록으로
+                </a>
+            </div>
+
+            <div class="action-right" th:if="${#authentication.name == board.member?.nickName}">
+                <a th:href="@{/board/edit/{id}(id=${board.id})}" class="btn btn-primary">
+                    <i class="fa-solid fa-pen"></i>
+                    수정
+                </a>
+
+                <form th:action="@{/board/delete/{id}(id=${board.id})}" method="post" style="display:inline;"
+                      onsubmit="return confirmDelete()">
+                    <div th:if="${_csrf != null}">
+                        <input type="hidden"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}" />
+                    </div>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa-solid fa-trash"></i>
+                        삭제
+                    </button>
+                </form>
+            </div>
+        </footer>
+    </article>
+
+    <!-- Comments Section -->
+    <section class="comments-section">
+        <header class="comments-header">
+            <h2 class="comments-title">
+                <i class="fa-solid fa-comments"></i>
+                댓글
+                <span class="comment-count" th:text="${#lists.size(comments)}">0</span>
+            </h2>
+        </header>
+
+        <!-- Comment Form -->
+        <div class="comment-form" th:if="${#authorization.expression('isAuthenticated()')}">
+            <form th:action="@{'/board/' + ${board.id} + '/comment'}" method="post" id="commentForm">
+                <div th:if="${_csrf != null}">
+                    <input type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}" />
+                </div>
+
+                <textarea name="content" class="comment-textarea"
+                          required placeholder="댓글을 입력하세요..."
+                          maxlength="1000" id="commentTextarea"></textarea>
+
+                <div class="comment-form-actions">
+                    <button type="submit" class="btn btn-primary" id="commentSubmitBtn">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        댓글 작성
+                    </button>
+                </div>
             </form>
-        </span>
+        </div>
 
-        <section class="comments">
-            <h2>댓글</h2>
+        <!-- Login Prompt for Comments -->
+        <div class="comment-form" th:if="${!#authorization.expression('isAuthenticated()')}">
+            <div style="text-align: center; padding: 2rem; color: var(--text-gray);">
+                <i class="fa-solid fa-user-lock" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <p>댓글을 작성하려면 <a th:href="@{/login}" style="color: var(--primary); font-weight: 600;">로그인</a>이 필요합니다.</p>
+            </div>
+        </div>
 
-            <form th:action="@{'/board/' + ${board.id} + '/comment'}" method="post">
-                <textarea name="content" rows="5" cols="50" required placeholder="댓글을 입력하세요."></textarea>
-                <button type="submit">댓글 작성</button>
-            </form>
+        <!-- Comment List -->
+        <ul class="comment-list" th:if="${!#lists.isEmpty(comments)}">
+            <li class="comment-item" th:each="comment : ${comments}">
+                <div class="comment-header">
+                    <span class="comment-author" th:text="${comment.member.nickName}">작성자</span>
+                    <span class="comment-date" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">작성시간</span>
+                </div>
+                <div class="comment-content" th:text="${comment.content}">댓글 내용</div>
+            </li>
+        </ul>
 
-            <ul>
-                <li th:each="comment : ${comments}">
-                    <strong th:text="${comment.member.nickName}">작성자</strong>:
-                    <span th:text="${comment.content}">내용</span>
-                    <small th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">작성시간</small>
-                </li>
-            </ul>
-        </section>
-    </div>
-</div>
+        <!-- No Comments -->
+        <div class="no-comments" th:if="${#lists.isEmpty(comments)}">
+            <i class="fa-solid fa-comment-slash"></i>
+            <h3>아직 댓글이 없습니다</h3>
+            <p>첫 번째 댓글을 작성해보세요!</p>
+        </div>
+    </section>
+</main>
 
+<script>
+    // Delete confirmation
+    function confirmDelete() {
+        return confirm('정말로 이 게시글을 삭제하시겠습니까?\n삭제된 게시글은 복구할 수 없습니다.');
+    }
 
+    // Comment form handling
+    document.addEventListener('DOMContentLoaded', function () {
+        const commentForm = document.getElementById('commentForm');
+        const commentTextarea = document.getElementById('commentTextarea');
+        const submitBtn = document.getElementById('commentSubmitBtn');
+
+        if (commentForm && commentTextarea && submitBtn) {
+            // Character counter
+            const counter = document.createElement('div');
+            counter.style.cssText = `
+                text-align: right;
+                font-size: 0.875rem;
+                color: var(--text-gray);
+                margin-top: 0.5rem;
+            `;
+
+            const updateCounter = () => {
+                const remaining = 1000 - commentTextarea.value.length;
+                counter.textContent = `${commentTextarea.value.length}/1000`;
+                counter.style.color = remaining < 50 ? 'var(--warning)' : 'var(--text-gray)';
+            };
+
+            commentTextarea.addEventListener('input', updateCounter);
+            commentTextarea.parentNode.appendChild(counter);
+            updateCounter();
+
+            // Auto-resize textarea
+            commentTextarea.addEventListener('input', function () {
+                this.style.height = 'auto';
+                this.style.height = Math.max(this.scrollHeight, 120) + 'px';
+            });
+
+            // Form submission
+            commentForm.addEventListener('submit', function (e) {
+                const content = commentTextarea.value.trim();
+
+                if (!content) {
+                    e.preventDefault();
+                    alert('댓글 내용을 입력해주세요.');
+                    commentTextarea.focus();
+                    return;
+                }
+
+                if (content.length > 1000) {
+                    e.preventDefault();
+                    alert('댓글은 1000자 이내로 입력해주세요.');
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.classList.add('btn-loading');
+                submitBtn.disabled = true;
+            });
+        }
+
+        // Add active class to current nav item
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.main-nav a').forEach(link => {
+            if (currentPath.includes('/board') && link.getAttribute('href').includes('/board')) {
+                link.classList.add('active');
+            }
+        });
+
+        // Smooth scroll to comments when clicking comment count
+        const commentCount = document.querySelector('.comment-count');
+        if (commentCount) {
+            commentCount.style.cursor = 'pointer';
+            commentCount.addEventListener('click', function () {
+                document.querySelector('.comments-section').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            });
+        }
+    });
+
+    // Add ripple effect to buttons
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            if (this.classList.contains('btn-loading')) return;
+
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(255,255,255,0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            `;
+
+            this.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+
+    // Add ripple animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function (e) {
+        // Escape to go back to list
+        if (e.key === 'Escape') {
+            window.location.href = '/board';
+        }
+
+        // Ctrl+Enter to submit comment
+        if (e.ctrlKey && e.key === 'Enter') {
+            const commentForm = document.getElementById('commentForm');
+            if (commentForm) {
+                commentForm.submit();
+            }
+        }
+    });
+
+    // Auto-save comment draft (optional)
+    const commentTextarea = document.getElementById('commentTextarea');
+    if (commentTextarea) {
+        let draftTimer;
+
+        commentTextarea.addEventListener('input', function () {
+            clearTimeout(draftTimer);
+            draftTimer = setTimeout(() => {
+                localStorage.setItem('comment_draft_' + window.location.pathname, this.value);
+            }, 1000);
+        });
+
+        // Load draft on page load
+        const draft = localStorage.getItem('comment_draft_' + window.location.pathname);
+        if (draft && draft.trim()) {
+            commentTextarea.value = draft;
+        }
+
+        // Clear draft on successful submission
+        const commentForm = document.getElementById('commentForm');
+        if (commentForm) {
+            commentForm.addEventListener('submit', function () {
+                localStorage.removeItem('comment_draft_' + window.location.pathname);
+            });
+        }
+    }
+
+    // View count animation (optional enhancement)
+    const viewCount = document.querySelector('.view-count');
+    if (viewCount) {
+        viewCount.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+            viewCount.style.transform = 'scale(1)';
+        }, 300);
+    }
+</script>
 </body>
-</html>

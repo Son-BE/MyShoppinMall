@@ -30,7 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
         // 1) 주문 존재 확인
         Order order = orderRepository.findById(orderId)
                 .orElse(null);
-        if (order == null || !order.getMember().equals(memberId)) {
+        if (order == null || !order.getMember().getId().equals(memberId)) {
             return false;
         }
 
@@ -54,23 +54,23 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void saveReview(ReviewRequestDto dto, Long memberId) {
-//        if (!canWriteReview(memberId, dto.getItemId(), dto.getOrderId())) {
-//            throw new IllegalStateException("리뷰 작성 권한이 없습니다.");
-//        }
+        if (!canWriteReview(memberId, dto.getItemId(), dto.getOrderId())) {
+            throw new IllegalStateException("리뷰 작성 권한이 없습니다.");
+        }
 
         Item item = itemRepository.findById(dto.getItemId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품이 없습니다."));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 없습니다."));
 
-//        Order order = orderRepository.findById(dto.getOrderId())
-//                .orElseThrow(() -> new IllegalArgumentException("해당 주문건이 없습니다."));
+        Order order = orderRepository.findById(dto.getOrderId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 주문건이 없습니다."));
 
 
         Review review = Review.builder()
                 .item(item)
                 .member(member)
-//                .order(order)
+                .order(order)
                 .rating(dto.getRating())
                 .content(dto.getContent())
                 .createdAt(LocalDateTime.now())

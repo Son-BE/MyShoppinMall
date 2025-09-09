@@ -2,116 +2,776 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>장바구니</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>장바구니 | SonStarMall</title>
 
-    <!-- Font Awesome -->
+    <!-- Font Awesome & Google Font -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           crossorigin="anonymous"/>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="/css/cart.css"/>
-    <link rel="stylesheet" href="/css/header.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
     <!-- CSRF 토큰 메타 -->
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
+    <style>
+        :root {
+            --primary: #0070f3;
+            --primary-hover: #0051cc;
+            --secondary: #ff3366;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text-dark: #1a1a1a;
+            --text-gray: #666;
+            --text-light: #999;
+            --bg-white: #ffffff;
+            --bg-light: #f8fafc;
+            --bg-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .user-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .auth-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: var(--radius-lg);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .login-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dark);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .logout-button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+        }
+
+        .logout-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .main-nav {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            padding: 1rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(0, 112, 243, 0.1);
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: rgba(0, 112, 243, 0.05);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 140px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 2rem;
+            min-height: calc(100vh - 140px);
+        }
+
+        .cart-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cart-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+        }
+
+        .cart-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .cart-subtitle {
+            color: var(--text-gray);
+            font-size: 1.1rem;
+        }
+
+        .cart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 3rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .cart-items {
+            margin-bottom: 2rem;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 120px 1fr auto auto auto;
+            gap: 2rem;
+            align-items: center;
+            padding: 2rem;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .cart-item:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(0, 112, 243, 0.2);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .item-image {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius);
+            object-fit: cover;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .cart-item:hover .item-image {
+            transform: scale(1.05);
+        }
+
+        .item-info h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .item-price {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+        }
+
+        .item-brand {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.5rem;
+        }
+
+        .quantity-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-btn:hover {
+            background: var(--primary-hover);
+            transform: scale(1.1);
+        }
+
+        .quantity-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 500;
+            outline: none;
+        }
+
+        .item-subtotal {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .remove-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: linear-gradient(135deg, var(--error), #dc2626);
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-btn:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-cart-icon {
+            font-size: 5rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            opacity: 0.5;
+        }
+
+        .empty-cart h3 {
+            font-size: 1.5rem;
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+        }
+
+        .empty-cart p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .shop-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .shop-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .cart-summary {
+            background: linear-gradient(135deg, rgba(0, 112, 243, 0.05), rgba(124, 58, 237, 0.05));
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(0, 112, 243, 0.1);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .summary-label {
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cart-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dark);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .notification {
+            position: fixed;
+            top: 160px;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--error);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .cart-item {
+                grid-template-columns: 100px 1fr auto;
+                gap: 1rem;
+            }
+
+            .item-subtotal,
+            .remove-btn {
+                grid-column: 2 / -1;
+                justify-self: end;
+                margin-top: 1rem;
+            }
+
+            .remove-btn {
+                margin-left: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .main-nav {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .nav-link {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .cart-header,
+            .cart-container {
+                padding: 2rem 1rem;
+            }
+
+            .cart-title {
+                font-size: 2rem;
+            }
+
+            .cart-item {
+                grid-template-columns: 80px 1fr;
+                gap: 1rem;
+                padding: 1.5rem 1rem;
+            }
+
+            .quantity-control,
+            .item-subtotal,
+            .remove-btn {
+                grid-column: 1 / -1;
+                justify-self: start;
+                margin-top: 1rem;
+            }
+
+            .cart-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cart-header,
+            .cart-container {
+                padding: 1.5rem 0.75rem;
+            }
+
+            .item-image {
+                width: 80px;
+                height: 80px;
+            }
+
+            .cart-title {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
 </head>
-<body>
-<header>
-    <div class="top-bar">
-        <h2 th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
-            SonStarMall
-        </h2>
-        <div class="user-info">
-            <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
-                <span th:text="${#authentication.name} + '님'" style="align-self: center;"></span>
 
-                <a th:href="@{/members/profile}" class="profile-button" aria-label="프로필 페이지 이동">
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-user" aria-hidden="true"></i> 내 정보
-                    </button>
-                </a>
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
-                    </button>
-                </form>
+<body>
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="top-bar">
+            <h1 class="logo" th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
+                SonStarMall
+            </h1>
+
+            <div class="user-info">
+                <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
+                    <span class="user-name" th:text="${#authentication.name} + '님'"></span>
+
+                    <a th:href="@{/members/profile}" class="auth-button logout-button" aria-label="프로필 페이지 이동">
+                        <i class="fa-solid fa-user"></i>
+                        내 정보
+                    </a>
+
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="auth-button logout-button" aria-label="로그아웃">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            로그아웃
+                        </button>
+                    </form>
+                </div>
+
                 <div th:if="${!#authorization.expression('isAuthenticated()')}">
-                    <a th:href="@{/login}" class="login-button" title="로그인" aria-label="로그인 페이지 이동">
-                        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                    <a th:href="@{/login}" class="auth-button login-button" aria-label="로그인">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        로그인
                     </a>
                 </div>
             </div>
-
         </div>
-    </div>
 
-    <nav class="main-nav">
-        <a href="/items"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
-        <a href="/user/cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> 장바구니</a>
-        <a href="/user/wishList"><i class="fa-solid fa-heart" aria-hidden="true"></i> 찜 목록</a>
-        <a href="/orders/myOrder"><i class="fa-solid fa-book" aria-hidden="true"></i> 주문 내역</a>
-        <a href="/board?category=NOTICE"><i class="fa-solid fa-comments" aria-hidden="true"></i> 게시판</a>
-    </nav>
+        <nav class="main-nav">
+            <a href="/items" class="nav-link">
+                <i class="fa-solid fa-house"></i>
+                Home
+            </a>
+            <a href="/user/cart" class="nav-link active">
+                <i class="fa-solid fa-cart-shopping"></i>
+                장바구니
+            </a>
+            <a href="/user/wishList" class="nav-link">
+                <i class="fa-solid fa-heart"></i>
+                찜 목록
+            </a>
+            <a href="/orders/myOrder" class="nav-link">
+                <i class="fa-solid fa-book"></i>
+                주문 내역
+            </a>
+            <a href="/board?category=NOTICE" class="nav-link">
+                <i class="fa-solid fa-comments"></i>
+                게시판
+            </a>
+        </nav>
+    </div>
 </header>
 
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Cart Header -->
+    <div class="cart-header">
+        <h1 class="cart-title">
+            <i class="fa-solid fa-shopping-cart"></i>
+            장바구니
+        </h1>
+        <p class="cart-subtitle">선택하신 상품들을 확인하고 주문하세요</p>
+    </div>
 
-<h2 class="cart-title">🛒 장바구니</h2>
-<table class="cart-table" th:if="${not #lists.isEmpty(cartItems)}">
-    <thead>
-    <tr>
-        <th>상품 이미지</th>
-        <th>상품명</th>
-        <th>가격</th>
-        <th>수량</th>
-        <th>소계</th>
-        <th>삭제</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="item : ${cartItems}">
-        <td data-label="상품 이미지">
-            <img th:if="${item.imagePath != null and !item.imagePath.isEmpty()}"
-                 th:src="${item.imagePath}" alt="상품 이미지"/>
-            <img th:unless="${item.imagePath != null and !item.imagePath.isEmpty()}"
-                 src="/images/default.png" alt="기본 이미지"/>
-        </td>
-        <td data-label="상품명" th:text="${item.itemName}">상품명</td>
-        <td data-label="가격" th:text="'₩' + ${#numbers.formatInteger(item.price, 3, 'COMMA')}">0₩</td>
-        <td data-label="수량">
-            <input type="number" min="1" th:value="${item.quantity}" class="quantity-input"
-                   th:attr="onchange=|updateQuantity(${item.cartItemId}, this.value)|"/>
-        </td>
-        <td data-label="소계" th:text="'₩' + ${#numbers.formatInteger(item.price * item.quantity, 3, 'COMMA')}">0₩</td>
-        <td data-label="삭제">
-            <button class="icon-button" th:attr="onclick=|removeCartItem(${item.cartItemId})|"
-                    aria-label="상품 삭제">
-                <i class="fa-solid fa-trash"></i>
+    <!-- Cart Container -->
+    <div class="cart-container">
+        <!-- Cart Items -->
+        <div th:if="${not #lists.isEmpty(cartItems)}" class="cart-items">
+            <div th:each="item : ${cartItems}" class="cart-item">
+                <!-- Item Image -->
+                <img class="item-image"
+                     th:if="${item.imagePath != null and !item.imagePath.isEmpty()}"
+                     th:src="${item.imagePath}"
+                     th:alt="${item.itemName} + ' 상품 이미지'"/>
+                <img class="item-image"
+                     th:unless="${item.imagePath != null and !item.imagePath.isEmpty()}"
+                     src="/images/default.png"
+                     alt="기본 상품 이미지"/>
+
+                <!-- Item Info -->
+                <div class="item-info">
+                    <div class="item-brand">SonStarMade</div>
+                    <h3 th:text="${item.itemName}">상품명</h3>
+                    <div class="item-price" th:text="'₩' + ${#numbers.formatInteger(item.price, 3, 'COMMA')}">₩0</div>
+                </div>
+
+                <!-- Quantity Control -->
+                <div class="quantity-control">
+                    <button class="quantity-btn" th:onclick="|updateQuantity(${item.cartItemId}, ${item.quantity} - 1)|"
+                            th:disabled="${item.quantity <= 1}">
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+                    <input type="number" class="quantity-input" min="1"
+                           th:value="${item.quantity}"
+                           th:id="'qty-' + ${item.cartItemId}"
+                           th:onchange="|updateQuantity(${item.cartItemId}, this.value)|" readonly/>
+                    <button class="quantity-btn" th:onclick="|updateQuantity(${item.cartItemId}, ${item.quantity} + 1)|">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+
+                <!-- Item Subtotal -->
+                <div class="item-subtotal" th:text="'₩' + ${#numbers.formatInteger(item.price * item.quantity, 3, 'COMMA')}">₩0</div>
+
+                <!-- Remove Button -->
+                <button class="remove-btn" th:onclick="|removeCartItem(${item.cartItemId})|"
+                        title="상품 삭제" aria-label="상품 삭제">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty Cart -->
+        <div th:if="${#lists.isEmpty(cartItems)}" class="empty-cart">
+            <div class="empty-cart-icon">
+                <i class="fa-solid fa-shopping-cart"></i>
+            </div>
+            <h3>장바구니가 비어있습니다</h3>
+            <p>마음에 드는 상품을 담아보세요!</p>
+            <a href="/items" class="shop-button">
+                <i class="fa-solid fa-shopping-bag"></i>
+                쇼핑 계속하기
+            </a>
+        </div>
+
+        <!-- Cart Summary -->
+        <div th:if="${not #lists.isEmpty(cartItems)}" class="cart-summary">
+            <div class="summary-row">
+                <span class="summary-label">상품 개수</span>
+                <span class="summary-value" th:text="${#lists.size(cartItems)} + '개'">0개</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">배송비</span>
+                <span class="summary-value">무료</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">총 결제금액</span>
+                <span class="summary-value" th:text="'₩' + ${#numbers.formatInteger(totalPrice, 3, 'COMMA')}">₩0</span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div th:if="${not #lists.isEmpty(cartItems)}" class="cart-actions">
+            <button type="button" class="btn btn-secondary" onclick="clearCart()">
+                <i class="fa-solid fa-trash-can"></i>
+                장바구니 비우기
             </button>
-        </td>
-    </tr>
-    </tbody>
-</table>
+            <a href="/items" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i>
+                쇼핑 계속하기
+            </a>
+            <form th:action="@{/user/cart/order}" method="get" style="margin: 0;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-credit-card"></i>
+                    주문하기
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
 
-<div th:if="${#lists.isEmpty(cartItems)}" class="empty-cart-message">
-    <p>🛒 장바구니가 비었습니다.</p>
-    <a href="/items" class="go-shopping-button">상품 보러가기</a>
+<!-- Notification -->
+<div id="notification" class="notification">
+    <span id="notificationText"></span>
 </div>
 
-
-<div class="cart-total">
-    총 합계: <span th:text="'₩' + ${#numbers.formatInteger(totalPrice, 3, 'COMMA')}">0₩</span>
-</div>
-
-<div class="cart-actions">
-    <form th:action="@{/user/cart/order}" method="get" style="margin: 0;">
-        <button type="submit">전체 주문</button>
-    </form>
-    <button type="button" onclick="clearCart()">장바구니 비우기</button>
-</div>
-
+<!-- JavaScript -->
 <script>
     function getCsrfToken() {
         const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
@@ -119,9 +779,22 @@
         return {token, header};
     }
 
+    function showNotification(message, type = 'success') {
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+
+        notificationText.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+        notification.className = `notification ${type}`;
+        notification.classList.add('show');
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
     function updateQuantity(cartItemId, quantity) {
         if (quantity < 1) {
-            alert('수량은 1 이상이어야 합니다.');
+            showNotification('수량은 1 이상이어야 합니다.', 'error');
             return;
         }
 
@@ -134,20 +807,30 @@
                 [header]: token
             },
             body: new URLSearchParams({
-                cartItemId,
-                quantity
+                cartItemId: cartItemId,
+                quantity: quantity
             })
-        }).then(response => {
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert("수량 변경에 실패했습니다.");
-            }
-        });
+        })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('수량이 변경되었습니다.');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error('수량 변경 실패');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('수량 변경에 실패했습니다.', 'error');
+            });
     }
 
     function removeCartItem(cartItemId) {
-        if (!confirm("정말로 삭제하시겠습니까?")) return;
+        if (!confirm("정말로 이 상품을 장바구니에서 삭제하시겠습니까?")) {
+            return;
+        }
 
         const {token, header} = getCsrfToken();
 
@@ -158,19 +841,29 @@
                 [header]: token
             },
             body: new URLSearchParams({
-                cartItemId
+                cartItemId: cartItemId
             })
-        }).then(response => {
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert("삭제에 실패했습니다.");
-            }
-        });
+        })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('상품이 삭제되었습니다.');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error('삭제 실패');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('삭제에 실패했습니다.', 'error');
+            });
     }
 
     function clearCart() {
-        if (!confirm("정말 장바구니를 비우시겠습니까?")) return;
+        if (!confirm("정말 장바구니를 모두 비우시겠습니까?")) {
+            return;
+        }
 
         const {token, header} = getCsrfToken();
 
@@ -179,15 +872,54 @@
             headers: {
                 [header]: token
             }
-        }).then(response => {
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert("비우기에 실패했습니다.");
+        })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('장바구니가 비워졌습니다.');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error('장바구니 비우기 실패');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('장바구니 비우기에 실패했습니다.', 'error');
+            });
+    }
+
+    // 페이지 로드 시 애니메이션
+    document.addEventListener('DOMContentLoaded', function() {
+        const cartItems = document.querySelectorAll('.cart-item');
+
+        cartItems.forEach((item, index) => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(30px)';
+
+            setTimeout(() => {
+                item.style.transition = 'all 0.5s ease';
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+
+    // 수량 입력 검증
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const value = parseInt(this.value);
+            const cartItemId = this.id.replace('qty-', '');
+
+            if (value < 1) {
+                this.value = 1;
+            }
+
+            if (value !== parseInt(this.defaultValue)) {
+                updateQuantity(cartItemId, value);
             }
         });
-    }
+    });
 </script>
-
 </body>
 </html>

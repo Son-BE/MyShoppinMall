@@ -2,206 +2,548 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>상품 등록</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>상품 등록 | SonStarMall 관리자</title>
 
-    <!-- Bootstrap & FontAwesome -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+    <!-- Font Awesome & Google Font -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/create_item.css">
 
     <style>
-        .card {
-            border-radius: 1rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        /* 색상 선택 관련 스타일 */
+        .color-selection {
+            margin: 20px 0;
         }
 
-        #dropZone {
-            border: 2px dashed #ccc;
-            padding: 20px;
-            text-align: center;
-            color: #999;
-            border-radius: 6px;
-            margin-bottom: 15px;
+        .color-picker-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .color-option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+            max-width: 400px;
+        }
+
+        .color-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
             cursor: pointer;
-            transition: border-color 0.3s ease;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        #dropZone.dragover {
-            border-color: #007bff;
-            background-color: #f8f9fa;
+        .color-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        .preview-thumb {
-            max-width: 120px;
-            max-height: 120px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            object-fit: cover;
+        .color-item.selected {
+            border: 3px solid #007bff;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
         }
 
-        .form-label.required::after {
-            content: '*';
-            color: red;
-            margin-left: 4px;
-        }
-
-        /* 추가된 네비게이션 바 스타일 */
-        .navbar {
-            background-color: #000;
-            border-bottom: 1px solid #eee;
-        }
-
-        .navbar .navbar-brand,
-        .navbar .nav-link {
-            color: #fff;
-        }
-
-        .navbar .nav-link:hover {
-            color: #f5f5f5;
-        }
-
-        .sidebar .nav-link {
-            color: #333;
-            font-weight: 500;
-        }
-
-        .sidebar .nav-link:hover {
-            background-color: #f8f8f8;
-            color: #000;
-        }
-
-        .sidebar .nav-link.active {
-            background-color: #333;
-            color: #fff;
+        .color-item.selected::after {
+            content: '✓';
+            color: white;
             font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
 
-        .sidebar i {
-            width: 18px;
-            margin-right: 8px;
+        .custom-color-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .custom-color-picker {
+            width: 50px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .color-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .color-preview {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .color-preview-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-preview-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .color-preview-text {
+            font-size: 14px;
+            color: #666;
         }
     </style>
 </head>
-<body class="bg-light">
 
-<!-- 네비게이션 바 -->
-<nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/dashboard">관리자 대시보드</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarNav" aria-controls="navbarNav"
-                aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#" th:text="${#authentication.name}">관리자</a>
-                </li>
-                <form th:action="@{/logout}" method="post" class="mb-0">
-                    <button type="submit" class="btn btn-outline-dark btn-sm ms-2">로그아웃</button>
-                </form>
-            </ul>
+<body>
+<!-- Admin Header -->
+<header class="admin-header">
+    <div class="header-content">
+        <a href="/dashboard" class="admin-brand">
+            <i class="fa-solid fa-chart-line"></i>
+            SonStarMall 관리자
+        </a>
+        <div class="header-actions">
+            <div class="admin-user">
+                <i class="fa-solid fa-user-shield"></i>
+                <span th:text="${#authentication.name}">관리자</span>
+            </div>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <div th:if="${_csrf != null}">
+                    <input type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}" />
+                </div>
+
+                <button type="submit" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    로그아웃
+                </button>
+            </form>
         </div>
     </div>
-</nav>
+</header>
 
-<!-- 상품 등록 폼 -->
-<div class="container py-5">
-    <div class="card p-4">
-        <h2 class="mb-4 text-center"><i class="fas fa-plus-circle me-2"></i>상품 등록</h2>
-        <form th:action="@{/admin/items/create}" method="post" enctype="multipart/form-data" th:object="${item}">
-            <!-- 상품명 -->
-            <div class="mb-3">
-                <label for="itemName" class="form-label required">상품명</label>
-                <input type="text" class="form-control" id="itemName" th:field="*{itemName}" required/>
+<!-- Main Content -->
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa-solid fa-plus-circle"></i>
+            상품 등록
+        </h1>
+        <p class="page-subtitle">새로운 상품을 등록하여 고객들에게 선보이세요</p>
+    </div>
+
+    <div class="form-container">
+        <form th:action="@{/admin/items/create}" method="post" enctype="multipart/form-data" th:object="${item}" id="productForm">
+            <div th:if="${_csrf != null}">
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}" />
             </div>
 
-            <!-- 성별 -->
-            <div class="mb-3">
-                <label class="form-label required">성별</label>
-                <div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="gender" id="male" value="MALE" required/>
-                        <label class="form-check-label" for="male">남성</label>
+            <!-- 기본 정보 섹션 -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-info-circle"></i>
+                    기본 정보
+                </h3>
+
+                <div class="form-group">
+                    <label for="itemName" class="form-label required">상품명</label>
+                    <input type="text" class="form-input" id="itemName" th:field="*{itemName}"
+                           required placeholder="상품명을 입력하세요" maxlength="100"/>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">성별</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   th:field="*{gender}"
+                                   id="male"
+                                   value="MALE" required/>
+                            <label class="radio-label" for="male">
+                                <i class="fa-solid fa-mars"></i>
+                                남성
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   th:field="*{gender}"
+                                   id="female"
+                                   value="FEMALE"/>
+                            <label class="radio-label" for="female">
+                                <i class="fa-solid fa-venus"></i>
+                                여성
+                            </label>
+                        </div>
                     </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="gender" id="female" value="FEMALE"/>
-                        <label class="form-check-label" for="female">여성</label>
+                </div>
+
+                <div class="form-group">
+                    <label for="price" class="form-label required">가격 (₩)</label>
+                    <input type="text" class="form-input" id="price" th:field="*{price}"
+                           min="0" step="1" required placeholder="0" />
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity" class="form-label required">재고 수량</label>
+                    <input type="number" class="form-input" id="quantity" th:field="*{quantity}"
+                           min="0" step="1" required placeholder="0" />
+                </div>
+            </div>
+
+            <!-- 색상 선택 섹션 -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-palette"></i>
+                    색상 정보
+                </h3>
+
+                <div class="color-selection">
+                    <div class="color-picker-container">
+                        <!-- 주 색상 선택 -->
+                        <div class="color-option-group">
+                            <label class="color-label required">주 색상 (Primary Color)</label>
+                            <div class="color-palette" id="primaryColorPalette">
+                                <!-- 미리 정의된 색상들 -->
+                                <div class="color-item" data-color="#000000" style="background-color: #000000;" title="블랙"></div>
+                                <div class="color-item" data-color="#FFFFFF" style="background-color: #FFFFFF; border-color: #ccc;" title="화이트"></div>
+                                <div class="color-item" data-color="#808080" style="background-color: #808080;" title="그레이"></div>
+                                <div class="color-item" data-color="#FF0000" style="background-color: #FF0000;" title="레드"></div>
+                                <div class="color-item" data-color="#0000FF" style="background-color: #0000FF;" title="블루"></div>
+                                <div class="color-item" data-color="#00FF00" style="background-color: #00FF00;" title="그린"></div>
+                                <div class="color-item" data-color="#FFFF00" style="background-color: #FFFF00;" title="옐로우"></div>
+                                <div class="color-item" data-color="#FFA500" style="background-color: #FFA500;" title="오렌지"></div>
+                                <div class="color-item" data-color="#800080" style="background-color: #800080;" title="퍼플"></div>
+                                <div class="color-item" data-color="#FFC0CB" style="background-color: #FFC0CB;" title="핑크"></div>
+                                <div class="color-item" data-color="#A52A2A" style="background-color: #A52A2A;" title="브라운"></div>
+                                <div class="color-item" data-color="#000080" style="background-color: #000080;" title="네이비"></div>
+                                <div class="color-item" data-color="#008000" style="background-color: #008000;" title="다크그린"></div>
+                                <div class="color-item" data-color="#FFE4B5" style="background-color: #FFE4B5;" title="베이지"></div>
+                                <div class="color-item" data-color="#D2691E" style="background-color: #D2691E;" title="초콜릿"></div>
+                                <div class="color-item" data-color="#C0C0C0" style="background-color: #C0C0C0;" title="실버"></div>
+                            </div>
+                            <div class="custom-color-input">
+                                <label for="primaryColorCustom">커스텀 색상:</label>
+                                <input type="color" class="custom-color-picker" id="primaryColorCustom" value="#000000">
+                                <button type="button" class="btn btn-secondary" onclick="addCustomPrimaryColor()">추가</button>
+                            </div>
+                            <input type="hidden" name="primaryColor" id="primaryColorValue" th:field="*{primaryColor}">
+                        </div>
+
+                        <!-- 보조 색상 선택 -->
+                        <div class="color-option-group">
+                            <label class="color-label">보조 색상 (Secondary Color)</label>
+                            <div class="color-palette" id="secondaryColorPalette">
+                                <!-- 미리 정의된 색상들 -->
+                                <div class="color-item" data-color="#000000" style="background-color: #000000;" title="블랙"></div>
+                                <div class="color-item" data-color="#FFFFFF" style="background-color: #FFFFFF; border-color: #ccc;" title="화이트"></div>
+                                <div class="color-item" data-color="#808080" style="background-color: #808080;" title="그레이"></div>
+                                <div class="color-item" data-color="#FF0000" style="background-color: #FF0000;" title="레드"></div>
+                                <div class="color-item" data-color="#0000FF" style="background-color: #0000FF;" title="블루"></div>
+                                <div class="color-item" data-color="#00FF00" style="background-color: #00FF00;" title="그린"></div>
+                                <div class="color-item" data-color="#FFFF00" style="background-color: #FFFF00;" title="옐로우"></div>
+                                <div class="color-item" data-color="#FFA500" style="background-color: #FFA500;" title="오렌지"></div>
+                                <div class="color-item" data-color="#800080" style="background-color: #800080;" title="퍼플"></div>
+                                <div class="color-item" data-color="#FFC0CB" style="background-color: #FFC0CB;" title="핑크"></div>
+                                <div class="color-item" data-color="#A52A2A" style="background-color: #A52A2A;" title="브라운"></div>
+                                <div class="color-item" data-color="#000080" style="background-color: #000080;" title="네이비"></div>
+                                <div class="color-item" data-color="#008000" style="background-color: #008000;" title="다크그린"></div>
+                                <div class="color-item" data-color="#FFE4B5" style="background-color: #FFE4B5;" title="베이지"></div>
+                                <div class="color-item" data-color="#D2691E" style="background-color: #D2691E;" title="초콜릿"></div>
+                                <div class="color-item" data-color="#C0C0C0" style="background-color: #C0C0C0;" title="실버"></div>
+                            </div>
+                            <div class="custom-color-input">
+                                <label for="secondaryColorCustom">커스텀 색상:</label>
+                                <input type="color" class="custom-color-picker" id="secondaryColorCustom" value="#000000">
+                                <button type="button" class="btn btn-secondary" onclick="addCustomSecondaryColor()">추가</button>
+                            </div>
+                            <input type="hidden" name="secondaryColor" id="secondaryColorValue" th:field="*{secondaryColor}">
+                        </div>
+
+                        <!-- 색상 미리보기 -->
+                        <div class="color-preview">
+                            <div class="color-preview-item">
+                                <span class="color-preview-text">주 색상:</span>
+                                <div class="color-preview-swatch" id="primaryColorPreview" style="background-color: #000000;"></div>
+                                <span id="primaryColorName">미선택</span>
+                            </div>
+                            <div class="color-preview-item">
+                                <span class="color-preview-text">보조 색상:</span>
+                                <div class="color-preview-swatch" id="secondaryColorPreview" style="background-color: transparent; border: 2px dashed #ccc;"></div>
+                                <span id="secondaryColorName">미선택</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 카테고리 -->
-            <div class="mb-3">
-                <label for="category" class="form-label required">카테고리</label>
-                <select class="form-select" id="category" name="category" required>
-                    <option value="">카테고리 선택</option>
-                    <option th:each="cat : ${categories}" th:value="${cat.name()}"
-                            th:text="${cat.displayName}"></option>
-                </select>
-            </div>
+            <!-- 분류 정보 섹션 -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-tags"></i>
+                    분류 정보
+                </h3>
 
-            <!-- 서브 카테고리 -->
-            <div class="mb-3">
-                <label for="subCategory" class="form-label required">서브 카테고리</label>
-                <select class="form-select" id="subCategory" name="subCategory" required>
-                    <option value="">서브 카테고리 선택</option>
-                </select>
-            </div>
-
-            <!-- 가격 -->
-            <div class="mb-3">
-                <label for="price" class="form-label required">가격 (₩)</label>
-                <input type="number" class="form-control" id="price" th:field="*{price}" min="0" step="1" required/>
-            </div>
-
-            <!-- 재고 -->
-            <div class="mb-3">
-                <label for="quantity" class="form-label required">재고 수량</label>
-                <input type="number" class="form-control" id="quantity" th:field="*{quantity}" min="0" step="1"
-                       required/>
-            </div>
-
-            <!-- 이미지 업로드 -->
-            <div class="mb-3">
-                <label for="imageFile" class="form-label">상품 이미지</label>
-                <input type="file" class="form-control" id="imageFile" th:field="*{imageFile}" multiple accept="image/*"
-                       onchange="previewImages(event)"/>
-                <div id="dropZone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
-                    <i class="fas fa-cloud-upload-alt fa-2x"></i>
-                    <p class="mt-2">또는 여기에 이미지를 드래그 앤 드롭하세요.</p>
+                <div class="form-group">
+                    <label for="ageGroup" class="form-label required">연령대</label>
+                    <select class="form-select" id="ageGroup" name="ageGroup" required>
+                        <option value="">연령대를 선택하세요</option>
+                        <option value="TEEN">10대</option>
+                        <option value="TWENTY">20대</option>
+                        <option value="THIRTY">30대</option>
+                        <option value="FORTY">40대</option>
+                    </select>
                 </div>
-                <div id="imagePreviewContainer" class="d-flex flex-wrap gap-2"></div>
+
+                <div class="form-group">
+                    <label for="style" class="form-label required">스타일</label>
+                    <select class="form-select" id="style" name="style" required>
+                        <option value="">스타일을 선택하세요</option>
+                        <option value="CASUAL">캐주얼</option>
+                        <option value="DANDY">댄디</option>
+                        <option value="MINIMAL">미니멀</option>
+                        <option value="RETRO">레트로</option>
+                        <option value="LOVELY">러블리</option>
+                        <option value="FORMAL">포멀</option>
+                        <option value="SPORTY">스포티</option>
+                        <option value="UNIQUE">개성있는</option>
+                        <option value="CUTE">귀여운</option>
+                        <option value="CHIC">시크</option>
+                        <option value="CLEAN">깔끔한</option>
+                        <option value="SOFT">부드러운</option>
+                        <option value="FRESH">산뜻한</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="season" class="form-label required">계절</label>
+                    <select class="form-select" id="season" name="season" required>
+                        <option value="">계절을 선택하세요</option>
+                        <option value="SPRING">봄</option>
+                        <option value="SUMMER">여름</option>
+                        <option value="AUTUMN">가을</option>
+                        <option value="WINTER">겨울</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="category" class="form-label required">카테고리</label>
+                    <select class="form-select" id="category" name="category" required>
+                        <option value="">카테고리를 선택하세요</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.name()}"
+                                th:text="${cat.displayName}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="subCategory" class="form-label required">서브 카테고리</label>
+                    <select class="form-select" id="subCategory" name="subCategory" required>
+                        <option value="">먼저 카테고리를 선택하세요</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- 설명 -->
-            <div class="mb-3">
-                <label for="itemComment" class="form-label required">상품 설명</label>
-                <textarea class="form-control" id="itemComment" th:field="*{itemComment}" rows="4" required></textarea>
+            <!-- 이미지 업로드 섹션 -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-images"></i>
+                    상품 이미지
+                </h3>
+
+                <div class="upload-section" id="uploadSection">
+                    <input type="file" class="file-input" id="imageFile" th:field="*{imageFile}"
+                           multiple accept="image/*" onchange="previewImages(event)"/>
+
+                    <div class="drop-zone" id="dropZone" onclick="document.getElementById('imageFile').click()"
+                         ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                        <i class="fa-solid fa-cloud-upload-alt"></i>
+                        <p>이미지를 드래그 앤 드롭하거나 클릭하여 업로드하세요</p>
+                        <button type="button" class="upload-btn">
+                            <i class="fa-solid fa-folder-open"></i>
+                            파일 선택
+                        </button>
+                    </div>
+                </div>
+
+                <div id="imagePreviewContainer" class="preview-container"></div>
             </div>
 
-            <!-- 제출 버튼 -->
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary px-4">상품 등록</button>
+            <!-- 상품 설명 섹션 -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-align-left"></i>
+                    상품 설명
+                </h3>
+
+                <div class="form-group">
+                    <label for="itemComment" class="form-label required">상품 설명</label>
+                    <textarea class="form-textarea" id="itemComment" th:field="*{itemComment}"
+                              required placeholder="상품에 대한 자세한 설명을 입력하세요"></textarea>
+                </div>
+            </div>
+
+            <!-- 폼 액션 -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fa-solid fa-check"></i>
+                    상품 등록
+                </button>
+                <a href="/dashboard" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    취소
+                </a>
             </div>
         </form>
     </div>
-</div>
+</main>
 
 <script>
-    // 카테고리가 변경될 때 서브 카테고리를 동적으로 업데이트
+    let selectedFiles = [];
+
+    // 색상 관련 변수
+    let selectedPrimaryColor = null;
+    let selectedSecondaryColor = null;
+
+    // 색상 선택 이벤트 리스너 추가
+    function initializeColorSelection() {
+        // 주 색상 팔레트
+        document.querySelectorAll('#primaryColorPalette .color-item').forEach(item => {
+            item.addEventListener('click', function() {
+                selectPrimaryColor(this.dataset.color, this.title || this.dataset.color);
+            });
+        });
+
+        // 보조 색상 팔레트
+        document.querySelectorAll('#secondaryColorPalette .color-item').forEach(item => {
+            item.addEventListener('click', function() {
+                selectSecondaryColor(this.dataset.color, this.title || this.dataset.color);
+            });
+        });
+    }
+
+    // 주 색상 선택
+    function selectPrimaryColor(color, name) {
+        // 이전 선택 해제
+        document.querySelectorAll('#primaryColorPalette .color-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+
+        // 현재 선택 표시
+        document.querySelector(`#primaryColorPalette .color-item[data-color="${color}"]`).classList.add('selected');
+
+        selectedPrimaryColor = color;
+        document.getElementById('primaryColorValue').value = color;
+        document.getElementById('primaryColorPreview').style.backgroundColor = color;
+        document.getElementById('primaryColorName').textContent = name;
+    }
+
+    // 보조 색상 선택
+    function selectSecondaryColor(color, name) {
+        // 이전 선택 해제
+        document.querySelectorAll('#secondaryColorPalette .color-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+
+        // 현재 선택 표시
+        document.querySelector(`#secondaryColorPalette .color-item[data-color="${color}"]`).classList.add('selected');
+
+        selectedSecondaryColor = color;
+        document.getElementById('secondaryColorValue').value = color;
+        document.getElementById('secondaryColorPreview').style.backgroundColor = color;
+        document.getElementById('secondaryColorName').textContent = name;
+    }
+
+    // 커스텀 주 색상 추가
+    function addCustomPrimaryColor() {
+        const customColor = document.getElementById('primaryColorCustom').value;
+        const palette = document.getElementById('primaryColorPalette');
+
+        // 기존에 있는지 확인
+        if (document.querySelector(`#primaryColorPalette .color-item[data-color="${customColor}"]`)) {
+            selectPrimaryColor(customColor, '커스텀');
+            return;
+        }
+
+        // 새 색상 아이템 생성
+        const colorItem = document.createElement('div');
+        colorItem.className = 'color-item';
+        colorItem.dataset.color = customColor;
+        colorItem.style.backgroundColor = customColor;
+        colorItem.title = '커스텀';
+        colorItem.addEventListener('click', function() {
+            selectPrimaryColor(customColor, '커스텀');
+        });
+
+        palette.appendChild(colorItem);
+        selectPrimaryColor(customColor, '커스텀');
+    }
+
+    // 커스텀 보조 색상 추가
+    function addCustomSecondaryColor() {
+        const customColor = document.getElementById('secondaryColorCustom').value;
+        const palette = document.getElementById('secondaryColorPalette');
+
+        // 기존에 있는지 확인
+        if (document.querySelector(`#secondaryColorPalette .color-item[data-color="${customColor}"]`)) {
+            selectSecondaryColor(customColor, '커스텀');
+            return;
+        }
+
+        // 새 색상 아이템 생성
+        const colorItem = document.createElement('div');
+        colorItem.className = 'color-item';
+        colorItem.dataset.color = customColor;
+        colorItem.style.backgroundColor = customColor;
+        colorItem.title = '커스텀';
+        colorItem.addEventListener('click', function() {
+            selectSecondaryColor(customColor, '커스텀');
+        });
+
+        palette.appendChild(colorItem);
+        selectSecondaryColor(customColor, '커스텀');
+    }
+
+    // 카테고리 변경 시 서브 카테고리 업데이트
     document.getElementById('category').addEventListener('change', function () {
         const category = this.value;
+        const subCategorySelect = document.getElementById('subCategory');
 
         if (category) {
+            subCategorySelect.innerHTML = '<option value="">로딩 중...</option>';
+
             fetch(`/admin/items/get-subcategories?category=${category}`)
                 .then(response => response.json())
                 .then(data => {
-                    const subCategorySelect = document.getElementById('subCategory');
-                    subCategorySelect.innerHTML = '<option value="">서브 카테고리 선택</option>'; // 기본값 초기화
+                    subCategorySelect.innerHTML = '<option value="">서브 카테고리를 선택하세요</option>';
 
-                    // 서브 카테고리 목록을 동적으로 추가
                     Object.values(data).forEach(subCategory => {
                         subCategory.forEach(sub => {
                             const option = document.createElement('option');
@@ -213,17 +555,257 @@
                 })
                 .catch(error => {
                     console.error('서브 카테고리 불러오기 오류:', error);
+                    subCategorySelect.innerHTML = '<option value="">오류가 발생했습니다</option>';
                 });
         } else {
-            // 카테고리가 선택되지 않으면 서브 카테고리 초기화
-            const subCategorySelect = document.getElementById('subCategory');
-            subCategorySelect.innerHTML = '<option value="">서브 카테고리 선택</option>';
+            subCategorySelect.innerHTML = '<option value="">먼저 카테고리를 선택하세요</option>';
+        }
+    });
+
+    // 드래그 앤 드롭 이벤트 처리
+    function handleDragOver(event) {
+        event.preventDefault();
+        document.getElementById('uploadSection').classList.add('dragover');
+    }
+
+    function handleDragLeave(event) {
+        event.preventDefault();
+        document.getElementById('uploadSection').classList.remove('dragover');
+    }
+
+    function handleDrop(event) {
+        event.preventDefault();
+        document.getElementById('uploadSection').classList.remove('dragover');
+
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            const fileInput = document.getElementById('imageFile');
+            fileInput.files = files;
+            previewImages({ target: fileInput });
+        }
+    }
+
+    // 이미지 미리보기
+    function previewImages(event) {
+        const files = Array.from(event.target.files);
+        selectedFiles = files;
+        const container = document.getElementById('imagePreviewContainer');
+        container.innerHTML = '';
+
+        files.forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview" class="preview-image">
+                        <button type="button" class="preview-remove" onclick="removeImage(${index})">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    `;
+                    container.appendChild(previewItem);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // 이미지 제거
+    function removeImage(index) {
+        selectedFiles.splice(index, 1);
+
+        // 파일 입력 업데이트
+        const fileInput = document.getElementById('imageFile');
+        const dt = new DataTransfer();
+        selectedFiles.forEach(file => dt.items.add(file));
+        fileInput.files = dt.files;
+
+        // 미리보기 다시 생성
+        previewImages({ target: fileInput });
+    }
+
+    // 폼 검증
+    document.getElementById('productForm').addEventListener('submit', function(e) {
+        const requiredFields = [
+            { id: 'itemName', name: '상품명' },
+            { name: 'gender', label: '성별', type: 'radio' },
+            { id: 'price', name: '가격' },
+            { id: 'quantity', name: '재고 수량' },
+            { id: 'ageGroup', name: '연령대' },
+            { id: 'style', name: '스타일' },
+            { id: 'season', name: '계절' },
+            { id: 'category', name: '카테고리' },
+            { id: 'subCategory', name: '서브 카테고리' },
+            { id: 'itemComment', name: '상품 설명' }
+        ];
+
+        for (let field of requiredFields) {
+            if (field.type === 'radio') {
+                const radioButtons = document.querySelectorAll(`input[name="${field.name}"]`);
+                const isChecked = Array.from(radioButtons).some(radio => radio.checked);
+                if (!isChecked) {
+                    e.preventDefault();
+                    alert(`${field.label}을(를) 선택해주세요.`);
+                    return;
+                }
+            } else {
+                const element = document.getElementById(field.id);
+                if (!element.value.trim()) {
+                    e.preventDefault();
+                    alert(`${field.name}을(를) 입력해주세요.`);
+                    element.focus();
+                    return;
+                }
+            }
+        }
+
+        // 주 색상 필수 검증
+        if (!selectedPrimaryColor) {
+            e.preventDefault();
+            alert('주 색상을 선택해주세요.');
+            return;
+        }
+
+        // 가격과 수량이 0 이상인지 확인
+        const price = parseInt(document.getElementById('price').value.replace(/,/g, ''));
+        const quantity = parseInt(document.getElementById('quantity').value);
+
+        if (price < 0) {
+            e.preventDefault();
+            alert('가격은 0원 이상이어야 합니다.');
+            document.getElementById('price').focus();
+            return;
+        }
+
+        if (quantity < 0) {
+            e.preventDefault();
+            alert('재고 수량은 0개 이상이어야 합니다.');
+            document.getElementById('quantity').focus();
+            return;
+        }
+
+        // 로딩 상태 표시
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.classList.add('btn-loading');
+        submitBtn.disabled = true;
+    });
+
+    // 재고 필드에 콤마 추가
+    document.getElementById('quantity').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/,/g, '');
+        if (!isNaN(value) && value !== '') {
+            e.target.value = parseInt(value).toLocaleString();
+        }
+    });
+
+    // 재고 필드 포커스 시 콤마 제거
+    document.getElementById('quantity').addEventListener('focus', function(e) {
+        e.target.value = e.target.value.replace(/,/g, '');
+    });
+
+    // 재고 필드 블러 시 콤마 추가
+    document.getElementById('quantity').addEventListener('blur', function(e) {
+        let value = e.target.value.replace(/,/g, '');
+        if (!isNaN(value) && value !== '') {
+            e.target.value = parseInt(value).toLocaleString();
+        }
+    });
+
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        // 색상 선택 초기화
+        initializeColorSelection();
+
+        // 드래그 앤 드롭 전역 방지
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            document.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+S로 저장
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                document.getElementById('productForm').submit();
+            }
+
+            // Escape로 취소
+            if (e.key === 'Escape') {
+                if (confirm('작성 중인 내용이 있습니다. 정말로 나가시겠습니까?')) {
+                    window.location.href = '/dashboard';
+                }
+            }
+        });
+
+        // 폼 필드 애니메이션
+        const formInputs = document.querySelectorAll('.form-input, .form-select, .form-textarea');
+        formInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+
+        // 라디오 버튼 애니메이션
+        const radioOptions = document.querySelectorAll('.radio-option');
+        radioOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+
+                    // 다른 라디오 버튼들의 스타일 제거
+                    const groupName = radio.name;
+                    document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+                        r.closest('.radio-option').classList.remove('selected');
+                    });
+
+                    // 선택된 라디오 버튼 스타일 추가
+                    this.classList.add('selected');
+                }
+            });
+        });
+    });
+
+    // 자동 저장 기능 (선택사항)
+    let autoSaveTimer;
+    function autoSave() {
+        const formData = {
+            itemName: document.getElementById('itemName').value,
+            price: document.getElementById('price').value,
+            quantity: document.getElementById('quantity').value,
+            itemComment: document.getElementById('itemComment').value,
+            primaryColor: selectedPrimaryColor,
+            secondaryColor: selectedSecondaryColor,
+            timestamp: Date.now()
+        };
+
+        localStorage.setItem('product_draft', JSON.stringify(formData));
+    }
+
+    // 자동 저장 타이머
+    document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
+        input.addEventListener('input', function() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(autoSave, 10000); // 10초마다 자동 저장
+        });
+    });
+
+    // 폼 제출 성공 시 임시 데이터 삭제
+    document.getElementById('productForm').addEventListener('submit', function() {
+        if (window.tempFormData) {
+            delete window.tempFormData;
         }
     });
 </script>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

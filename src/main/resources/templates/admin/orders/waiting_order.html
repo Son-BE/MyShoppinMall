@@ -4,8 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>대기 중인 주문</title>
+
+    <!-- CSRF 토큰 메타 -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
@@ -52,100 +58,430 @@
             border-color: #333;
         }
 
-        .pagination .page-item.disabled .page-link {
-            background-color: #e0e0e0;
-            color: #bbb;
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
         }
 
-        .pagination .page-link {
-            background-color: #fff;
-            border-color: #ddd;
-            color: #333;
+        .status-waiting { background-color: #e9ecef; color: #495057; }
+        .status-paid { background-color: #cff4fc; color: #055160; }
+        .status-ordered { background-color: #cfe2ff; color: #084298; }
+        .status-shipped-waiting { background-color: #fff3cd; color: #664d03; }
+        .status-shipped { background-color: #e7c3ff; color: #6f42c1; }
+        .status-delivered { background-color: #d1e7dd; color: #0f5132; }
+        .status-cancelled { background-color: #f8d7da; color: #721c24; }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.25rem;
+            justify-content: center;
+            align-items: center;
         }
 
-        .pagination .page-link:hover {
-            background-color: #f1f1f1;
-            color: #111;
+        .bulk-actions {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e1bee7;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .checkbox-all {
+            transform: scale(1.2);
         }
     </style>
 </head>
 <body>
+
+<!-- 성공/에러 메시지 -->
+<div th:if="${message}" class="alert alert-success alert-dismissible fade show m-3" role="alert">
+    <i class="fas fa-check-circle me-2"></i>
+    <span th:text="${message}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<div th:if="${error}" class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    <span th:text="${error}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
 <!-- 네비게이션 바 -->
 <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">관리자 대시보드</a>
+        <a class="navbar-brand" href="/admin/orders/entire">
+            <i class="fas fa-tachometer-alt me-2"></i>관리자 대시보드
+        </a>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">관리자</a>
+                    <a class="nav-link" href="/admin/orders/entire">
+                        <i class="fas fa-list me-1"></i>전체 주문
+                    </a>
                 </li>
-                <form th:action="@{/logout}" method="post">
-                    <button type="submit" class="btn btn-outline-light btn-sm ms-2">로그아웃</button>
-                </form>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/admin/orders/paid_orders">
+                        <i class="fas fa-credit-card me-1"></i>결제 완료
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/orders/cancel_requests">
+                        <i class="fas fa-times-circle me-1"></i>취소 요청
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/orders/return_requests">
+                        <i class="fas fa-undo me-1"></i>반품 요청
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" th:text="${#authentication.name}">관리자</a>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post">
+                        <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-outline-light btn-sm ms-2">로그아웃</button>
+                    </form>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
 
 <div class="container mt-4">
-    <h2 th:text="${pageTitle}">대기 중인 주문</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 th:text="${pageTitle}">결제 완료 주문 (확정 대기)</h2>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-info btn-sm" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-1"></i>새로고침
+            </button>
+            <span class="badge bg-primary fs-6" th:text="'총 ' + ${ordersPage.totalElements} + '건'"></span>
+        </div>
+    </div>
 
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>주문 번호</th>
-            <th>회원 이름</th>
-            <th>수령인</th>
-            <th>총 금액</th>
-            <th>주문 상태</th>
-            <th>주문 일시</th>
-            <th>상태 변경</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="order : ${orders}">
-            <td th:text="${order.orderId}"></td>
-            <td th:text="${order.memberName}"></td>
-            <td th:text="${order.receiverName}"></td>
-            <td th:text="${order.totalPrice} + '원'"></td>
-            <td th:text="${order.orderStatus}"></td>
-            <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">2025-06-17 10:00</td>
-            <td>
-                <form th:action="@{'/admin/orders/' + ${order.orderId} + '/status'}" method="post">
-                    <select name="status" class="form-select form-select-sm">
-                        <option value="ORDERED" th:selected="${order.orderStatus == 'ORDERED'}">주문 완료</option>
-                        <option value="SHIPPED_WAITING" th:selected="${order.orderStatus == 'SHIPPED_WAITING'}">배송 대기</option>
-                        <option value="SHIPPED" th:selected="${order.orderStatus == 'SHIPPED'}">배송 중</option>
-                        <option value="DELIVERED" th:selected="${order.orderStatus == 'DELIVERED'}">배송 완료</option>
-                        <option value="CANCELLED" th:selected="${order.orderStatus == 'CANCELLED'}">주문 취소</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary btn-sm mt-1">변경</button>
-                </form>
-            </td>
-        </tr>
-        <tr th:if="${orders.size() == 0}">
-            <td colspan="7" class="text-center">대기 중인 주문이 없습니다.</td>
-        </tr>
-        </tbody>
-    </table>
+    <!-- 일괄 처리 섹션 -->
+    <div class="bulk-actions" th:if="${ordersPage.content.size() > 0}">
+        <h5 class="mb-3">
+            <i class="fas fa-tasks me-2"></i>일괄 처리
+        </h5>
+
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="form-check">
+                        <input class="form-check-input checkbox-all" type="checkbox" id="selectAll">
+                        <label class="form-check-label fw-bold" for="selectAll">
+                            전체 선택
+                        </label>
+                    </div>
+                    <span id="selectedCount" class="text-muted">선택된 주문: 0건</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex gap-2 justify-content-end">
+                    <form id="bulkConfirmForm" th:action="@{/admin/orders/batch-confirm}" method="post" style="display: none;">
+                        <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <input type="hidden" name="orderIds" id="bulkConfirmOrderIds">
+                    </form>
+
+                    <button type="button" class="btn btn-success btn-sm" id="bulkConfirmBtn" disabled>
+                        <i class="fas fa-check me-1"></i>일괄 확정
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 주문 테이블 -->
+    <div class="table-container">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th width="50">
+                    <i class="fas fa-check-square"></i>
+                </th>
+                <th>주문 번호</th>
+                <th>회원 이름</th>
+                <th>수령인</th>
+                <th>총 금액</th>
+                <th>주문 상태</th>
+                <th>주문 일시</th>
+                <th width="200">관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}" class="order-row">
+                <td>
+                    <input class="form-check-input order-checkbox" type="checkbox"
+                           th:value="${order.orderId}" th:id="'order-' + ${order.orderId}">
+                </td>
+                <td>
+                    <strong th:text="${order.orderId}"></strong>
+                </td>
+                <td th:text="${order.memberName}"></td>
+                <td th:text="${order.receiverName}"></td>
+                <td>
+                    <strong th:text="'₩' + ${#numbers.formatInteger(order.totalPrice, 3, 'COMMA')}"></strong>
+                </td>
+                <td>
+                    <span th:switch="${order.orderStatus.name()}" class="status-badge">
+                        <span th:case="'WAITING'" class="status-waiting">
+                            <i class="fas fa-hourglass-half me-1"></i>결제 대기
+                        </span>
+                        <span th:case="'PAID'" class="status-paid">
+                            <i class="fas fa-credit-card me-1"></i>결제 완료
+                        </span>
+                        <span th:case="'ORDERED'" class="status-ordered">
+                            <i class="fas fa-check me-1"></i>주문 확정
+                        </span>
+                        <span th:case="'SHIPPED_WAITING'" class="status-shipped-waiting">
+                            <i class="fas fa-clock me-1"></i>배송 대기
+                        </span>
+                        <span th:case="'SHIPPED'" class="status-shipped">
+                            <i class="fas fa-truck me-1"></i>배송 중
+                        </span>
+                        <span th:case="'DELIVERED'" class="status-delivered">
+                            <i class="fas fa-check-circle me-1"></i>배송 완료
+                        </span>
+                        <span th:case="'CANCELLED'" class="status-cancelled">
+                            <i class="fas fa-times-circle me-1"></i>주문 취소
+                        </span>
+                        <span th:case="*" class="badge bg-secondary" th:text="${order.orderStatus}">
+                            기타
+                        </span>
+                    </span>
+                </td>
+                <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">2025-06-17 10:00</td>
+                <td>
+                    <div class="action-buttons">
+                        <!-- 주문 확정 버튼 (PAID 상태에서만) -->
+                        <form th:if="${order.orderStatus.name() == 'PAID'}"
+                              th:action="@{'/admin/orders/' + ${order.orderId} + '/confirm'}" method="post" style="display: inline;">
+                            <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="btn btn-success btn-sm"
+                                    onclick="return confirm('주문을 확정하시겠습니까?')" title="주문 확정">
+                                <i class="fas fa-check me-1"></i>확정
+                            </button>
+                        </form>
+
+                        <!-- 상태 변경 드롭다운 -->
+                        <div class="dropdown d-inline">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" title="상태 변경">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><h6 class="dropdown-header">상태 변경</h6></li>
+                                <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'WAITING')">
+                                    <i class="fas fa-hourglass-half me-1"></i>결제 대기</button></li>
+                                <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'PAID')">
+                                    <i class="fas fa-credit-card me-1"></i>결제 완료</button></li>
+                                <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'ORDERED')">
+                                    <i class="fas fa-check me-1"></i>주문 확정</button></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'SHIPPED_WAITING')">
+                                    <i class="fas fa-clock me-1"></i>배송 대기</button></li>
+                                <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'SHIPPED')">
+                                    <i class="fas fa-truck me-1"></i>배송 중</button></li>
+                                <li><button class="dropdown-item" onclick="changeStatus([[${order.orderId}]], 'DELIVERED')">
+                                    <i class="fas fa-check-circle me-1"></i>배송 완료</button></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><button class="dropdown-item text-danger" onclick="changeStatus([[${order.orderId}]], 'CANCELLED')">
+                                    <i class="fas fa-times-circle me-1"></i>주문 취소</button></li>
+                            </ul>
+                        </div>
+
+                        <!-- 상세보기 -->
+                        <a th:href="@{'/orders/' + ${order.orderId} + '/details'}"
+                           class="btn btn-outline-info btn-sm" title="상세보기">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${orders.size() == 0}">
+                <td colspan="8" class="text-center text-muted py-5">
+                    <i class="fas fa-inbox fa-3x mb-3 d-block text-secondary"></i>
+                    <h5>대기 중인 주문이 없습니다.</h5>
+                    <p>결제가 완료되어 확정 대기 중인 주문이 있으면 여기에 표시됩니다.</p>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
     <!-- 페이지네이션 -->
-    <nav th:if="${totalPages > 1}" aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                <a class="page-link" th:href="@{/admin/orders/waiting_order(page=${currentPage - 1})}" aria-label="Previous">&laquo;</a>
-            </li>
+    <nav th:if="${totalPages > 1}" aria-label="Page navigation" class="mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <small class="text-muted">
+                    총 <strong th:text="${ordersPage.totalElements}"></strong>건 중
+                    <strong th:text="${currentPage * 10 + 1}"></strong>-<strong th:text="${T(java.lang.Math).min((currentPage + 1) * 10, ordersPage.totalElements)}"></strong>건 표시
+                </small>
+            </div>
 
-            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'">
-                <a class="page-link" th:href="@{/admin/orders/waiting_order(page=${i})}" th:text="${i + 1}">1</a>
-            </li>
+            <ul class="pagination pagination-sm mb-0 justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/orders/paid_orders(page=${currentPage - 1})}" aria-label="Previous">&laquo;</a>
+                </li>
 
-            <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
-                <a class="page-link" th:href="@{/admin/orders/waiting_order(page=${currentPage + 1})}" aria-label="Next">&raquo;</a>
-            </li>
-        </ul>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/admin/orders/paid_orders(page=${i})}" th:text="${i + 1}">1</a>
+                </li>
+
+                <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/orders/paid_orders(page=${currentPage + 1})}" aria-label="Next">&raquo;</a>
+                </li>
+            </ul>
+        </div>
     </nav>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const orderCheckboxes = document.querySelectorAll('.order-checkbox');
+        const selectedCountSpan = document.getElementById('selectedCount');
+        const bulkConfirmBtn = document.getElementById('bulkConfirmBtn');
+        const bulkConfirmForm = document.getElementById('bulkConfirmForm');
+        const bulkConfirmOrderIds = document.getElementById('bulkConfirmOrderIds');
+
+        // 전체 선택 기능
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                orderCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateSelectedCount();
+            });
+        }
+
+        // 개별 체크박스 변경 시
+        orderCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectedCount();
+
+                if (selectAllCheckbox) {
+                    const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
+                    selectAllCheckbox.checked = checkedCount === orderCheckboxes.length;
+                    selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < orderCheckboxes.length;
+                }
+            });
+        });
+
+        // 선택된 주문 수 업데이트
+        function updateSelectedCount() {
+            const checkedBoxes = document.querySelectorAll('.order-checkbox:checked');
+            const count = checkedBoxes.length;
+
+            if (selectedCountSpan) {
+                selectedCountSpan.textContent = `선택된 주문: ${count}건`;
+            }
+
+            if (bulkConfirmBtn) {
+                bulkConfirmBtn.disabled = count === 0;
+            }
+        }
+
+        // 일괄 확정 버튼
+        if (bulkConfirmBtn) {
+            bulkConfirmBtn.addEventListener('click', function() {
+                const checkedBoxes = document.querySelectorAll('.order-checkbox:checked');
+                const orderIds = Array.from(checkedBoxes).map(cb => cb.value);
+
+                if (orderIds.length === 0) {
+                    alert('확정할 주문을 선택해주세요.');
+                    return;
+                }
+
+                if (confirm(`선택한 ${orderIds.length}개 주문을 일괄 확정하시겠습니까?`)) {
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>처리중...';
+
+                    bulkConfirmOrderIds.value = orderIds.join(',');
+                    bulkConfirmForm.style.display = 'block';
+                    bulkConfirmForm.submit();
+                }
+            });
+        }
+
+        // 테이블 행 클릭 시 체크박스 토글
+        document.querySelectorAll('.order-row').forEach(row => {
+            row.addEventListener('click', function(e) {
+                if (e.target.type !== 'checkbox' && e.target.tagName !== 'BUTTON' &&
+                    e.target.tagName !== 'I' && e.target.tagName !== 'A') {
+                    const checkbox = this.querySelector('.order-checkbox');
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                }
+            });
+        });
+
+        // 초기 카운트 설정
+        updateSelectedCount();
+    });
+
+    // 상태 변경
+    async function changeStatus(orderId, status) {
+        if (!confirm(`주문 상태를 '${getStatusName(status)}'로 변경하시겠습니까?`)) {
+            return;
+        }
+
+        try {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+            const response = await fetch(`/admin/orders/api/${orderId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: `status=${status}`
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('상태가 변경되었습니다.');
+                location.reload();
+            } else {
+                alert('상태 변경에 실패했습니다: ' + (result.error || '알 수 없는 오류'));
+            }
+        } catch (error) {
+            console.error('상태 변경 실패:', error);
+            alert('상태 변경 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 상태명 반환
+    function getStatusName(status) {
+        const statusNames = {
+            'WAITING': '결제 대기',
+            'PAID': '결제 완료',
+            'ORDERED': '주문 확정',
+            'SHIPPED_WAITING': '배송 대기',
+            'SHIPPED': '배송 중',
+            'DELIVERED': '배송 완료',
+            'CANCELLED': '주문 취소'
+        };
+        return statusNames[status] || status;
+    }
+</script>
+
 </body>
 </html>

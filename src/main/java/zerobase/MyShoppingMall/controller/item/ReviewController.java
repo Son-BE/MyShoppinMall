@@ -25,7 +25,7 @@ public class ReviewController {
     public String submitReview(@PathVariable Long itemId,
                                @RequestParam int rating,
                                @RequestParam String content,
-//                               @RequestParam Long orderId,
+                               @RequestParam(required = false) Long orderId,
                                @AuthenticationPrincipal CustomUserDetails userDetails,
                                RedirectAttributes redirectAttributes
                                ) {
@@ -35,23 +35,22 @@ public class ReviewController {
 
         Long memberId = userDetails.getMember().getId();
 
-//        boolean canWrite = reviewService.canWriteReview(memberId, itemId, orderId);
-//        if (!canWrite) {
-//            redirectAttributes.addFlashAttribute("errorMessage", "리뷰 작성 조건을 만족하지 않습니다.");
-//            return "redirect:/items/detail/" + itemId;
-//        }
+        boolean canWrite = reviewService.canWriteReview(memberId, itemId, orderId);
+        if (!canWrite) {
+            redirectAttributes.addFlashAttribute("errorMessage", "리뷰 작성 조건을 만족하지 않습니다.");
+            return "redirect:/items/detail/" + itemId;
+        }
 
         ReviewRequestDto dto = ReviewRequestDto.builder()
                 .itemId(itemId)
                 .rating(rating)
                 .content(content)
-//                .orderId(orderId)
+                .orderId(orderId)
                 .build();
 
         reviewService.saveReview(dto, memberId);
         redirectAttributes.addFlashAttribute("successMessage", "리뷰가 등록되었습니다.");
 
         return "redirect:/items/detail/" + itemId;
-
     }
 }

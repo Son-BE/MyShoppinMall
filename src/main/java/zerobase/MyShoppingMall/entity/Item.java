@@ -1,16 +1,15 @@
 package zerobase.MyShoppingMall.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import zerobase.MyShoppingMall.type.Gender;
-import zerobase.MyShoppingMall.type.ItemCategory;
-import zerobase.MyShoppingMall.type.ItemSubCategory;
+import zerobase.MyShoppingMall.type.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "item")
@@ -23,14 +22,63 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String itemName;
-    private String itemComment;
+
+    @Column(nullable = false)
     private int price;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Enumerated(EnumType.STRING)
+    private ItemCategory category;
+
+    @Enumerated(EnumType.STRING)
+    private ItemSubCategory subCategory;
+
+    @Enumerated(EnumType.STRING)
+    private AgeGroup ageGroup;
+
+    @Enumerated(EnumType.STRING)
+    private Styles style;
+
+    @Enumerated(EnumType.STRING)
+    private Season season;
+
+    @Enumerated(EnumType.STRING)
+    private Color primaryColor;
+
+    @Enumerated(EnumType.STRING)
+    private Color secondaryColor;
+
+    private String imageUrl;
+    private String itemComment;
     private int quantity;
     private int itemRating;
+    @Builder.Default
+    @Column
+    private Integer reviewCount = 0;
+    @Builder.Default
+    @Column
+    private Integer viewCount = 0;
+    @Builder.Default
+    @Column
+    private Integer orderCount = 0;
+    @Builder.Default
+    @Column
+    private Integer cartCount = 0;
+    @Builder.Default
+    @Column
+    private Integer wishCount = 0;
+
     private String review;
-    private String imageUrl;
     private char deleteType;
+
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
+    private Set<StyleTag> styleTags = new HashSet<>();
 
     @Transient
     private boolean isWish;
@@ -41,14 +89,9 @@ public class Item {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
 
-    @Enumerated(EnumType.STRING)
-    private ItemCategory category;
 
-    @Enumerated(EnumType.STRING)
-    private ItemSubCategory subCategory;
+
 
     @OneToMany(mappedBy = "item")
     private List<OrderDetail> orderDetails;
@@ -67,4 +110,11 @@ public class Item {
         this.isWish = isWish;
     }
 
+    public ItemSubCategory getSubCategory() {
+        return subCategory;
+    }
+
+    public String getImagePath() {
+        return imageUrl;
+    }
 }

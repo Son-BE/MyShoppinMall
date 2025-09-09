@@ -1,9 +1,12 @@
 package zerobase.MyShoppingMall.repository.member;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.type.Gender;
+import zerobase.MyShoppingMall.type.Role;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +28,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     long countByCreatedAtAfter(LocalDateTime date);
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
     long countByGender(Gender gender);
+
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.role = :role")
+    long countByRole(@Param("role") Role role);
+
+    long deleteByEmailContaining(String s);
 
     //    Optional<Member> findByKakaoId(Long kakaoId);
 }

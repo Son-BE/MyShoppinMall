@@ -1,254 +1,491 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title th:text="${item.itemName} + ' - 상품 상세'">상품 상세</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${item.itemName} + ' - 상품 상세'">상품 상세 | SonStarMall</title>
 
-    <!-- Font Awesome -->
+    <!-- Font Awesome & Google Font -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           crossorigin="anonymous"/>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/item_detail.css">
 
     <!-- CSRF 토큰 메타 -->
-    <meta name="_csrf" content="${_csrf.token}"/>
-    <meta name="_csrf_header" content="${_csrf.headerName}"/>
-    <link rel="stylesheet" href="/css/item_detail.css"/>
-    <link rel="stylesheet" href="/css/header.css">
-    <style>
-        .review-form-wrapper {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            background-color: #fafafa;
-            font-family: 'Noto Sans KR', sans-serif;
-        }
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
-        .section-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        .review-form .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .review-form label {
-            display: block;
-            font-size: 0.95rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-
-        .form-select {
-            width: 120px;
-            padding: 0.4rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            background-color: white;
-        }
-
-        .form-textarea {
-            width: 100%;
-            height: 100px;
-            padding: 0.7rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            resize: vertical;
-            background-color: white;
-        }
-
-        .form-actions {
-            text-align: right;
-        }
-
-        .submit-button {
-            padding: 0.6rem 1.2rem;
-            font-size: 0.95rem;
-            font-weight: 600;
-            background-color: #111;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-        }
-
-        .submit-button:hover {
-            background-color: #333;
-        }
-
-    </style>
 
 </head>
-<body>
-<header>
-    <div class="top-bar">
-        <h2 th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
-            SonStarMall
-        </h2>
-        <div class="user-info">
-            <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
-                <span th:text="${#authentication.name} + '님'" style="align-self: center;"></span>
 
-                <a th:href="@{/members/profile}" class="profile-button" aria-label="프로필 페이지 이동">
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-user" aria-hidden="true"></i> 내 정보
-                    </button>
-                </a>
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
-                    </button>
-                </form>
+<body>
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="top-bar">
+            <h2 class="logo" th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
+                SonStarMall
+            </h2>
+
+            <div class="user-info">
+                <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
+                    <span class="user-name" th:text="${#authentication.name} + '님'"></span>
+
+                    <a th:href="@{/members/profile}" class="auth-button logout-button" aria-label="프로필 페이지 이동">
+                        <i class="fa-solid fa-user"></i>
+                        내 정보
+                    </a>
+
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <div th:if="${_csrf != null}">
+                            <input type="hidden"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}" />
+                        </div>
+                        <button type="submit" class="auth-button logout-button" aria-label="로그아웃">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            로그아웃
+                        </button>
+                    </form>
+                </div>
+
                 <div th:if="${!#authorization.expression('isAuthenticated()')}">
-                    <a th:href="@{/login}" class="login-button" title="로그인" aria-label="로그인 페이지 이동">
-                        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> 로그인
+                    <a th:href="@{/login}" class="auth-button login-button" aria-label="로그인">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        로그인
                     </a>
                 </div>
             </div>
-
         </div>
-    </div>
 
-    <nav class="main-nav">
-        <a href="/items"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
-        <a href="/user/cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> 장바구니</a>
-        <a href="/user/wishList"><i class="fa-solid fa-heart" aria-hidden="true"></i> 찜 목록</a>
-        <a href="/orders/myOrder"><i class="fa-solid fa-book" aria-hidden="true"></i> 주문 내역</a>
-        <a href="/board?category=NOTICE"><i class="fa-solid fa-comments" aria-hidden="true"></i> 게시판</a>
-    </nav>
+        <nav class="main-nav">
+            <a href="/items" class="nav-link">
+                <i class="fa-solid fa-house"></i>
+                Home
+            </a>
+            <a href="/user/cart" class="nav-link">
+                <i class="fa-solid fa-cart-shopping"></i>
+                장바구니
+            </a>
+            <a href="/user/wishList" class="nav-link">
+                <i class="fa-solid fa-heart"></i>
+                찜 목록
+            </a>
+            <a href="/orders/myOrder" class="nav-link">
+                <i class="fa-solid fa-book"></i>
+                주문 내역
+            </a>
+            <a href="/board?category=NOTICE" class="nav-link">
+                <i class="fa-solid fa-comments"></i>
+                게시판
+            </a>
+        </nav>
+    </div>
 </header>
 
-<div class="image-section">
-    <img th:src="${item.imagePath}" alt="상품 이미지"
-         onerror="this.onerror=null;this.src='/images/default.png';"/>
-</div>
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Product Container -->
+    <div class="product-container">
+        <div class="product-layout">
+            <!-- Product Image -->
+            <div class="image-section">
+                <img class="product-image" th:src="${item.imagePath}" th:alt="${item.itemName} + ' 상품 이미지'"
+                     onerror="this.onerror=null;this.src='/images/default.png';"/>
+                <div class="image-overlay"></div>
+            </div>
 
-<div class="info-section">
-    <h1 th:text="${item.itemName}">상품명</h1>
-    <p class="price" th:text="'₩' + ${#numbers.formatInteger(item.price, 3, 'COMMA')}">가격</p>
-    <p class="description" th:text="${item.itemComment}">상품 설명</p>
+            <!-- Product Info -->
+            <div class="info-section">
+                <h1 class="product-title" th:text="${item.itemName}">상품명</h1>
+                <div class="product-price" th:text="'₩' + ${#numbers.formatInteger(item.price, 3, 'COMMA')}">₩0</div>
+                <p class="product-description" th:text="${item.itemComment}">상품 설명</p>
 
-    <div class="extra-info">
-        <p>카테고리: <span th:text="${item.subCategory}">카테고리</span></p>
-        <p>성별: <span th:text="${item.gender}">성별</span></p>
-        <p>재고 수량: <span th:text="${item.quantity}">0</span></p>
-    </div>
-
-    <div th:if="${item.quantity == 0}" class="sold-out">품절된 상품입니다.</div>
-</div>
-
-<div class="actions">
-    <!-- 장바구니 추가 폼 -->
-    <form th:action="@{/user/cart/add}" method="post" onsubmit="return confirmAddToCart()">
-        <input type="hidden" name="itemId" th:value="${item.id}"/>
-        <label>
-            수량:
-            <input type="number" name="quantity" min="1" th:attr="max=${item.quantity}" value="1"
-                   th:disabled="${item.quantity == 0}"/>
-        </label>
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <button type="submit" class="cart-add-button independent-button" th:disabled="${item.quantity == 0}">
-            <i class="fa-solid fa-cart-plus"></i> 장바구니 추가
-        </button>
-    </form>
-
-    <!-- 찜하기 폼 -->
-    <form th:action="@{/wishList/add}" method="post" onsubmit="return confirmAddToWishlist()">
-        <input type="hidden" name="itemId" th:value="${item.id}"/>
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <button type="submit" class="wishlist-add-button independent-button" th:disabled="${item.quantity == 0}">
-            <i class="fa-solid fa-heart"></i> 찜하기
-        </button>
-    </form>
-</div>
-
-<!-- 상품 후기 & 별점 섹션-->
-<section class="product-reviews" aria-label="상품 후기 및 별점">
-    <h2>상품 후기</h2>
-
-    <!-- 별점 평균 -->
-    <div class="average-rating" role="region" aria-live="polite">
-        <div class="stars" aria-label="평균 별점"
-             th:text="${'★'.repeat(T(java.lang.Math).round(averageRating)) + '☆'.repeat(5 - T(java.lang.Math).round(averageRating))}">
-            ★★★★☆
-        </div>
-        <div class="score" th:text="${#numbers.formatDecimal(averageRating, 1, 1)} + ' / 5.0'">4.2 / 5.0</div>
-    </div>
-
-    <ul class="review-list">
-        <li class="review-item" th:each="review : ${reviews}">
-            <div class="review-header">
-                <span class="reviewer" th:text="${review.member.nickName}">홍길동</span>
-                <div class="review-rating">
-                <span th:each="i : ${#numbers.sequence(1, 5)}"
-                      th:text="${i <= review.rating ? '★' : '☆'}"></span>
+                <div class="product-meta">
+                    <div class="meta-item">
+                        <div class="meta-label">카테고리</div>
+                        <div class="meta-value" th:text="${item.subCategory}">카테고리</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">성별</div>
+                        <div class="meta-value" th:text="${item.gender}">성별</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">재고</div>
+                        <div class="meta-value" th:text="${item.quantity} + '개'">0개</div>
+                    </div>
                 </div>
-                <span class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">2025-07-27</span>
+
+                <div th:if="${item.quantity == 0}" class="sold-out-badge">
+                    <i class="fa-solid fa-exclamation-triangle"></i>
+                    품절된 상품입니다
+                </div>
+
+                <!-- Quantity Selection -->
+                <div th:if="${item.quantity > 0}" class="quantity-section">
+                    <span class="quantity-label">수량</span>
+                    <div class="quantity-control">
+                        <button type="button" class="quantity-btn" onclick="decreaseQuantity()">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                        <input type="number" id="quantityInput" class="quantity-input" min="1"
+                               th:max="${item.quantity}" value="1" readonly/>
+                        <button type="button" class="quantity-btn" onclick="increaseQuantity()">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="product-actions">
+                    <!-- Add to Cart -->
+                    <form th:action="@{/user/cart/add}" method="post" onsubmit="return confirmAddToCart()" style="flex: 1;">
+                        <input type="hidden" name="itemId" th:value="${item.id}"/>
+                        <input type="hidden" name="quantity" id="cartQuantity" value="1"/>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="action-btn btn-cart" th:disabled="${item.quantity == 0}">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            장바구니 담기
+                        </button>
+                    </form>
+
+                    <!-- Add to Wishlist -->
+                    <form th:action="@{/wishList/add}" method="post" onsubmit="return confirmAddToWishlist()" style="flex: 1;">
+                        <input type="hidden" name="itemId" th:value="${item.id}"/>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="action-btn btn-wishlist" th:disabled="${item.quantity == 0}">
+                            <i class="fa-solid fa-heart"></i>
+                            찜하기
+                        </button>
+                    </form>
+                </div>
             </div>
-            <p class="review-content" th:text="${review.content}">
-                아주 만족스러워요!
-            </p>
-        </li>
-    </ul>
-
-
-
-
-    <!-- 후기 작성 폼 -->
-    <!-- 후기 작성 영역 -->
-    <div class="review-form-wrapper" th:if="${#authorization.expression('isAuthenticated()')}">
-        <h3 class="section-title">상품 후기 작성</h3>
-        <form th:action="@{'/items/' + ${item.id} + '/reviews'}" method="post" class="review-form">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-            <div class="form-group">
-                <label for="rating">별점</label>
-                <select name="rating" id="rating" class="form-select">
-                    <option value="5">⭐ 5점</option>
-                    <option value="4">⭐ 4점</option>
-                    <option value="3">⭐ 3점</option>
-                    <option value="2">⭐ 2점</option>
-                    <option value="1">⭐ 1점</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="content">후기</label>
-                <textarea id="content" name="content" class="form-textarea" placeholder="구매하신 상품은 어떠셨나요?" required></textarea>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="submit-button">
-                    후기 등록
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
-</section>
 
+    <!-- Reviews Section -->
+    <div class="reviews-section">
+        <h2 class="section-title">
+            <i class="fa-solid fa-star"></i>
+            상품 후기
+        </h2>
 
+        <!-- Rating Summary -->
+        <div class="rating-summary">
+            <div class="rating-stars"
+                 th:text="${'★'.repeat(T(java.lang.Math).round(averageRating)) + '☆'.repeat(5 - T(java.lang.Math).round(averageRating))}">
+                ★★★★☆
+            </div>
+            <div>
+                <div class="rating-score" th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">4.2</div>
+                <div class="rating-text">/ 5.0 점</div>
+            </div>
+        </div>
+
+        <!-- Reviews List -->
+        <ul class="reviews-list">
+            <li class="review-item" th:each="review : ${reviews}">
+                <div class="review-header">
+                    <div class="reviewer-info">
+                        <span class="reviewer-name" th:text="${review.member.nickName}">홍길동</span>
+                        <div class="review-rating">
+                                <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                      th:text="${i <= review.rating ? '★' : '☆'}"></span>
+                        </div>
+                    </div>
+                    <span class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">2025-01-01</span>
+                </div>
+                <p class="review-content" th:text="${review.content}">
+                    아주 만족스러워요!
+                </p>
+            </li>
+        </ul>
+
+        <!-- Empty Reviews State -->
+        <div th:if="${#lists.isEmpty(reviews)}" style="text-align: center; padding: 3rem; color: var(--text-light);">
+            <i class="fa-solid fa-comment-slash" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <h3 style="margin-bottom: 0.5rem;">아직 후기가 없습니다</h3>
+            <p>첫 번째 후기를 남겨보세요!</p>
+        </div>
+
+        <!-- Review Form -->
+        <div class="review-form-section" th:if="${#authorization.expression('isAuthenticated()')}">
+            <h3 class="form-title">
+                <i class="fa-solid fa-edit"></i>
+                후기 작성하기
+            </h3>
+            <form th:action="@{'/items/' + ${item.id} + '/reviews'}" method="post" class="review-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="orderId" th:value="${orderId} ?: 0" />
+                <div class="form-group">
+                    <label for="rating" class="form-label">
+                        <i class="fa-solid fa-star"></i>
+                        별점
+                    </label>
+                    <select name="rating" id="rating" class="form-select">
+                        <option value="5">⭐⭐⭐⭐⭐ 5점 (매우 만족)</option>
+                        <option value="4">⭐⭐⭐⭐☆ 4점 (만족)</option>
+                        <option value="3">⭐⭐⭐☆☆ 3점 (보통)</option>
+                        <option value="2">⭐⭐☆☆☆ 2점 (불만족)</option>
+                        <option value="1">⭐☆☆☆☆ 1점 (매우 불만족)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="content" class="form-label">
+                        <i class="fa-solid fa-comment"></i>
+                        후기 내용
+                    </label>
+                    <textarea id="content" name="content" class="form-textarea"
+                              placeholder="구매하신 상품은 어떠셨나요? 다른 고객들에게 도움이 되는 솔직한 후기를 남겨주세요."
+                              required></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        후기 등록
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Login Required Message -->
+        <div th:if="${!#authorization.expression('isAuthenticated()')}"
+             style="text-align: center; padding: 2rem; background: rgba(0, 112, 243, 0.05); border-radius: var(--radius-lg); border: 1px solid rgba(0, 112, 243, 0.1);">
+            <i class="fa-solid fa-lock" style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 0.5rem;">로그인이 필요합니다</h3>
+            <p style="margin-bottom: 1.5rem; color: var(--text-gray);">후기를 작성하려면 로그인해주세요.</p>
+            <a th:href="@{/login}" class="action-btn btn-cart" style="display: inline-flex; flex: none;">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                로그인하기
+            </a>
+        </div>
+    </div>
+</main>
+
+<!-- Notification -->
+<div id="notification" class="notification">
+    <span id="notificationText"></span>
+</div>
+
+<!-- JavaScript -->
 <script>
+    // Quantity Control
+    function increaseQuantity() {
+        const input = document.getElementById('quantityInput');
+        const cartQuantity = document.getElementById('cartQuantity');
+        const max = parseInt(input.getAttribute('max'));
+        const current = parseInt(input.value);
+
+        if (current < max) {
+            const newValue = current + 1;
+            input.value = newValue;
+            cartQuantity.value = newValue;
+        }
+    }
+
+    function decreaseQuantity() {
+        const input = document.getElementById('quantityInput');
+        const cartQuantity = document.getElementById('cartQuantity');
+        const current = parseInt(input.value);
+
+        if (current > 1) {
+            const newValue = current - 1;
+            input.value = newValue;
+            cartQuantity.value = newValue;
+        }
+    }
+
+    // Notification function
+    function showNotification(message, type = 'success') {
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+
+        notificationText.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+        notification.className = `notification ${type}`;
+        notification.classList.add('show');
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
+    // Confirmation functions
     function confirmAddToCart() {
-        return confirm("장바구니에 추가하시겠습니까?");
+        const quantity = document.getElementById('quantityInput').value;
+        showNotification(`${quantity}개의 상품을 장바구니에 담고 있습니다...`, 'success');
+        return true;
     }
 
     function confirmAddToWishlist() {
-        return confirm("찜목록에 추가하시겠습니까?");
+        showNotification('찜 목록에 추가하고 있습니다...', 'success');
+        return true;
     }
-</script>
 
-<script th:if="${successMessage}">
-    alert('[[${successMessage}]]');
-</script>
-<script th:if="${errorMessage}">
-    alert('[[${errorMessage}]]');
+    // Success/Error messages from server
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle server messages
+        const successMessage = /*[[${successMessage}]]*/ null;
+        const errorMessage = /*[[${errorMessage}]]*/ null;
+
+        if (successMessage) {
+            showNotification(successMessage, 'success');
+        }
+
+        if (errorMessage) {
+            showNotification(errorMessage, 'error');
+        }
+
+        // Animation on load
+        const productContainer = document.querySelector('.product-container');
+        const reviewsSection = document.querySelector('.reviews-section');
+
+        productContainer.style.opacity = '0';
+        productContainer.style.transform = 'translateY(30px)';
+        reviewsSection.style.opacity = '0';
+        reviewsSection.style.transform = 'translateY(30px)';
+
+        setTimeout(() => {
+            productContainer.style.transition = 'all 0.6s ease';
+            productContainer.style.opacity = '1';
+            productContainer.style.transform = 'translateY(0)';
+        }, 100);
+
+        setTimeout(() => {
+            reviewsSection.style.transition = 'all 0.6s ease';
+            reviewsSection.style.opacity = '1';
+            reviewsSection.style.transform = 'translateY(0)';
+        }, 300);
+
+        // Review items animation
+        const reviewItems = document.querySelectorAll('.review-item');
+        reviewItems.forEach((item, index) => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-30px)';
+
+            setTimeout(() => {
+                item.style.transition = 'all 0.5s ease';
+                item.style.opacity = '1';
+                item.style.transform = 'translateX(0)';
+            }, 500 + (index * 100));
+        });
+    });
+
+    // Add ripple effect to buttons
+    document.querySelectorAll('.action-btn, .submit-btn, .quantity-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if (this.disabled) return;
+
+            const ripple = document.createElement('div');
+            ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.6);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+
+            this.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+
+    // Add ripple animation styles
+    const rippleStyle = document.createElement('style');
+    rippleStyle.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+    document.head.appendChild(rippleStyle);
+
+    // Form submission enhancement
+    document.querySelector('.review-form').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('.submit-btn');
+        submitBtn.style.opacity = '0.7';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 등록 중...';
+        submitBtn.disabled = true;
+
+        showNotification('후기를 등록하고 있습니다...', 'success');
+    });
+
+    // Textarea auto-resize
+    const textarea = document.getElementById('content');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.max(120, this.scrollHeight) + 'px';
+        });
+    }
+
+    // Rating select enhancement
+    const ratingSelect = document.getElementById('rating');
+    if (ratingSelect) {
+        ratingSelect.addEventListener('change', function() {
+            this.style.color = '#ffc107';
+            this.style.fontWeight = '600';
+        });
+    }
+
+    // Image zoom on click
+    const productImage = document.querySelector('.product-image');
+    if (productImage) {
+        productImage.addEventListener('click', function() {
+            // Simple zoom effect
+            if (this.style.transform === 'scale(1.5)') {
+                this.style.transform = 'scale(1)';
+                this.style.cursor = 'zoom-in';
+            } else {
+                this.style.transform = 'scale(1.5)';
+                this.style.cursor = 'zoom-out';
+            }
+        });
+
+        productImage.style.cursor = 'zoom-in';
+    }
+
+    // Quantity input sync
+    const quantityInput = document.getElementById('quantityInput');
+    if (quantityInput) {
+        quantityInput.addEventListener('change', function() {
+            const cartQuantity = document.getElementById('cartQuantity');
+            cartQuantity.value = this.value;
+        });
+    }
+
+    // Add smooth scrolling to reviews section
+    function scrollToReviews() {
+        document.querySelector('.reviews-section').scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+
+    // Auto-hide notification on scroll
+    let notificationTimeout;
+    window.addEventListener('scroll', () => {
+        const notification = document.getElementById('notification');
+        if (notification.classList.contains('show')) {
+            clearTimeout(notificationTimeout);
+            notificationTimeout = setTimeout(() => {
+                notification.classList.remove('show');
+            }, 1000);
+        }
+    });
 </script>
 
 </body>

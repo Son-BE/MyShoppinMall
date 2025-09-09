@@ -47,9 +47,16 @@ public enum ItemSubCategory {
     //여성 악세서리
     W_WATCH("손목시계",ItemCategory.WOMENS_ACCESSORY),
     W_RING("반지",ItemCategory.WOMENS_ACCESSORY),
-    W_NECKLACE("목걸이",ItemCategory.WOMENS_ACCESSORY);
+    W_NECKLACE("목걸이",ItemCategory.WOMENS_ACCESSORY),
 
-
+    //추가
+    M_SHIRT("티셔츠",ItemCategory.MENS_TOP ),
+    W_BLOUSE("블라우스",ItemCategory.WOMENS_TOP ),
+    M_SHORTS("반바지", ItemCategory.MENS_TOP ),
+    M_SLACKS("슬랙스",ItemCategory.MENS_BOTTOM ),
+    W_SHORTS("반바지",ItemCategory.WOMENS_BOTTOM ),
+    W_SKIRT("치마",ItemCategory.WOMENS_BOTTOM),
+    W_SLACKS("슬랙스",ItemCategory.WOMENS_BOTTOM);
 
     private final String displayName;
     private final ItemCategory itemCategory;

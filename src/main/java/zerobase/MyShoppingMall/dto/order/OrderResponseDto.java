@@ -14,25 +14,23 @@ import java.util.stream.Collectors;
 @Builder
 public class OrderResponseDto {
     private Long orderId;
+    private Long memberId;
     private String memberName;
     private String receiverName;
     private String receiverPhone;
     private String receiverAddress;
     private String receiverDetailAddress;
     private String paymentMethod;
-
-    private int totalPrice;
+    private Integer totalPrice;
+    private Long usedPoint;
     private int actualPrice;
-    private int usedPoint;
-
-    private List<String> itemNames;
     private LocalDateTime orderDate;
     private String merchantUid;
     private String impUid;
     private OrderStatus orderStatus;
 
-    private List<
-            OrderDetailResponse> orderDetails;
+    private List<String> itemNames;
+    private List<OrderDetailResponse> orderDetails;
 
     public static OrderResponseDto from(zerobase.MyShoppingMall.entity.Order order) {
         List<String> itemNames = order.getOrderDetails().stream()

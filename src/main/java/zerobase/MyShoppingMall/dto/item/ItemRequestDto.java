@@ -2,9 +2,7 @@ package zerobase.MyShoppingMall.dto.item;
 
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
-import zerobase.MyShoppingMall.type.Gender;
-import zerobase.MyShoppingMall.type.ItemCategory;
-import zerobase.MyShoppingMall.type.ItemSubCategory;
+import zerobase.MyShoppingMall.type.*;
 
 //상품 등록, 수정 시 사용
 @Getter
@@ -20,7 +18,11 @@ public class ItemRequestDto {
     private ItemCategory category;
     private ItemSubCategory subCategory;
     private Gender gender;
+    private AgeGroup ageGroup;
+    private Season season;
+    private Styles style;
     private MultipartFile imageFile;
-
+    private Color primaryColor;
+    private Color secondaryColor;
 
 }

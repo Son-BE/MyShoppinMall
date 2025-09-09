@@ -1,6 +1,7 @@
 package zerobase.MyShoppingMall.service.cart;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,10 +13,12 @@ import zerobase.MyShoppingMall.repository.cart.CartItemRepository;
 import zerobase.MyShoppingMall.repository.cart.CartRepository;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
 import zerobase.MyShoppingMall.repository.member.MemberRepository;
+import zerobase.MyShoppingMall.service.item.ItemService;
 import zerobase.MyShoppingMall.type.AddToCartResult;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartService {
@@ -23,6 +26,7 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
+    private final ItemService itemService;
 
     //회원의 장바구니 생성 or 조회
     public Cart getOrCreateCart(Long memberId) {
@@ -50,8 +54,6 @@ public class CartService {
 
         if (existingCartItem != null) {
             return AddToCartResult.ALREADY_EXISTS;
-//            existingCartItem.setQuantity(existingCartItem.getQuantity() + quantity);
-//            cartItemRepository.save(existingCartItem);
         } else {
             CartItem newCartItem = CartItem.builder()
                     .cart(cart)
@@ -61,6 +63,8 @@ public class CartService {
             cartItemRepository.save(newCartItem);
             cart.getCartItems().add(newCartItem);
         }
+//        itemService.increaseCartCount(itemId);
+//        log.info("상품 장바구니 등록 수 증가");
         return AddToCartResult.ADDED;
     }
 

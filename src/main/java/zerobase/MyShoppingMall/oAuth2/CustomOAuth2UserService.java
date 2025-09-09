@@ -126,20 +126,4 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         }
         return name;
     }
-
-//    private String extractGoogleEmail(OAuth2User user) {
-//        String email = (String) user.getAttributes().get("email");
-//        if (email == null || email.isEmpty()) {
-//            throw new OAuth2AuthenticationException("구글 이메일 정보가 없습니다.");
-//        }
-//        return email;
-//    }
-//
-//    private String extractGoogleNickname(OAuth2User user) {
-//        String name = (String) user.getAttributes().get("name");
-//        if (name == null || name.isEmpty()) {
-//            name = "googleUser_" + UUID.randomUUID().toString().substring(0, 8);
-//        }
-//        return name;
-//    }
 }
