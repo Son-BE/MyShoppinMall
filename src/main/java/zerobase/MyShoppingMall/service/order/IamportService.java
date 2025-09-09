@@ -21,7 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class IamportService {
 
-
+    @Qualifier("iamportWebClient")
     private final WebClient webClient;
 
     @Value("${iamport.api.key}")

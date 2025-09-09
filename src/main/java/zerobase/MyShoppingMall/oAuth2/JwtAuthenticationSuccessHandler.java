@@ -62,6 +62,6 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
 //        response.setHeader("Authorization", "Bearer " + token);
 
-        response.sendRedirect("/items");
+        response.sendRedirect("/");
     }
 }

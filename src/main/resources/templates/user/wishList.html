@@ -215,7 +215,7 @@
                     </button>
                 </a>
                 <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+<!--                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
                     <button type="submit" class="logout-button" aria-label="로그아웃">
                         <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
                     </button>

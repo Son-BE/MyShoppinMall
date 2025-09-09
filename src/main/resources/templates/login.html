@@ -165,7 +165,7 @@
         </div>
 
         <form action="/login" method="POST">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+<!--            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
             <div class="mb-3 text-left">
                 <label for="username" class="form-label">이메일 주소</label>
                 <input type="email" class="form-control" id="username" name="username" placeholder="example@myshop.com" required />
