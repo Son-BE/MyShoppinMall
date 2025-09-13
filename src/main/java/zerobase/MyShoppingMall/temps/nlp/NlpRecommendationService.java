@@ -196,8 +196,11 @@ public class NlpRecommendationService {
         }
 
         // 7. 인기도 보정 (평점과 리뷰 수 고려)
-        if (item.getReviewCount() > 0) {
-            double popularityBonus = (item.getItemRating() * Math.log(item.getReviewCount() + 1)) * 0.1;
+        Integer reviewCount = item.getReviewCount();
+            Double itemRating = (double) item.getItemRating();
+
+        if (reviewCount != null && reviewCount > 0 && itemRating != null) {
+            double popularityBonus = (itemRating * Math.log(reviewCount + 1)) * 0.1;
             score += popularityBonus;
         }
 
