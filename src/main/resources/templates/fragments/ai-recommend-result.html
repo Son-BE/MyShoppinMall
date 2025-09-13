@@ -1,0 +1,389 @@
+<div class="ai-recommend-results" xmlns:th="http://www.thymeleaf.org">
+  <div class="ai-recommend-header">
+    <h3><i class="fa-solid fa-wand-magic-sparkles"></i> AI 추천 결과</h3>
+    <p class="query-info">
+      "<span class="query-text" th:text="${query}"></span>"에 대한
+      <span class="result-count" th:text="${totalCount}"></span>개의 추천 상품
+    </p>
+
+    <!-- 키워드 태그 표시 -->
+    <div th:if="${keywords != null and not #lists.isEmpty(keywords)}" class="keyword-tags">
+      <span class="keyword-label">분석된 키워드:</span>
+      <span th:each="keyword : ${keywords}" class="keyword-tag" th:text="${keyword}"></span>
+    </div>
+  </div>
+
+  <!-- 추천 상품 그리드 -->
+  <div class="ai-recommend-grid">
+    <div th:each="item : ${recommendedItems}" class="ai-recommend-card">
+      <div class="card-image">
+        <a th:href="@{/items/detail/{id}(id=${item.id})}">
+          <img th:src="${item.imagePath}"
+               onerror="this.src='/images/default.png'"
+               th:alt="${item.itemName} + ' 상품 이미지'" />
+          <div class="card-overlay">
+            <i class="fa-solid fa-eye"></i>
+            <span>상세보기</span>
+          </div>
+        </a>
+
+        <!-- AI 추천 배지 -->
+        <div class="ai-badge">
+          <i class="fa-solid fa-robot"></i>
+          AI 추천
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="item-category" th:text="${item.category}"></div>
+        <h4 class="item-name" th:text="${item.itemName}"></h4>
+        <div class="item-price" th:text="${#numbers.formatInteger(item.price, 3, 'COMMA')} + '원'"></div>
+
+        <!-- 평점 표시 -->
+        <div th:if="${item.itemRating != null and item.itemRating > 0}" class="item-rating">
+                    <span class="stars">
+                        <i th:each="star : ${#numbers.sequence(1, 5)}"
+                           class="fa-star"
+                           th:classappend="${star <= item.itemRating} ? 'fa-solid' : 'fa-regular'"></i>
+                    </span>
+          <span class="rating-text" th:text="${item.itemRating}"></span>
+        </div>
+
+        <!-- 추천 이유 -->
+        <div class="recommendation-reason">
+          <i class="fa-solid fa-lightbulb"></i>
+          <span th:text="${item.recommendationReason}"></span>
+        </div>
+      </div>
+
+      <!-- 액션 버튼들 -->
+      <div class="card-actions">
+        <!-- 찜하기 버튼 -->
+        <form th:action="@{/wishList/add}" method="post" style="display: inline;">
+          <input type="hidden" name="itemId" th:value="${item.id}"/>
+          <div th:if="${_csrf != null}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          </div>
+          <button type="submit" class="action-btn wishlist-btn" title="찜하기">
+            <i class="fa-regular fa-heart"></i>
+          </button>
+        </form>
+
+        <!-- 장바구니 버튼 -->
+        <form th:action="@{/user/cart/add}" method="post" style="display: inline;">
+          <input type="hidden" name="itemId" th:value="${item.id}"/>
+          <input type="hidden" name="quantity" value="1"/>
+          <div th:if="${_csrf != null}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          </div>
+          <button type="submit" class="action-btn cart-btn" title="장바구니 담기">
+            <i class="fa-solid fa-cart-shopping"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 더 보기 버튼 -->
+  <div class="ai-recommend-footer">
+    <button onclick="requestMoreAiRecommendations()" class="more-btn">
+      <i class="fa-solid fa-refresh"></i>
+      다른 추천 받기
+    </button>
+    <a href="/items" class="view-all-btn">
+      <i class="fa-solid fa-grid-2"></i>
+      전체 상품 보기
+    </a>
+  </div>
+</div>
+
+<style>
+  .ai-recommend-results {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 1rem;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+
+  .ai-recommend-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .ai-recommend-header h3 {
+    color: #1a1a1a;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .query-info {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .query-text {
+    font-weight: 600;
+    color: #0070f3;
+  }
+
+  .result-count {
+    font-weight: 700;
+    color: #10b981;
+  }
+
+  .keyword-tags {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .keyword-label {
+    font-size: 0.875rem;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .keyword-tag {
+    background: #0070f3;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .ai-recommend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .ai-recommend-card {
+    background: white;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .ai-recommend-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  .card-image {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .ai-recommend-card:hover .card-image img {
+    transform: scale(1.05);
+  }
+
+  .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-recommend-card:hover .card-overlay {
+    opacity: 1;
+  }
+
+  .ai-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .card-content {
+    padding: 1rem;
+  }
+
+  .item-category {
+    font-size: 0.75rem;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .item-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+    line-height: 1.3;
+  }
+
+  .item-price {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #0070f3;
+    margin-bottom: 0.5rem;
+  }
+
+  .item-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .stars .fa-solid {
+    color: #fbbf24;
+  }
+
+  .stars .fa-regular {
+    color: #d1d5db;
+  }
+
+  .rating-text {
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  .recommendation-reason {
+    background: #f0f9ff;
+    color: #0369a1;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0 1rem 1rem;
+  }
+
+  .action-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .wishlist-btn {
+    background: #fef3f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+  }
+
+  .wishlist-btn:hover {
+    background: #dc2626;
+    color: white;
+  }
+
+  .cart-btn {
+    background: #0070f3;
+    color: white;
+  }
+
+  .cart-btn:hover {
+    background: #0051cc;
+  }
+
+  .ai-recommend-footer {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .more-btn, .view-all-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    cursor: pointer;
+  }
+
+  .more-btn {
+    background: #7c3aed;
+    color: white;
+  }
+
+  .more-btn:hover {
+    background: #6d28d9;
+    transform: translateY(-2px);
+  }
+
+  .view-all-btn {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+  }
+
+  .view-all-btn:hover {
+    background: #e5e7eb;
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .ai-recommend-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .ai-recommend-results {
+      padding: 1rem;
+    }
+
+    .keyword-tags {
+      justify-content: center;
+    }
+
+    .ai-recommend-footer {
+      flex-direction: column;
+    }
+  }
+</style>

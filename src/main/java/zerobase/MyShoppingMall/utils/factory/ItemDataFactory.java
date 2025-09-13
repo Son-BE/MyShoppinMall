@@ -71,11 +71,27 @@ public class ItemDataFactory extends BaseDataFactory<Item> {
     }
 
     private ItemCategory generateCategoryByGender(Gender gender) {
+        ItemCategory[] categories;
+
         if (gender == Gender.MALE) {
-            return random.nextBoolean() ? ItemCategory.MENS_TOP : ItemCategory.MENS_BOTTOM;
+            categories = new ItemCategory[]{
+                    ItemCategory.MENS_TOP,
+                    ItemCategory.MENS_BOTTOM,
+                    ItemCategory.MENS_OUTER,
+                    ItemCategory.MENS_SHOES,
+                    ItemCategory.MENS_ACCESSORY
+            };
         } else {
-            return random.nextBoolean() ? ItemCategory.WOMENS_TOP : ItemCategory.WOMENS_BOTTOM;
+            categories = new ItemCategory[]{
+                    ItemCategory.WOMENS_TOP,
+                    ItemCategory.WOMENS_BOTTOM,
+                    ItemCategory.WOMENS_OUTER,
+                    ItemCategory.WOMENS_SHOES,
+                    ItemCategory.WOMENS_ACCESSORY
+            };
         }
+
+        return categories[random.nextInt(categories.length)];
     }
 
     private ItemSubCategory generateSubCategoryByCategory(ItemCategory category) {
@@ -83,14 +99,16 @@ public class ItemDataFactory extends BaseDataFactory<Item> {
             case MENS_TOP:
                 ItemSubCategory[] mensTops = {
                         ItemSubCategory.M_TSHIRT, ItemSubCategory.M_SWEATSHIRT,
-                        ItemSubCategory.M_SHIRT, ItemSubCategory.M_HOODIE
+                        ItemSubCategory.M_SHIRT, ItemSubCategory.M_HOODIE,
+                        ItemSubCategory.M_SHORTS
                 };
                 return mensTops[random.nextInt(mensTops.length)];
 
             case WOMENS_TOP:
                 ItemSubCategory[] womensTops = {
                         ItemSubCategory.W_TSHIRT, ItemSubCategory.W_SWEATSHIRT,
-                        ItemSubCategory.W_BLOUSE, ItemSubCategory.W_HOODIE
+                        ItemSubCategory.W_BLOUSE, ItemSubCategory.W_HOODIE,
+                        ItemSubCategory.W_SHORTS
                 };
                 return womensTops[random.nextInt(womensTops.length)];
 
@@ -109,9 +127,58 @@ public class ItemDataFactory extends BaseDataFactory<Item> {
                         ItemSubCategory.W_TRAINING_PANTS,
                         ItemSubCategory.W_JOGGER_PANTS,
                         ItemSubCategory.W_SKIRTS,
+                        ItemSubCategory.W_SKIRT,
                         ItemSubCategory.W_SLACKS
                 };
                 return womensBottoms[random.nextInt(womensBottoms.length)];
+
+            case MENS_OUTER:
+                ItemSubCategory[] mensOuters = {
+                        ItemSubCategory.M_WINDBREAKER,
+                        ItemSubCategory.M_COAT,
+                        ItemSubCategory.M_PADDING
+                };
+                return mensOuters[random.nextInt(mensOuters.length)];
+
+            case WOMENS_OUTER:
+                ItemSubCategory[] womensOuters = {
+                        ItemSubCategory.W_WINDBREAKER,
+                        ItemSubCategory.W_COAT,
+                        ItemSubCategory.W_PADDING
+                };
+                return womensOuters[random.nextInt(womensOuters.length)];
+
+            case MENS_SHOES:
+                ItemSubCategory[] mensShoes = {
+                        ItemSubCategory.M_SNEAKERS,
+                        ItemSubCategory.M_RUNNING_SHOES,
+                        ItemSubCategory.M_BOOTS
+                };
+                return mensShoes[random.nextInt(mensShoes.length)];
+
+            case WOMENS_SHOES:
+                ItemSubCategory[] womensShoes = {
+                        ItemSubCategory.W_SNEAKERS,
+                        ItemSubCategory.W_RUNNING_SHOES,
+                        ItemSubCategory.W_BOOTS
+                };
+                return womensShoes[random.nextInt(womensShoes.length)];
+
+            case MENS_ACCESSORY:
+                ItemSubCategory[] mensAccessories = {
+                        ItemSubCategory.M_WATCH,
+                        ItemSubCategory.M_RING,
+                        ItemSubCategory.M_NECKLACE
+                };
+                return mensAccessories[random.nextInt(mensAccessories.length)];
+
+            case WOMENS_ACCESSORY:
+                ItemSubCategory[] womensAccessories = {
+                        ItemSubCategory.W_WATCH,
+                        ItemSubCategory.W_RING,
+                        ItemSubCategory.W_NECKLACE
+                };
+                return womensAccessories[random.nextInt(womensAccessories.length)];
 
             default:
                 return ItemSubCategory.M_TSHIRT; // fallback
@@ -123,13 +190,17 @@ public class ItemDataFactory extends BaseDataFactory<Item> {
 
         // 카테고리별 기본 가격대
         switch (category) {
-            case MENS_TOP:
-            case WOMENS_TOP:
+            case MENS_SHOES:
+            case WOMENS_SHOES:
                 basePrice = 15000 + random.nextInt(35000); // 15,000 ~ 50,000
                 break;
-            case MENS_BOTTOM:
-            case WOMENS_BOTTOM:
+            case MENS_ACCESSORY:
+            case WOMENS_ACCESSORY:
                 basePrice = 25000 + random.nextInt(55000); // 25,000 ~ 80,000
+                break;
+            case MENS_OUTER:
+            case WOMENS_OUTER:
+                basePrice = 35000 + random.nextInt(35000);
                 break;
             default:
                 basePrice = 20000 + random.nextInt(30000);

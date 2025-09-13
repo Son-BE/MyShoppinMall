@@ -30,4 +30,8 @@ public enum ItemCategory {
     public Gender getGender() {
         return gender;
     }
+
+    public String toLowerCase() {
+        return this.name().toLowerCase();
+    }
 }

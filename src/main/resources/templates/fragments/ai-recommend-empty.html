@@ -1,0 +1,154 @@
+<div class="ai-recommend-empty" xmlns:th="http://www.thymeleaf.org">
+  <div class="empty-content">
+    <i class="fa-solid fa-search empty-icon"></i>
+    <h3>검색 결과 없음</h3>
+    <p>
+      "<span th:text="${query}"></span>"<span th:text="${message ?: '에 대한 상품을 찾을 수 없습니다.'}"></span>
+    </p>
+
+    <div class="suggestions">
+      <h4>다른 키워드로 시도해보세요:</h4>
+      <div class="suggestion-tags">
+        <button onclick="searchSuggestion('캐주얼 봄 코디')" class="suggestion-tag">캐주얼 봄 코디</button>
+        <button onclick="searchSuggestion('데이트 룩')" class="suggestion-tag">데이트 룩</button>
+        <button onclick="searchSuggestion('출근 스타일')" class="suggestion-tag">출근 스타일</button>
+        <button onclick="searchSuggestion('편안한 일상복')" class="suggestion-tag">편안한 일상복</button>
+        <button onclick="searchSuggestion('세련된 정장')" class="suggestion-tag">세련된 정장</button>
+        <button onclick="searchSuggestion('트렌디한 아우터')" class="suggestion-tag">트렌디한 아우터</button>
+      </div>
+    </div>
+
+    <div class="empty-actions">
+      <button onclick="document.getElementById('ai-query').value=''; document.getElementById('ai-query').focus()" class="retry-search-btn">
+        <i class="fa-solid fa-edit"></i>
+        다시 검색
+      </button>
+      <a href="/items" class="browse-all-btn">
+        <i class="fa-solid fa-grid-2"></i>
+        전체 상품 보기
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ai-recommend-empty {
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 1rem;
+    padding: 3rem 2rem;
+    text-align: center;
+    color: #64748b;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #94a3b8;
+  }
+
+  .ai-recommend-empty h3 {
+    margin-bottom: 1rem;
+    color: #475569;
+  }
+
+  .suggestions {
+    margin: 2rem 0;
+  }
+
+  .suggestions h4 {
+    margin-bottom: 1rem;
+    color: #475569;
+    font-size: 1rem;
+  }
+
+  .suggestion-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .suggestion-tag {
+    background: white;
+    color: #0070f3;
+    border: 1px solid #0070f3;
+    padding: 0.5rem 1rem;
+    border-radius: 1.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .suggestion-tag:hover {
+    background: #0070f3;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .empty-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .retry-search-btn, .browse-all-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    cursor: pointer;
+  }
+
+  .retry-search-btn {
+    background: #0070f3;
+    color: white;
+  }
+
+  .browse-all-btn {
+    background: white;
+    color: #374151;
+    border: 1px solid #d1d5db;
+  }
+
+  .retry-search-btn:hover, .browse-all-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .suggestion-tags {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .empty-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+</style>
+
+<script>
+  function searchSuggestion(query) {
+    document.getElementById('ai-query').value = query;
+    requestAiRecommend();
+  }
+
+  function requestMoreAiRecommendations() {
+    const currentQuery = document.getElementById('ai-query').value;
+    if (currentQuery) {
+      // 기존 쿼리에 "다른", "새로운" 등의 키워드 추가하여 다른 결과 유도
+      const variations = ['새로운', '다른', '트렌디한', '인기있는', '추천'];
+      const randomVariation = variations[Math.floor(Math.random() * variations.length)];
+      document.getElementById('ai-query').value = randomVariation + ' ' + currentQuery;
+      requestAiRecommend();
+    }
+  }
+</script>

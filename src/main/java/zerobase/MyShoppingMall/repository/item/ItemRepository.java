@@ -112,4 +112,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     
     Page<Item> searchByKeyword(@Param("query") String query, Pageable pageable);
+
+    List<Item> findAllByDeleteTypeNot(char y);
 }

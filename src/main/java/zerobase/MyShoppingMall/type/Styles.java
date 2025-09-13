@@ -15,4 +15,9 @@ public enum Styles {
     CLEAN,          // 깔끔한
     SOFT,           // 부드러운
     VINTAGE, FRESH           // 산뜻한
+    ;
+
+    public String toLowerCase() {
+        return this.name().toLowerCase();
+    }
 }
