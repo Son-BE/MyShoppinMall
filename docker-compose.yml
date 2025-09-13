@@ -128,11 +128,19 @@
         image-classifier-api:
           condition: service_healthy
       environment:
-        SPRING_DATASOURCE_URL: jdbc:mysql://shop-mysql:3306/SonStar
-        SPRING_DATASOURCE_USERNAME: root
-        SPRING_DATASOURCE_PASSWORD: hi092787!!!
-        SPRING_DATA_REDIS_HOST: shop-redis
-        SPRING_DATA_REDIS_PORT: "6379"
+        # DB
+        SPRING_DATASOURCE_URL: jdbc:mysql://shop-mysql:3306/${MYSQL_DATABASE}
+        SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+        SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+        # REDIS
+        SPRING_DATA_REDIS_HOST: ${REDIS_HOST}
+        SPRING_DATA_REDIS_PORT: ${REDIS_PORT}
+        # AWS S3 CLOUD
+        CLOUD_AWS_CREDENTIALS_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
+        CLOUD_AWS_CREDENTIALS_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
+        CLOUD_AWS_REGION_STATIC: ${AWS_REGION}
+        CLOUD_AWS_S3_BUCKET: ${AWS_BUCKET}
+        # API
         RECOMMENDATION_API_URL: http://recommend-api:5000
         IMAGE_CLASSIFIER_API_URL: http://image-classifier-api:5000
       networks:
