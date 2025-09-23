@@ -1,4 +1,4 @@
-package zerobase.MyShoppingMall.exception;
+package zerobase.MyShoppingMall.global;
 
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;

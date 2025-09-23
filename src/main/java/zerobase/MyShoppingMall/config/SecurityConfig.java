@@ -94,7 +94,6 @@ public class SecurityConfig {
                         .requestMatchers("/board/").permitAll()
                         .requestMatchers(STATIC_RESOURCES).permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
-                        // 🔧 수정: Chrome DevTools 요청 허용
                         .requestMatchers("/.well-known/**").permitAll()
                         .requestMatchers("/order/**", "/user/cart/**", "/user/wishList").authenticated()
                         .requestMatchers(HttpMethod.GET, "/board/write").authenticated()

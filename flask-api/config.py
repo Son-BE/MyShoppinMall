@@ -1,4 +1,4 @@
-# config.py
+# flask-api/config.py
 import os
 from typing import Optional
 

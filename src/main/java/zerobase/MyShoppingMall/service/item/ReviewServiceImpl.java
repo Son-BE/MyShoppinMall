@@ -27,25 +27,18 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public boolean canWriteReview(Long memberId, Long itemId, Long orderId) {
-        // 1) 주문 존재 확인
         Order order = orderRepository.findById(orderId)
                 .orElse(null);
         if (order == null || !order.getMember().getId().equals(memberId)) {
             return false;
         }
-
-        // 2) 주문에 해당 아이템 포함 확인
         boolean itemInOrder = order.getOrderDetails().stream()
                 .anyMatch(orderItem -> orderItem.getItem().getId().equals(itemId));
         if (!itemInOrder) return false;
-
-        // 3) 주문 후 7일 이내 확인
         LocalDate orderDate = order.getCreatedAt().toLocalDate();
         if (ChronoUnit.DAYS.between(orderDate, LocalDate.now()) > 7) {
             return false;
         }
-
-        // 4) 이미 리뷰 작성했는지 확인
         boolean exists = reviewRepository.existsByMemberIdAndItemIdAndOrderId(memberId, itemId, orderId);
         if (exists) return false;
 
@@ -77,34 +70,6 @@ public class ReviewServiceImpl implements ReviewService {
                 .build();
 
         reviewRepository.save(review);
-    }
-
-    @Override
-    public void updateReview(Long reviewId, ReviewRequestDto dto, Long memberId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
-
-        if (!review.getMember().equals(memberId)) {
-            throw new SecurityException("권한이 없습니다.");
-        }
-
-        review.setRating(dto.getRating());
-        review.setContent(dto.getContent());
-        review.setUpdatedAt(LocalDateTime.now());
-
-        reviewRepository.save(review);
-    }
-
-    @Override
-    public void deleteReview(Long reviewId, Long memberId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
-
-        if (!review.getMember().equals(memberId)) {
-            throw new SecurityException("권한이 없습니다.");
-        }
-
-        reviewRepository.delete(review);
     }
 
     public double getAverageRating(Long itemId) {

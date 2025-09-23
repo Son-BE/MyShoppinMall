@@ -44,10 +44,7 @@ public class ItemController {
     private final RecommendationService recommendationService;
     private final CategoryStatsService categoryStatsService;
 
-    /**
-     * 상품 목록 페이지 - URL: /items
-     * (카테고리별, 필터별 상품 목록 조회)
-     */
+
     @GetMapping
     public String getItemsListPage(
             @RequestParam(value = "gender", required = false) String gender,
@@ -58,22 +55,11 @@ public class ItemController {
             Model model) {
 
         try {
-            // Gender enum 변환
             Gender genderEnum = parseGender(gender);
-
-            // 페이지 크기 검증 및 보정
             int validatedSize = paginationService.validateAndCorrectPageSize(16);
-
-            // 아이템 페이징 조회
             Page<ItemResponseDto> itemPage = itemService.findItems(genderEnum, sort, subCategory, page, validatedSize);
-
-            // 페이지네이션 정보 생성
             PaginationInfo paginationInfo = paginationService.createPaginationInfo(itemPage);
-
-            // 기본 모델 데이터 추가
             addItemListPageAttributesToModel(model, itemPage, paginationInfo, gender, sort, subCategory);
-
-            //  추천 시스템: 상품 목록 페이지 추천 (개인화는 제한적)
             addItemListPageRecommendations(model, userDetails);
 
             log.info("상품 목록 페이지 로드 완료 - 필터: gender={}, sort={}, category={}, page={}",
@@ -88,18 +74,13 @@ public class ItemController {
         }
     }
 
-    /**
-     * 🔍 상품 상세 페이지 - URL: /items/detail/{id}
-     */
     @GetMapping("/detail/{id}")
     public String getItemDetail(@PathVariable Long id,
                                 @AuthenticationPrincipal CustomUserDetails userDetails,
                                 Model model) {
         try {
-            // 사용자 인증 처리
             Long memberId = getUserMemberIdIfAuthenticated(userDetails);
 
-            // 조회 히스토리 및 주문 정보 처리
             if (memberId != null) {
                 viewHistoryService.addViewedItem(memberId, id);
                 Long orderId = orderService.findLatestOrderIdByMemberAndItem(memberId, id);
@@ -108,32 +89,24 @@ public class ItemController {
                 model.addAttribute("orderId", null);
             }
 
-            // 🔧 수정: 추천 시스템 상호작용 기록 (안전하게)
             if (memberId != null) {
                 recordUserInteractionSafely(memberId, id, "view");
             }
 
-            // 아이템 정보 조회 및 조회수 증가
             ItemResponseDto item = itemService.getItemWithCache(id, memberId);
             itemService.increaseViewCount(id);
 
-            // 아이템 유효성 검사
             if (item == null) {
                 model.addAttribute("errorMessage", "해당 상품을 찾을 수 없습니다.");
                 return "error/404";
             }
 
-            // 리뷰 정보 조회
             List<Review> reviews = reviewRepository.findByItemIdOrderByCreatedAtDesc(id);
             Double averageRating = reviewService.getAverageRating(id);
 
-            // 리뷰 작성 가능 여부
             boolean canWriteReview = checkCanWriteReview(memberId, id);
 
-            // 기본 모델 데이터
             addItemDetailAttributesToModel(model, item, reviews, averageRating, canWriteReview);
-
-            // 🔧 추가: 상품 상세 페이지 추천 추가
             addItemDetailPageRecommendations(model, memberId, id, item);
 
             log.info("아이템 상세 페이지 로드 완료 - itemId: {}, memberId: {}", id, memberId);
@@ -146,16 +119,11 @@ public class ItemController {
         }
     }
 
-    /**
-     * 상품 목록 페이지 추천 (메인 페이지보다 제한적)
-     */
     private void addItemListPageRecommendations(Model model, CustomUserDetails userDetails) {
         try {
             Long memberId = getUserMemberIdIfAuthenticated(userDetails);
 
-            // 간단한 추천만 제공 (성능 고려)
             if (memberId != null) {
-                // 개인화 추천 (소량)
                 RecommendationResponse personalRecs = recommendationService.getSafeRecommendations(
                         memberId, 4, "content_based"
                 );
@@ -163,8 +131,6 @@ public class ItemController {
                     model.addAttribute("quickRecommendations", personalRecs.getRecommendations());
                 }
             }
-
-            // 인기 상품 (공통)
             Map<String, Object> popularItems = recommendationService.getPopularItems(6);
             if (popularItems != null && (Boolean) popularItems.getOrDefault("success", false)) {
                 model.addAttribute("listPagePopularItems", popularItems.get("recommendations"));
@@ -176,24 +142,6 @@ public class ItemController {
     }
 
 
-    /**
-     * 사용자 상호작용 기록 (안전하게 처리)
-     */
-    private void recordUserInteraction(Long memberId, Long itemId, String action) {
-        try {
-            recommendationService.recordUserInteraction(memberId, itemId, action);
-            log.debug("사용자 상호작용 기록 - 사용자: {}, 상품: {}, 액션: {}", memberId, itemId, action);
-        } catch (Exception e) {
-            log.warn("사용자 상호작용 기록 실패 - 사용자: {}, 상품: {}, 액션: {}",
-                    memberId, itemId, action, e);
-        }
-    }
-
-    // === Helper Methods ===
-
-    /**
-     * Gender 문자열을 enum으로 변환
-     */
     private Gender parseGender(String gender) {
         if (gender == null || gender.isEmpty()) {
             return null;
@@ -207,36 +155,27 @@ public class ItemController {
         }
     }
 
-    /**
-     * 인증된 사용자의 memberId 반환
-     */
+
     private Long getUserMemberIdIfAuthenticated(CustomUserDetails userDetails) {
         return userDetails != null ? userDetails.getMember().getId() : null;
     }
 
-    /**
-     * 리뷰 작성 가능 여부 확인
-     */
+
     private boolean checkCanWriteReview(Long memberId, Long itemId) {
         if (memberId == null) {
-            return true; // 비로그인 사용자는 일단 true (로그인 시 체크)
+            return true;
         }
         return !reviewRepository.existsByItemIdAndMemberId(itemId, memberId);
     }
 
-    /**
-     * 상품 목록 페이지 모델 속성 추가
-     */
     private void addItemListPageAttributesToModel(Model model,
                                                   Page<ItemResponseDto> itemPage,
                                                   PaginationInfo paginationInfo,
                                                   String gender,
                                                   String sort,
                                                   String subCategory) {
-        // 아이템 데이터
-        model.addAttribute("items", itemPage.getContent());
 
-        // 페이지네이션 정보
+        model.addAttribute("items", itemPage.getContent());
         model.addAttribute("currentPage", paginationInfo.getCurrentPage());
         model.addAttribute("totalPages", paginationInfo.getTotalPages());
         model.addAttribute("pageNumbers", paginationInfo.getPageNumbers());
@@ -245,7 +184,6 @@ public class ItemController {
         model.addAttribute("prevBlockPage", paginationInfo.getPrevBlockPage());
         model.addAttribute("nextBlockPage", paginationInfo.getNextBlockPage());
 
-        // 선택된 필터 정보
         model.addAttribute("selectedGender", gender);
         model.addAttribute("selectedSort", sort);
         model.addAttribute("selectedCategory", subCategory);
@@ -262,13 +200,11 @@ public class ItemController {
 
     private CategoryStats createDefaultCategoryStats() {
         CategoryStats defaultStats = new CategoryStats();
-        defaultStats.setChartData("{}"); // 빈 JSON 객체
+        defaultStats.setChartData("{}");
         return defaultStats;
     }
 
-    /**
-     * 아이템 상세 페이지 모델 속성 추가
-     */
+
     private void addItemDetailAttributesToModel(Model model,
                                                 ItemResponseDto item,
                                                 List<Review> reviews,
@@ -279,19 +215,15 @@ public class ItemController {
         model.addAttribute("averageRating", averageRating);
         model.addAttribute("canWriteReview", canWriteReview);
 
-        // 추가 상품 정보
         model.addAttribute("isInStock", item.getQuantity() > 0);
         model.addAttribute("isLowStock", item.getQuantity() > 0 && item.getQuantity() <= 5);
         model.addAttribute("stockStatus", getStockStatus(item.getQuantity()));
 
-        // 리뷰 통계
         model.addAttribute("reviewCount", reviews.size());
         model.addAttribute("hasReviews", !reviews.isEmpty());
     }
 
-    /**
-     * 재고 상태 반환
-     */
+
     private String getStockStatus(Integer quantity) {
         if (quantity == null || quantity <= 0) {
             return "품절";
@@ -306,7 +238,6 @@ public class ItemController {
 
     private void addItemDetailPageRecommendations(Model model, Long memberId, Long itemId, ItemResponseDto currentItem) {
         try {
-            // 1. 유사 상품 추천
             List<Integer> currentItemList = List.of(itemId.intValue());
             Map<String, Object> similarItems = recommendationService.getSimilarItems(currentItemList, 6);
 
@@ -314,8 +245,6 @@ public class ItemController {
                 model.addAttribute("similarItems", similarItems.get("recommendations"));
                 log.debug("유사 상품 추천 추가 완료 - 기준 상품: {}", itemId);
             }
-
-            // 2. 같은 카테고리 추천
             if (currentItem.getCategory() != null) {
                 Map<String, Object> categoryItems = recommendationService.getCategoryRecommendations(
                         String.valueOf(currentItem.getCategory()), 6
@@ -324,8 +253,6 @@ public class ItemController {
                     model.addAttribute("sameCategoryItems", categoryItems.get("recommendations"));
                 }
             }
-
-            // 3. 개인화 추천 (로그인 시)
             if (memberId != null) {
                 RecommendationResponse personalRecs = recommendationService.getSafeRecommendations(
                         memberId, 8, "hybrid"

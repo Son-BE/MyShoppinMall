@@ -33,7 +33,7 @@ public class AdminOrderController {
 
 
     /**
-     * 전체 주문 목록
+     * 전체 주문
      */
     @GetMapping("/entire")
     public String showAllOrders(@RequestParam(defaultValue = "0") int page, Model model) {
@@ -51,7 +51,7 @@ public class AdminOrderController {
 
 
     /**
-     * 대기 주문 목록 (ORDERED 상태)
+     * 대기 주문 (ORDERED 상태)
      */
     @GetMapping("/waiting_order")
     public String getWaitingOrdersForm(Model model,
@@ -147,107 +147,89 @@ public class AdminOrderController {
         return "redirect:/admin/orders/cancel_requests";
     }
 
-    // ========== 반품 관리 ==========
+//    /**
+//     * 반품 승인 처리
+//     */
+//    @PostMapping("/{orderId}/approve-return")
+//    public String approveReturnOrder(@PathVariable Long orderId,
+//                                     @RequestParam(required = false) String reason,
+//                                     @AuthenticationPrincipal CustomUserDetails userDetails,
+//                                     RedirectAttributes redirectAttributes) {
+//        try {
+//            String adminId = userDetails.getMember().getNickName();
+//            boolean approved = orderService.approveReturnRequest(orderId, adminId);
+//
+//            if (approved) {
+//                redirectAttributes.addFlashAttribute("message", "반품이 승인되었습니다.");
+//            } else {
+//                redirectAttributes.addFlashAttribute("error", "반품 승인에 실패했습니다.");
+//            }
+//        } catch (Exception e) {
+//            log.error("반품 승인 실패 - orderId: {}", orderId, e);
+//            redirectAttributes.addFlashAttribute("error", e.getMessage());
+//        }
+//        return "redirect:/admin/orders/return_requests";
+//    }
 
-    /**
-     * 반품 요청 목록
-     */
-    @GetMapping("/return_requests")
-    public String getReturnRequests(Model model,
-                                    @RequestParam(defaultValue = "0") int page) {
-        Page<OrderResponseDto> ordersPage = adminOrderService.getOrderDtosByStatus(OrderStatus.RETURN_REQUESTED, PageRequest.of(page, PAGE_SIZE));
-        model.addAttribute("ordersPage", ordersPage);
-        model.addAttribute("orders", ordersPage.getContent());
-        model.addAttribute("pageTitle", "반품 요청 주문 관리");
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", ordersPage.getTotalPages());
-        return "admin/orders/return_requests";
-    }
+//    /**
+//     * 반품 거부 처리
+//     */
+//    @PostMapping("/{orderId}/reject-return")
+//    public String rejectReturnOrder(@PathVariable Long orderId,
+//                                    @RequestParam(required = false) String reason,
+//                                    @AuthenticationPrincipal CustomUserDetails userDetails,
+//                                    RedirectAttributes redirectAttributes) {
+//        try {
+//            String adminId = userDetails.getMember().getNickName();
+//            boolean rejected = orderService.rejectReturnRequest(orderId, adminId);
+//
+//            if (rejected) {
+//                redirectAttributes.addFlashAttribute("message", "반품 요청이 거부되었습니다.");
+//            } else {
+//                redirectAttributes.addFlashAttribute("error", "반품 거부에 실패했습니다.");
+//            }
+//        } catch (Exception e) {
+//            log.error("반품 거부 실패 - orderId: {}", orderId, e);
+//            redirectAttributes.addFlashAttribute("error", e.getMessage());
+//        }
+//        return "redirect:/admin/orders/return_requests";
+//    }
 
-    /**
-     * 반품 승인 처리
-     */
-    @PostMapping("/{orderId}/approve-return")
-    public String approveReturnOrder(@PathVariable Long orderId,
-                                     @RequestParam(required = false) String reason,
-                                     @AuthenticationPrincipal CustomUserDetails userDetails,
-                                     RedirectAttributes redirectAttributes) {
-        try {
-            String adminId = userDetails.getMember().getNickName();
-            boolean approved = orderService.approveReturnRequest(orderId, adminId);
 
-            if (approved) {
-                redirectAttributes.addFlashAttribute("message", "반품이 승인되었습니다.");
-            } else {
-                redirectAttributes.addFlashAttribute("error", "반품 승인에 실패했습니다.");
-            }
-        } catch (Exception e) {
-            log.error("반품 승인 실패 - orderId: {}", orderId, e);
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/admin/orders/return_requests";
-    }
+//    /**
+//     * 특정 상태 주문 조회
+//     */
+//    @GetMapping("/status/{status}")
+//    public String getOrdersByStatus(@PathVariable OrderStatus status,
+//                                    @RequestParam(defaultValue = "0") int page,
+//                                    Model model) {
+//        Page<OrderResponseDto> ordersPage = adminOrderService.getOrderDtosByStatus(status, PageRequest.of(page, PAGE_SIZE));
+//
+//        model.addAttribute("ordersPage", ordersPage);
+//        model.addAttribute("orders", ordersPage.getContent());
+//        model.addAttribute("pageTitle", getStatusTitle(status));
+//        model.addAttribute("selectedStatus", status);
+//        model.addAttribute("currentPage", page);
+//        model.addAttribute("totalPages", ordersPage.getTotalPages());
+//
+//        return "admin/orders/status_orders";
+//    }
 
-    /**
-     * 반품 거부 처리
-     */
-    @PostMapping("/{orderId}/reject-return")
-    public String rejectReturnOrder(@PathVariable Long orderId,
-                                    @RequestParam(required = false) String reason,
-                                    @AuthenticationPrincipal CustomUserDetails userDetails,
-                                    RedirectAttributes redirectAttributes) {
-        try {
-            String adminId = userDetails.getMember().getNickName();
-            boolean rejected = orderService.rejectReturnRequest(orderId, adminId);
-
-            if (rejected) {
-                redirectAttributes.addFlashAttribute("message", "반품 요청이 거부되었습니다.");
-            } else {
-                redirectAttributes.addFlashAttribute("error", "반품 거부에 실패했습니다.");
-            }
-        } catch (Exception e) {
-            log.error("반품 거부 실패 - orderId: {}", orderId, e);
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/admin/orders/return_requests";
-    }
-
-    // ========== 상태별 조회 ==========
-
-    /**
-     * 특정 상태 주문 조회
-     */
-    @GetMapping("/status/{status}")
-    public String getOrdersByStatus(@PathVariable OrderStatus status,
-                                    @RequestParam(defaultValue = "0") int page,
-                                    Model model) {
-        Page<OrderResponseDto> ordersPage = adminOrderService.getOrderDtosByStatus(status, PageRequest.of(page, PAGE_SIZE));
-
-        model.addAttribute("ordersPage", ordersPage);
-        model.addAttribute("orders", ordersPage.getContent());
-        model.addAttribute("pageTitle", getStatusTitle(status));
-        model.addAttribute("selectedStatus", status);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", ordersPage.getTotalPages());
-
-        return "admin/orders/status_orders";
-    }
-
-    /**
-     * 결제 완료 주문 목록 (수동 확정 대기)
-     */
-    @GetMapping("/paid_orders")
-    public String getPaidOrders(@RequestParam(defaultValue = "0") int page, Model model) {
-        Page<OrderResponseDto> ordersPage = adminOrderService.getOrderDtosByStatus(OrderStatus.PAID, PageRequest.of(page, PAGE_SIZE));
-
-        model.addAttribute("ordersPage", ordersPage);
-        model.addAttribute("orders", ordersPage.getContent());
-        model.addAttribute("pageTitle", "결제 완료 주문 (확정 대기)");
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", ordersPage.getTotalPages());
-
-        return "admin/orders/paid_orders";
-    }
+//    /**
+//     * 결제 완료 주문 목록 (수동 확정 대기)
+//     */
+//    @GetMapping("/paid_orders")
+//    public String getPaidOrders(@RequestParam(defaultValue = "0") int page, Model model) {
+//        Page<OrderResponseDto> ordersPage = adminOrderService.getOrderDtosByStatus(OrderStatus.PAID, PageRequest.of(page, PAGE_SIZE));
+//
+//        model.addAttribute("ordersPage", ordersPage);
+//        model.addAttribute("orders", ordersPage.getContent());
+//        model.addAttribute("pageTitle", "결제 완료 주문 (확정 대기)");
+//        model.addAttribute("currentPage", page);
+//        model.addAttribute("totalPages", ordersPage.getTotalPages());
+//
+//        return "admin/orders/paid_orders";
+//    }
 
     /**
      * 주문 확정 처리 (PAID → ORDERED)
@@ -268,8 +250,6 @@ public class AdminOrderController {
         }
         return "redirect:/admin/orders/paid_orders";
     }
-
-    // ========== 일괄 처리 ==========
 
     /**
      * 여러 주문 일괄 취소 승인
@@ -365,10 +345,10 @@ public class AdminOrderController {
         return "redirect:/admin/orders/paid_orders";
     }
 
-    // ========== AJAX API ==========
+
 
     /**
-     * 주문 상태 변경 API (AJAX용)
+     * 주문 상태 변경 API
      */
     @PostMapping("/api/{orderId}/status")
     @ResponseBody
@@ -410,10 +390,9 @@ public class AdminOrderController {
         }
     }
 
-    // ========== 유틸리티 메서드 ==========
 
     /**
-     * 상태에 따른 페이지 제목 반환
+     * 상태에 따른 페이지 제목
      */
     private String getStatusTitle(OrderStatus status) {
         return switch (status) {

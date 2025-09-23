@@ -1,21 +1,22 @@
+# image-classifier/gunicorn.conf.py
 import multiprocessing
 import os
 
 # 서버 설정
 bind = "0.0.0.0:5000"
-workers = 1  # CPU 집약적 작업이므로 1개로 제한
+workers = 1
 worker_class = "sync"
-worker_connections = 10  # 동시 연결 수 제한
+worker_connections = 10
 
-# 타임아웃 설정 (중요!)
-timeout = 60  # 60초로 증가
+# 타임아웃 설정
+timeout = 60
 keepalive = 2
 graceful_timeout = 30
 
 # 메모리 관리
-max_requests = 100  # 100 요청마다 워커 재시작
-max_requests_jitter = 10  # 랜덤 지터 추가
-preload_app = True  # 메모리 사용량 최적화
+max_requests = 100
+max_requests_jitter = 10
+preload_app = True
 
 # 로깅
 loglevel = "info"

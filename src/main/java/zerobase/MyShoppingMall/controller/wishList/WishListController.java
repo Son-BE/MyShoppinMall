@@ -41,8 +41,6 @@ public class WishListController {
         Member member = userDetails.getMember();
         try{
             wishListService.addToWishList(member.getId(), itemId);
-
-            // 🎯 추천 시스템: 위시리스트 추가 상호작용 기록
             recordUserInteraction(member.getId(), itemId, "like");
 
             redirectAttributes.addFlashAttribute("message", "찜목록에 상품이 추가되었습니다!");
@@ -82,45 +80,5 @@ public class WishListController {
                     memberId, itemId, action, e);
         }
     }
-//    //찜목록 조회
-//    @GetMapping
-//    public ResponseEntity<List<WishListDto>> getWishList(
-//            @AuthenticationPrincipal CustomUserDetails userDetails) {
-//        Long memberId = userDetails.getMember().getId();
-//        List<WishListDto> wishList = wishListService.getWishListByMember(memberId);
-//        return ResponseEntity.ok(wishList);
-//    }
-//
-//    //찜목록 상품 추가
-//    @PostMapping("/add")
-//    public String addWishList(@AuthenticationPrincipal CustomUserDetails userDetails,
-//                              @RequestParam Long itemId, RedirectAttributes redirectAttributes) {
-//        Member member = userDetails.getMember();
-//        try{
-//            wishListService.addToWishList(member.getId(), itemId);
-//            redirectAttributes.addFlashAttribute("message", "찜목록에 상품이 추가되었습니다!");
-//        } catch (IllegalArgumentException e) {
-//            redirectAttributes.addFlashAttribute("message", e.getMessage());
-//        }
-//
-//        return "redirect:/user/wishList";
-//    }
-//
-//    // 찜목록 상품 삭제
-//    @PostMapping("/remove")
-//    public String removeItemFromWishList(@AuthenticationPrincipal CustomUserDetails userDetails,
-//                                         @RequestParam Long itemId) {
-//        Member member = userDetails.getMember();
-//        wishListService.removeFromWishList(member.getId(), itemId);
-//        return "redirect:/user/wishList";
-//    }
-//
-//    // 찜목록 상품 비우기
-//    @PostMapping("/clear")
-//    public String clearWishList(@AuthenticationPrincipal CustomUserDetails userDetails) {
-//        Member member = userDetails.getMember();
-//        wishListService.clearWishList(member.getId());
-//        return "redirect:/user/wishList";
-//    }
 
 }

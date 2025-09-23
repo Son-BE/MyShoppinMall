@@ -100,11 +100,5 @@ public class ItemCacheService {
         }
     }
 
-    /**
-     * 캐시 갱신
-     */
-    public void updateCache(ItemResponseDto itemDto) {
-        evictCache(itemDto.getId());
-        cacheItem(itemDto);
-    }
+
 }

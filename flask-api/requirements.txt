@@ -14,19 +14,20 @@ numpy==1.24.3
 pandas==2.1.4
 scikit-learn==1.3.2
 
+# === 딥러닝 ===
+tensorflow-cpu==2.15.0
+
 # === 추천 시스템 라이브러리 ===
 scikit-surprise==1.1.4
 implicit==0.7.2
 
-# === 기본 NLP (Java 불필요) ===
+# === 기본 NLP ===
 wordcloud==1.9.2
-# konlpy==0.6.0
 
 # === 유틸리티 ===
 python-multipart==0.0.6
 python-json-logger==2.0.7
 requests==2.31.0
 
-# === 한국어 NLP (선택적 - Java 필요) ===
-# JPype1==1.5.0
-konlpy==0.6.0
+# === 한국어 NLP 대안 (Java 불필요) ===
+kiwipiepy==0.15.2

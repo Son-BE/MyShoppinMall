@@ -30,7 +30,7 @@ public class ReviewController {
                                RedirectAttributes redirectAttributes
                                ) {
         if (userDetails == null) {
-            return "redirect:/login"; // 로그인 안 했으면 로그인 페이지로
+            return "redirect:/login";
         }
 
         Long memberId = userDetails.getMember().getId();

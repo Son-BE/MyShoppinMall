@@ -9,11 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import zerobase.MyShoppingMall.entity.Item;
-import zerobase.MyShoppingMall.type.Gender;
-import zerobase.MyShoppingMall.type.ItemCategory;
-import zerobase.MyShoppingMall.type.ItemSubCategory;
-import zerobase.MyShoppingMall.type.StyleTag;
+import zerobase.MyShoppingMall.type.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,7 +69,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("UPDATE Item i SET i.viewCount = 0, i.cartCount = 0, i.orderCount = 0, i.wishCount = 0 WHERE i.id = :itemId")
     void resetItemCounts(@Param("itemId") Long itemId);
 
-    // 추가 유용한 메서드들
 
     /**
      * 찜 수가 높은 순으로 아이템 조회
@@ -104,8 +101,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("SELECT MAX(i.price) FROM Item i")
     Integer findMaxPrice();
 
-    long deleteByItemNameContaining(String 테스트);
-
     @Query("SELECT i FROM Item i " +
             "WHERE LOWER(i.itemName) LIKE LOWER(CONCAT('%', :query, '%')) " +
             "   OR LOWER(i.itemComment) LIKE LOWER(CONCAT('%', :query, '%'))")
@@ -114,4 +109,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Page<Item> searchByKeyword(@Param("query") String query, Pageable pageable);
 
     List<Item> findAllByDeleteTypeNot(char y);
+
+    Collection<? extends Item> findBySeasonAndDeleteTypeNot(Season season, char y);
+
+    Collection<? extends Item> findByGenderAndDeleteTypeNot(String genderTarget, char y);
+
+    Collection<? extends Item> findByCategoryAndDeleteTypeNot(ItemCategory category, char y);
 }

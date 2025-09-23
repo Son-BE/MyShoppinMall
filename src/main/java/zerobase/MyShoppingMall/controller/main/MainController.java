@@ -19,9 +19,12 @@ import zerobase.MyShoppingMall.service.item.PaginationService;
 import zerobase.MyShoppingMall.temps.RecommendationResponse;
 import zerobase.MyShoppingMall.temps.RecommendationService;
 import zerobase.MyShoppingMall.type.Gender;
+import zerobase.MyShoppingMall.type.ItemCategory;
+import zerobase.MyShoppingMall.type.ItemSubCategory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -33,10 +36,9 @@ public class MainController {
     private final RecommendationService recommendationService;
 
     /**
-     * 메인 페이지 (홈페이지)
-     * 상품 필터링,추천 기능 - 메인 랜딩 페이지
+     * 메인 페이지
      */
-    @GetMapping("/")
+    @GetMapping({"/", "/mainPage"})
     public String mainPage(
             @RequestParam(value = "gender", required = false) String gender,
             @RequestParam(value = "sort", required = false, defaultValue = "latest") String sort,
@@ -46,7 +48,6 @@ public class MainController {
             Model model) {
 
         try {
-            // 🔧 추가: 사용자 정보를 모델에 추가 (JavaScript에서 사용)
             Long memberId = getUserMemberIdIfAuthenticated(userDetails);
             if (memberId != null) {
                 model.addAttribute("currentUserId", memberId);
@@ -55,28 +56,16 @@ public class MainController {
                 model.addAttribute("isAuthenticated", false);
             }
 
-            // Gender enum 변환
             Gender genderEnum = parseGender(gender);
-
-            // 페이지 크기 검증 및 보정
             int validatedSize = paginationService.validateAndCorrectPageSize(16);
-
-            // 아이템 페이징 조회
             Page<ItemResponseDto> itemPage = itemService.findItems(genderEnum, sort, subCategory, page, validatedSize);
-
-            // 페이지네이션 정보 생성
             PaginationInfo paginationInfo = paginationService.createPaginationInfo(itemPage);
-
-            // 기본 모델 데이터 추가
             addMainPageAttributesToModel(model, itemPage, paginationInfo, gender, sort, subCategory);
-
-            // 🔧 수정: 추천 시스템 연동 (안전하게)
             addMainPageRecommendationsWithFallback(model, userDetails);
-
             log.info("메인 페이지 로드 완료 - 필터: gender={}, sort={}, category={}, page={}, 사용자: {}",
                     gender, sort, subCategory, page, memberId);
 
-            return "mainPage";
+            return "pages/main";
 
         } catch (Exception e) {
             log.error("메인 페이지 로드 중 오류 발생", e);
@@ -86,7 +75,7 @@ public class MainController {
     }
 
     /**
-     * 검색 페이지 - URL: /search (완성된 검색 기능)
+     * 검색 페이지
      */
     @GetMapping("/search")
     public String searchPage(
@@ -101,18 +90,12 @@ public class MainController {
             Long memberId = getUserMemberIdIfAuthenticated(userDetails);
 
             if (query != null && !query.trim().isEmpty()) {
-                // 검색 쿼리 정리
                 String cleanQuery = query.trim();
                 model.addAttribute("searchQuery", cleanQuery);
-
-                // 검색 결과 조회
                 Pageable pageable = PageRequest.of(page, size);
                 Page<ItemResponseDto> searchResults = itemService.searchItems(cleanQuery, sort, pageable);
-
-                // 페이지네이션 정보 생성
                 PaginationInfo paginationInfo = paginationService.createPaginationInfo(searchResults);
 
-                // 검색 결과 모델에 추가
                 model.addAttribute("searchResults", searchResults.getContent());
                 model.addAttribute("totalResults", searchResults.getTotalElements());
                 model.addAttribute("currentPage", paginationInfo.getCurrentPage());
@@ -124,17 +107,10 @@ public class MainController {
                 model.addAttribute("nextBlockPage", paginationInfo.getNextBlockPage());
                 model.addAttribute("selectedSort", sort);
 
-//                // 검색어 저장 (추천 시스템용)
-//                if (memberId != null) {
-//                    recordSearchQuery(memberId, cleanQuery);
-//                }
-
-                // 추천 시스템: 검색 결과 기반 추천
                 addSearchPageRecommendations(model, memberId, cleanQuery);
 
                 log.info("검색 완료 - 쿼리: {}, 결과: {}개", cleanQuery, searchResults.getTotalElements());
             } else {
-                // 검색어가 없으면 인기 검색어와 추천 상품만 표시
                 addPopularSearches(model);
                 addMainPageRecommendations(model, userDetails);
             }
@@ -148,9 +124,6 @@ public class MainController {
         }
     }
 
-    /**
-     * 카테고리별 상품 페이지 - URL: /category/{categoryName}
-     */
     @GetMapping("/category/{categoryName}")
     public String categoryPage(
             @PathVariable String categoryName,
@@ -164,11 +137,9 @@ public class MainController {
             Gender genderEnum = parseGender(gender);
             int validatedSize = paginationService.validateAndCorrectPageSize(16);
 
-            // 카테고리별 상품 조회
             Page<ItemResponseDto> itemPage = itemService.findItems(genderEnum, sort, categoryName, page, validatedSize);
             PaginationInfo paginationInfo = paginationService.createPaginationInfo(itemPage);
 
-            // 모델 데이터 추가
             model.addAttribute("items", itemPage.getContent());
             model.addAttribute("categoryName", categoryName);
             model.addAttribute("currentPage", paginationInfo.getCurrentPage());
@@ -181,7 +152,6 @@ public class MainController {
             model.addAttribute("selectedGender", gender);
             model.addAttribute("selectedSort", sort);
 
-            // 카테고리별 추천
             addCategorySpecificRecommendations(model, categoryName, userDetails);
 
             return "category/list";
@@ -193,73 +163,60 @@ public class MainController {
         }
     }
 
-    // === 추천 시스템 관련 메서드 ===
-
     /**
-     * 메인 페이지 추천 상품 추가
+     * 메인 페이지 추천 상품
      */
     private void addMainPageRecommendations(Model model, CustomUserDetails userDetails) {
-        try {
-            Long memberId = getUserMemberIdIfAuthenticated(userDetails);
+        Long memberId = getUserMemberIdIfAuthenticated(userDetails);
 
-            if (memberId != null) {
-                // 🔧 수정: 로그인 사용자 - 개인화 추천
-                log.info("개인화 추천 조회 시작 - 사용자: {}", memberId);
+        if (memberId != null) {
+            // 개인화 추천
+            try {
+                RecommendationResponse personalizedRecs = recommendationService.getSafeRecommendations(
+                        memberId, 8, "hybrid"
+                );
 
-                try {
-                    RecommendationResponse personalizedRecs = recommendationService.getSafeRecommendations(
-                            memberId, 8, "hybrid"
+                if (personalizedRecs.isSuccess() && personalizedRecs.getRecommendations() != null) {
+                    List<ItemResponseDto> convertedPersonalized = convertRecommendationToItems(
+                            personalizedRecs.getRecommendations()
                     );
-
-                    if (personalizedRecs.isSuccess() && personalizedRecs.getRecommendations() != null) {
-                        model.addAttribute("personalizedItems", personalizedRecs.getRecommendations());
-                        log.info("개인화 추천 성공 - {}개", personalizedRecs.getRecommendations().size());
-                    } else {
-                        log.warn("개인화 추천 실패, 인기 상품으로 대체");
-                        addFallbackPopularItems(model, 8);
-                    }
-                } catch (Exception e) {
-                    log.warn("개인화 추천 예외 발생, 인기 상품으로 대체", e);
+                    model.addAttribute("personalizedItems", convertedPersonalized);
+                    log.info("개인화 추천 성공 - {}개", convertedPersonalized.size());
+                } else {
+                    log.warn("개인화 추천 실패, 인기 상품으로 대체");
                     addFallbackPopularItems(model, 8);
                 }
-
-                // 🔧 수정: 실시간 추천 (최근 조회 기반)
-                try {
-                    Map<String, Object> realtimeRecs = recommendationService.getRealTimeRecommendations(
-                            memberId, null, null, 6
-                    );
-
-                    if (realtimeRecs != null && (Boolean) realtimeRecs.getOrDefault("success", false)) {
-                        model.addAttribute("realtimeItems", realtimeRecs.get("recommendations"));
-                        log.info("실시간 추천 성공");
-                    } else {
-                        log.warn("실시간 추천 실패");
-                    }
-                } catch (Exception e) {
-                    log.warn("실시간 추천 예외 발생", e);
-                }
-
-            } else {
-                // 🔧 수정: 비로그인 사용자 - 인기 상품
-                log.info("비로그인 사용자 - 인기 상품 조회");
+            } catch (Exception e) {
+                log.warn("개인화 추천 예외 발생, 인기 상품으로 대체", e);
                 addFallbackPopularItems(model, 8);
             }
 
-            // 🔧 수정: 카테고리별 추천 (안전하게 처리)
-            addSafeCategoryRecommendations(model);
+            try {
+                Map<String, Object> realtimeRecs = recommendationService.getRealTimeRecommendations(
+                        memberId, null, null, 6
+                );
 
-            log.info("메인 페이지 추천 추가 완료");
+                if (realtimeRecs != null && (Boolean) realtimeRecs.getOrDefault("success", false)) {
+                    List<Object> rawItems = (List<Object>) realtimeRecs.get("recommendations");
+                    List<ItemResponseDto> convertedRealtime = convertRecommendationToItems(rawItems);
+                    model.addAttribute("realtimeItems", convertedRealtime);
+                    log.info("실시간 추천 성공");
+                } else {
+                    log.warn("실시간 추천 실패");
+                }
+            } catch (Exception e) {
+                log.warn("실시간 추천 예외 발생", e);
+            }
 
-        } catch (Exception e) {
-            log.error("메인 페이지 추천 추가 중 심각한 오류 발생", e);
-            // 최소한의 데이터라도 표시되도록
+        } else {
             addFallbackPopularItems(model, 8);
         }
+
+        addSafeCategoryRecommendations(model);
     }
 
     private void addFallbackPopularItems(Model model, int count) {
         try {
-            // 추천 시스템이 실패한 경우 ItemService에서 직접 조회
             Page<ItemResponseDto> popularItems = itemService.findItems(null, "popular", null, 0, count);
 
             if (popularItems != null && popularItems.hasContent()) {
@@ -278,19 +235,18 @@ public class MainController {
 
         for (String category : categories) {
             try {
-                // 추천 시스템 시도
                 Map<String, Object> recommendedItems = recommendationService.getCategoryRecommendations(category, 4);
 
                 if (recommendedItems != null && (Boolean) recommendedItems.getOrDefault("success", false)) {
                     List<Object> recommendations = (List<Object>) recommendedItems.get("recommendations");
                     if (recommendations != null && !recommendations.isEmpty()) {
-                        model.addAttribute(category + "Items", recommendations);
-                        log.debug("카테고리 추천 성공 - {}: {}개", category, recommendations.size());
+
+                        List<ItemResponseDto> convertedItems = convertRecommendationToItems(recommendations);
+                        model.addAttribute(category + "Items", convertedItems);
+                        log.debug("카테고리 추천 성공 - {}: {}개", category, convertedItems.size());
                         continue;
                     }
                 }
-
-                // 추천 실패 시 fallback
                 log.debug("카테고리 추천 실패, ItemService로 대체 - 카테고리: {}", category);
 
                 String subCategoryMapping = mapCategoryToSubCategory(category);
@@ -311,7 +267,7 @@ public class MainController {
     private String mapCategoryToSubCategory(String category) {
         switch (category) {
             case "상의":
-                return "tshirt"; // 또는 실제 DB의 sub_category 값
+                return "tshirt";
             case "하의":
                 return "jeans";
             case "아우터":
@@ -325,19 +281,97 @@ public class MainController {
         }
     }
 
+    private List<ItemResponseDto> convertRecommendationToItems(List<Object> recommendations) {
+        if (recommendations == null || recommendations.isEmpty()) {
+            return List.of();
+        }
+
+        return recommendations.stream()
+                .filter(rec -> rec instanceof Map)
+                .map(rec -> mapToItemResponseDto((Map<String, Object>) rec))
+                .filter(item -> item != null)
+                .collect(Collectors.toList());
+    }
+
+    private ItemResponseDto mapToItemResponseDto(Map<String, Object> itemMap) {
+        try {
+            ItemResponseDto item = new ItemResponseDto();
+
+            if (itemMap.get("item_id") != null) {  // 로그를 보니 키가 "item_id"네요
+                item.setId(Long.valueOf(itemMap.get("item_id").toString()));
+            }
+            if (itemMap.get("item_name") != null) {  // 키가 "item_name"
+                item.setItemName(itemMap.get("item_name").toString());
+            }
+
+            if (itemMap.get("price") != null) {
+                Object priceObj = itemMap.get("price");
+                if (priceObj instanceof Double) {
+                    item.setPrice(((Double) priceObj).intValue());
+                } else if (priceObj instanceof Number) {
+                    item.setPrice(((Number) priceObj).intValue());
+                } else {
+                    String priceStr = priceObj.toString();
+                    if (priceStr.contains(".")) {
+                        item.setPrice((int) Double.parseDouble(priceStr));
+                    } else {
+                        item.setPrice(Integer.valueOf(priceStr));
+                    }
+                }
+            }
+
+            if (itemMap.get("image_url") != null) {
+                item.setImageUrl(itemMap.get("image_url").toString());
+            }
+
+            if (itemMap.get("image_url") != null) {
+                item.setImagePath(itemMap.get("image_url").toString());
+            }
+
+            if (itemMap.get("category") != null) {
+                item.setCategory(ItemCategory.valueOf(itemMap.get("category").toString()));
+            }
+            if (itemMap.get("sub_category") != null) {
+                item.setSubCategory(ItemSubCategory.valueOf(itemMap.get("sub_category").toString()));
+            }
+
+            if (itemMap.get("item_rating") != null) {
+                Object ratingObj = itemMap.get("item_rating");
+                if (ratingObj instanceof Number) {
+                    item.setItemRating(((Number) ratingObj).doubleValue());
+                } else {
+                    item.setItemRating(Double.valueOf(ratingObj.toString()));
+                }
+            }
+
+            if (itemMap.get("review_count") != null) {
+                Object countObj = itemMap.get("review_count");
+                if (countObj instanceof Number) {
+                    item.setReviewCount(((Number) countObj).intValue());
+                } else {
+                    item.setReviewCount(Integer.valueOf(countObj.toString()));
+                }
+            }
+
+            return item;
+
+        } catch (Exception e) {
+            log.warn("추천 아이템 변환 실패: {}", itemMap, e);
+            return null;
+        }
+    }
+
 
     /**
-     * 검색 페이지 추천 (완성된 버전)
+     * 검색 페이지 추천
      */
     private void addSearchPageRecommendations(Model model, Long memberId, String query) {
         try {
-            // 1. 검색어 기반 관련 상품 추천
             Map<String, Object> relatedItems = recommendationService.getSearchRelatedRecommendations(query, 8);
             if (relatedItems != null && relatedItems.get("recommendations") != null) {
                 model.addAttribute("searchRelatedItems", relatedItems.get("recommendations"));
             }
 
-            // 2. 개인화 추천 (로그인 시)
             if (memberId != null) {
                 try {
                     RecommendationResponse personalRecs = recommendationService.getSafeRecommendations(
@@ -350,14 +384,10 @@ public class MainController {
                     log.warn("검색 페이지 개인화 추천 실패", e);
                 }
             }
-
-            // 3. 인기 검색 상품
             Map<String, Object> popularItems = recommendationService.getPopularItems(6);
             if (popularItems != null && (Boolean) popularItems.getOrDefault("success", false)) {
                 model.addAttribute("searchPopularItems", popularItems.get("recommendations"));
             }
-
-            // 4. 관련 검색어 추가
             List<String> relatedQueries = generateRelatedQueries(query);
             model.addAttribute("relatedQueries", relatedQueries);
 
@@ -393,13 +423,11 @@ public class MainController {
         try {
             Long memberId = getUserMemberIdIfAuthenticated(userDetails);
 
-            // 해당 카테고리 인기 상품
             Map<String, Object> categoryPopular = recommendationService.getCategoryRecommendations(categoryName, 8);
             if (categoryPopular != null && (Boolean) categoryPopular.getOrDefault("success", false)) {
                 model.addAttribute("categoryPopularItems", categoryPopular.get("recommendations"));
             }
 
-            // 개인화 추천 (로그인 시)
             if (memberId != null) {
                 try {
                     RecommendationResponse personalRecs = recommendationService.getSafeRecommendations(
@@ -434,22 +462,9 @@ public class MainController {
     }
 
     /**
-     * 검색어 기록 (추천 시스템용)
-     */
-//    private void recordSearchQuery(Long memberId, String query) {
-//        try {
-//            recommendationService.recordUserInteraction(memberId, null, "search", query);
-//            log.debug("검색어 기록 완료 - 사용자: {}, 검색어: {}", memberId, query);
-//        } catch (Exception e) {
-//            log.warn("검색어 기록 실패 - 사용자: {}, 검색어: {}", memberId, query, e);
-//        }
-//    }
-
-    /**
      * 관련 검색어 생성
      */
     private List<String> generateRelatedQueries(String query) {
-        // 관련 검색어 맵핑
         String lowerQuery = query.toLowerCase();
 
         if (lowerQuery.contains("후드") || lowerQuery.contains("hoodie")) {
@@ -464,8 +479,6 @@ public class MainController {
             return List.of("인기상품", "신상품", "세일상품", "추천상품");
         }
     }
-
-    // === Helper Methods ===
 
     /**
      * Gender 문자열을 enum으로 변환
@@ -499,10 +512,9 @@ public class MainController {
                                               String gender,
                                               String sort,
                                               String subCategory) {
-        // 아이템 데이터
+
         model.addAttribute("items", itemPage.getContent());
 
-        // 페이지네이션 정보
         model.addAttribute("currentPage", paginationInfo.getCurrentPage());
         model.addAttribute("totalPages", paginationInfo.getTotalPages());
         model.addAttribute("pageNumbers", paginationInfo.getPageNumbers());
@@ -511,21 +523,17 @@ public class MainController {
         model.addAttribute("prevBlockPage", paginationInfo.getPrevBlockPage());
         model.addAttribute("nextBlockPage", paginationInfo.getNextBlockPage());
 
-        // 선택된 필터 정보
         model.addAttribute("selectedGender", gender);
         model.addAttribute("selectedSort", sort);
         model.addAttribute("selectedCategory", subCategory);
     }
 
-    /**
-     * 🔧 추가: 안전한 메인 페이지 추천 (fallback 포함)
-     */
     private void addMainPageRecommendationsWithFallback(Model model, CustomUserDetails userDetails) {
         Long memberId = getUserMemberIdIfAuthenticated(userDetails);
         boolean recommendationSystemWorking = false;
 
         try {
-            // 추천 시스템 상태 확인
+            // 추천 시스템 상태
             recommendationSystemWorking = recommendationService.isHealthy();
             log.info("추천 시스템 상태: {}", recommendationSystemWorking ? "정상" : "비정상");
 
@@ -534,41 +542,30 @@ public class MainController {
         }
 
         if (recommendationSystemWorking) {
-            // 추천 시스템이 정상 작동하는 경우
+            // 추천 시스템이 정상 작동
             addMainPageRecommendations(model, userDetails);
         } else {
-            // 추천 시스템이 작동하지 않는 경우 - 기본 데이터로 대체
+            // 추천 시스템이 작동하지 않는 경우
             log.info("추천 시스템 비활성, 기본 상품 데이터 사용");
             addFallbackRecommendations(model, memberId);
         }
-
-        // 추천 시스템 상태를 모델에 추가
         model.addAttribute("recommendationSystemActive", recommendationSystemWorking);
     }
 
-    /**
-     * 🔧 추가: Fallback 추천 (추천 시스템이 작동하지 않을 때)
-     */
     private void addFallbackRecommendations(Model model, Long memberId) {
         try {
-            // 1. 최신 상품
             Page<ItemResponseDto> latestItems = itemService.findItems(null, "latest", null, 0, 8);
             if (latestItems.hasContent()) {
                 model.addAttribute("personalizedItems", latestItems.getContent());
             }
-
-            // 2. 인기 상품 (가능한 경우)
             Page<ItemResponseDto> popularItems = itemService.findItems(null, "popular", null, 0, 8);
             if (popularItems.hasContent()) {
                 model.addAttribute("popularItems", popularItems.getContent());
             }
-
-            // 3. 카테고리별 기본 상품
             String[] categories = {"tshirt", "jeans", "sneakers", "coat"};
             for (String category : categories) {
                 Page<ItemResponseDto> categoryItems = itemService.findItems(null, "popular", category, 0, 4);
                 if (categoryItems.hasContent()) {
-                    // 카테고리명을 한글로 변환
                     String koreanCategory = mapSubCategoryToKorean(category);
                     model.addAttribute(koreanCategory + "Items", categoryItems.getContent());
                 }
@@ -581,9 +578,6 @@ public class MainController {
         }
     }
 
-    /**
-     * 🔧 추가: 서브카테고리를 한글로 매핑
-     */
     private String mapSubCategoryToKorean(String subCategory) {
         switch (subCategory) {
             case "tshirt":

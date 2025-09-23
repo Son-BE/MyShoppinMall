@@ -46,11 +46,4 @@ public class RedisTokenService {
         );
     }
 
-    public void deleteRefreshToken(String email) {
-        redisTemplate.delete(REFRESH_PREFIX + email);
-    }
-
-    public String getRefreshToken(String email) {
-        return redisTemplate.opsForValue().get(REFRESH_PREFIX + email);
-    }
 }

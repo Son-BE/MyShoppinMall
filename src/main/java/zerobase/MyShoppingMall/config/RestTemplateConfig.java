@@ -23,7 +23,6 @@ public class RestTemplateConfig {
 
         RestTemplate restTemplate = new RestTemplate(factory);
 
-        // 에러 핸들러 추가
         restTemplate.setErrorHandler(new AIServerErrorHandler());
 
         return restTemplate;

@@ -39,13 +39,18 @@ public class ItemResponseDto {
     private Double recommendationScore;     // 추천 점수
     private Double popularityScore;         // 인기 점수
 
+    // 새로 추가
+    private Double itemRating;              // 상품 평점
+    private Integer reviewCount;            // 리뷰 개수
+
     @Builder
     public ItemResponseDto(Long id, String itemName, String itemComment, int price, int quantity, String deleteType,
                            String imagePath, LocalDateTime createdAt, LocalDateTime updatedAt,
                            ItemCategory category, ItemSubCategory subCategory, Gender gender,
                            AgeGroup ageGroup, Styles style, Season season, boolean isWish,
                            Color primaryColor, Color secondaryColor,
-                           String recommendationReason, Double recommendationScore, Double popularityScore) {
+                           String recommendationReason, Double recommendationScore, Double popularityScore,
+                           Double itemRating, Integer reviewCount) {
         this.id = id;
         this.itemName = itemName;
         this.itemComment = itemComment;
@@ -67,6 +72,8 @@ public class ItemResponseDto {
         this.recommendationReason = recommendationReason;
         this.recommendationScore = recommendationScore;
         this.popularityScore = popularityScore;
+        this.itemRating = itemRating;
+        this.reviewCount = reviewCount;
     }
 
     public static ItemResponseDto fromEntity(Item item) {
@@ -89,6 +96,8 @@ public class ItemResponseDto {
                 .isWish(item.isWish())
                 .primaryColor(item.getPrimaryColor())
                 .secondaryColor(item.getSecondaryColor())
+                .itemRating((double) item.getItemRating())
+                .reviewCount(item.getReviewCount())
                 .build();
     }
 
@@ -122,5 +131,8 @@ public class ItemResponseDto {
 
     public Double getPopularityScore() {
         return popularityScore != null ? popularityScore : 0.0;
+    }
+    public void setImageUrl(String imageUrl) {
+        this.imagePath = imageUrl;
     }
 }

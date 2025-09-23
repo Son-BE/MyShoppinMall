@@ -32,11 +32,9 @@ public class MemberProfileController {
 
         Long memberId = userDetails.getMember().getId();
 
-        // 회원 정보
         MemberResponseDto member = memberService.getMemberProfile(memberId);
         model.addAttribute("member", member);
 
-        // 기본 배송지
         Address defaultAddress = addressService.findDefaultAddressByMemberId(memberId);
         model.addAttribute("defaultAddress", defaultAddress);
 

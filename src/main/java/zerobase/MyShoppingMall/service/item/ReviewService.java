@@ -9,7 +9,4 @@ public interface ReviewService {
     // 리뷰 저장
     void saveReview(ReviewRequestDto dto, Long memberId);
 
-    // 리뷰 수정, 삭제 메서드도
-    void updateReview(Long reviewId, ReviewRequestDto dto, Long memberId);
-    void deleteReview(Long reviewId, Long memberId);
 }

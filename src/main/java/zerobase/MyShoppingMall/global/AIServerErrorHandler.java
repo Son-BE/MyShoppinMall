@@ -1,8 +1,8 @@
 package zerobase.MyShoppingMall.global;
 
-import groovyjarjarantlr4.v4.runtime.misc.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.ResponseErrorHandler;
 
@@ -14,19 +14,22 @@ public class AIServerErrorHandler implements ResponseErrorHandler {
 
     @Override
     public boolean hasError(ClientHttpResponse response) throws IOException {
-        return response.getStatusCode().is4xxClientError() ||
-                response.getStatusCode().is5xxServerError();
+        HttpStatus statusCode = HttpStatus.valueOf(response.getStatusCode().value());
+        return statusCode.is4xxClientError() || statusCode.is5xxServerError();
     }
-
     @Override
-    public void handleError(@Nullable URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
-        log.error("AI 서버 요청 실패 - URL: {}, Method: {}, Status: {} {}",
-                url, method, response.getStatusCode(), response.getStatusText());
+    public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
+        HttpStatus statusCode = HttpStatus.valueOf(response.getStatusCode().value());
 
-        if (response.getStatusCode().is5xxServerError()) {
-            throw new RuntimeException("AI 서버 내부 오류");
-        } else if (response.getStatusCode().is4xxClientError()) {
-            throw new RuntimeException("AI 서버 요청 오류");
+        log.error("AI 서버 응답 오류 - URL: {}, Method: {}, 상태코드: {}, 메시지: {}",
+                url, method, statusCode, response.getStatusText());
+
+        switch (statusCode) {
+            case BAD_REQUEST -> throw new RuntimeException("AI 서버: 잘못된 요청 형식입니다.");
+            case INTERNAL_SERVER_ERROR -> throw new RuntimeException("AI 서버: 내부 서버 오류가 발생했습니다.");
+            case SERVICE_UNAVAILABLE -> throw new RuntimeException("AI 서버: 서비스를 사용할 수 없습니다.");
+            default -> throw new RuntimeException("AI 서버: 알 수 없는 오류가 발생했습니다. 상태코드: " + statusCode);
         }
     }
+
 }

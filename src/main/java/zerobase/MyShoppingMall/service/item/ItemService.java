@@ -179,32 +179,12 @@
         }
 
         /**
-         * 아이템 카트 추가 수 증가
-         */
-        public void increaseCartCount(Long itemId) {
-            itemCountService.increaseCartCount(itemId);
-        }
-
-        /**
          * 아이템 주문 수 증가
          */
         public void increaseOrderCount(Long itemId) {
             itemCountService.increaseOrderCount(itemId);
         }
 
-        /**
-         * 아이템 찜 수 증가
-         */
-        public void increaseWishCount(Long itemId) {
-            itemCountService.increaseWishCount(itemId);
-        }
-
-        /**
-         * 아이템 찜 수 감소
-         */
-        public void decreaseWishCount(Long itemId) {
-            itemCountService.decreaseWishCount(itemId);
-        }
 
         /**
          * 페이징된 아이템 목록 조회 (필터 포함)
@@ -226,54 +206,6 @@
         public Page<ItemResponseDto> getAllItemsPageable(int page, int size) {
             return paginationService.getAllItemsWithPagination(page, size);
         }
-
-        /**
-         * ID 목록으로 아이템 조회
-         */
-        public List<ItemResponseDto> findItemsByIds(List<Long> ids) {
-            if (ids == null || ids.isEmpty()) {
-                return Collections.emptyList();
-            }
-
-            return itemRepository.findAllById(ids).stream()
-                    .map(ItemResponseDto::fromEntity)
-                    .collect(Collectors.toList());
-        }
-
-        /**
-         * NLP 태그로 아이템 검색
-         */
-        public List<ItemResponseDto> findItemsByNlpTags(String season, String style, String gender, String ageGroup) {
-            return itemRepository.findAll().stream()
-                    .filter(item -> season == null || item.getSeason().name().equalsIgnoreCase(season))
-                    .filter(item -> style == null || item.getStyle().name().equalsIgnoreCase(style))
-                    .filter(item -> gender == null || item.getGender().name().equalsIgnoreCase(gender))
-                    .map(ItemResponseDto::fromEntity)
-                    .collect(Collectors.toList());
-        }
-
-        /**
-         * ID 순서대로 아이템 조회 (AI 추천용)
-         */
-        public List<ItemResponseDto> getItemsByIds(List<Long> recommendedIds) {
-            if (recommendedIds == null || recommendedIds.isEmpty()) {
-                return Collections.emptyList();
-            }
-
-            List<Item> items = itemRepository.findAllById(recommendedIds);
-
-            // AI 추천 순서대로 정렬
-            return recommendedIds.stream()
-                    .map(id -> items.stream()
-                            .filter(item -> Objects.equals(item.getId(), id))
-                            .findFirst()
-                            .orElse(null))
-                    .filter(Objects::nonNull)
-                    .map(ItemResponseDto::fromEntity)
-                    .collect(Collectors.toList());
-        }
-
-        // === Private Helper Methods ===
 
         private Item getItemEntity(Long itemId) {
             return itemRepository.findById(itemId)
@@ -306,25 +238,20 @@
             }
         }
 
-        /**
-         * 검색 + 정렬
-         */
         public Page<ItemResponseDto> searchItems(String query, String sort, Pageable pageable) {
-            // 정렬 매핑
+
             Sort sortSpec = switch (sort == null ? "latest" : sort) {
                 case "priceAsc"  -> Sort.by("price").ascending();
                 case "priceDesc" -> Sort.by("price").descending();
-                case "popular"   -> Sort.by("salesCount").descending();  // 프로젝트에 맞는 컬럼명으로 바꾸세요
-                case "rating"    -> Sort.by("avgRating").descending();   // 없으면 주석처리/변경
-                default          -> Sort.by("createdAt").descending();   // 최신순
+                case "popular"   -> Sort.by("salesCount").descending();
+                case "rating"    -> Sort.by("avgRating").descending();
+                default          -> Sort.by("createdAt").descending();
             };
 
             Pageable pageReq = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortSpec);
 
-            // 검색 실행
             Page<Item> page = itemRepository.searchByKeyword(query, pageReq);
 
-            // DTO 매핑
             return page.map(ItemResponseDto::fromEntity);
         }
 

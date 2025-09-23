@@ -11,5 +11,5 @@ public class CartItemDto {
     private String itemName;
     private int quantity;
     private int price;
-    private int totalPrice; // q * p
+    private int totalPrice;
 }

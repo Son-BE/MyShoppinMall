@@ -46,10 +46,6 @@ public class PaginationService {
 
         return itemsPage.map(ItemResponseDto::fromEntity);
     }
-
-    /**
-     * 카테고리별 아이템 페이징 조회 (관리자용)
-     */
     public Page<ItemResponseDto> getItemsByCategoryWithPagination(
             ItemCategory category,
             int page,
@@ -63,10 +59,6 @@ public class PaginationService {
 
         return itemsPage.map(ItemResponseDto::fromEntity);
     }
-
-    /**
-     * 전체 아이템 페이징 조회 (관리자용)
-     */
     public Page<ItemResponseDto> getAllItemsWithPagination(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<Item> itemsPage = itemRepository.findAll(pageable);
@@ -76,17 +68,10 @@ public class PaginationService {
 
         return itemsPage.map(ItemResponseDto::fromEntity);
     }
-
-    /**
-     * 페이지네이션 정보 생성
-     */
     public PaginationInfo createPaginationInfo(Page<?> page) {
         return createPaginationInfo(page, DEFAULT_BLOCK_SIZE);
     }
 
-    /**
-     * 커스텀 블록 크기로 페이지네이션 정보 생성
-     */
     public PaginationInfo createPaginationInfo(Page<?> page, int blockSize) {
         int totalPages = page.getTotalPages();
         int currentPage = page.getNumber() + 1; // 1-based
@@ -113,10 +98,6 @@ public class PaginationService {
                 .blockSize(blockSize)
                 .build();
     }
-
-    /**
-     * 정렬 타입으로부터 Sort 객체 생성
-     */
     private Sort createSortFromType(String sortType) {
         if (sortType == null || sortType.isEmpty()) {
             return Sort.by(Sort.Direction.DESC, "createdAt");
@@ -132,17 +113,12 @@ public class PaginationService {
             case "most reviews":
                 return Sort.by(Sort.Direction.DESC, "reviewCount");
             case "popular":
-                // 🔧 수정: salesVolume 대신 존재하는 필드들로 인기도 계산
                 return Sort.by(Sort.Direction.DESC, "viewCount", "orderCount", "cartCount");
             case "latest":
             default:
                 return Sort.by(Sort.Direction.DESC, "createdAt");
         }
     }
-
-    /**
-     * 서브카테고리 문자열 파싱
-     */
     private ItemSubCategory parseSubCategory(String itemSubCategory) {
         if (itemSubCategory == null || itemSubCategory.isEmpty()) {
             return null;
@@ -156,10 +132,6 @@ public class PaginationService {
             return null;
         }
     }
-
-    /**
-     * 필터 조건에 따른 아이템 페이지 조회
-     */
     private Page<Item> getItemsPageByFilters(Gender gender, ItemSubCategory subCategory, Pageable pageable) {
         if (gender != null && subCategory != null) {
             return itemRepository.findByGenderAndSubCategory(gender, subCategory, pageable);
@@ -172,16 +144,6 @@ public class PaginationService {
         }
     }
 
-    /**
-     * 페이지 번호 유효성 검사
-     */
-    public boolean isValidPageNumber(int page, int totalPages) {
-        return page >= 0 && page < totalPages;
-    }
-
-    /**
-     * 페이지 크기 유효성 검사 및 보정
-     */
     public int validateAndCorrectPageSize(int size) {
         if (size <= 0) {
             log.warn("잘못된 페이지 크기: {}, 기본값 16으로 설정", size);

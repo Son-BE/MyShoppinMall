@@ -26,9 +26,7 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
-    private final ItemService itemService;
 
-    //회원의 장바구니 생성 or 조회
     public Cart getOrCreateCart(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(()-> new IllegalArgumentException("회원이 없습니다."));
@@ -63,20 +61,13 @@ public class CartService {
             cartItemRepository.save(newCartItem);
             cart.getCartItems().add(newCartItem);
         }
-//        itemService.increaseCartCount(itemId);
-//        log.info("상품 장바구니 등록 수 증가");
         return AddToCartResult.ADDED;
     }
-
-
-    // 회원의 장바구니 아이템 리스트 조회
     @Transactional()
     public List<CartItem> getCartItems(Long memberId) {
         Cart cart = getOrCreateCart(memberId);
         return cart.getCartItems();
     }
-
-    // 장바구니 아이템 수량 변경
     public void updateItemQuantity(Long cartItemId, int quantity) {
         if (quantity <= 0) throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
 
@@ -86,8 +77,6 @@ public class CartService {
         cartItem.setQuantity(quantity);
         cartItemRepository.save(cartItem);
     }
-
-    // 장바구니 비우기
     @Transactional
     public void clearCart(Long memberId) {
         Cart cart = getOrCreateCart(memberId);

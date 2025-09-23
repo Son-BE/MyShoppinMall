@@ -32,7 +32,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT COUNT(m) FROM Member m WHERE m.role = :role")
     long countByRole(@Param("role") Role role);
 
-    long deleteByEmailContaining(String s);
 
-    //    Optional<Member> findByKakaoId(Long kakaoId);
 }

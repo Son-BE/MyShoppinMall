@@ -51,10 +51,8 @@ public class CartController {
                                          @RequestParam int quantity) {
         Long memberId = userDetails.getMember().getId();
 
-        // 장바구니 추가 실행
         AddToCartResult result = cartService.addItemToCart(memberId, itemId, quantity);
 
-        // 추천 시스템: 장바구니 추가 상호작용 기록
         if (result.isSuccess()) {
             recordUserInteraction(memberId, itemId, "cart");
         }
@@ -80,7 +78,7 @@ public class CartController {
     }
 
     /**
-     * 사용자 상호작용 기록 (안전하게 처리)
+     * 사용자 상호작용 기록
      */
     private void recordUserInteraction(Long memberId, Long itemId, String action) {
         try {
@@ -91,47 +89,5 @@ public class CartController {
                     memberId, itemId, action, e);
         }
     }
-
-//    @GetMapping
-//    public List<CartItemResponseDto> getCartItems(@AuthenticationPrincipal CustomUserDetails userDetails) {
-//        Long memberId = userDetails.getMember().getId();
-//        List<CartItem> cartItems = cartService.getCartItems(memberId);
-//
-//        return cartItems.stream().map(item -> {
-//
-//            return CartItemResponseDto.builder()
-//                    .cartItemId(item.getId())
-//                    .itemId(item.getItem().getId())
-//                    .itemName(item.getItem().getItemName())
-//                    .quantity(item.getQuantity())
-//                    .price(item.getItem().getPrice())
-//                    .build();
-//        }).collect(Collectors.toList());
-//    }
-//
-//    @PostMapping("/add")
-//    public AddToCartResult addItemToCart(@AuthenticationPrincipal CustomUserDetails userDetails,
-//                                         @RequestParam Long itemId,
-//                                         @RequestParam int quantity) {
-//        Long memberId = userDetails.getMember().getId();
-//        return cartService.addItemToCart(memberId, itemId, quantity);
-//    }
-//
-//    @PostMapping("/update")
-//    public void updateQuantity(@RequestParam Long cartItemId,
-//                               @RequestParam int quantity) {
-//        cartService.updateItemQuantity(cartItemId, quantity);
-//    }
-//
-//    @PostMapping("/remove")
-//    public void removeItem(@RequestParam Long cartItemId) {
-//        cartService.deleteCartItem(cartItemId);
-//    }
-//
-//    @PostMapping("/clear")
-//    public void clearCart(@AuthenticationPrincipal CustomUserDetails userDetails) {
-//        Long memberId = userDetails.getMember().getId();
-//        cartService.clearCart(memberId);
-//    }
 
 }

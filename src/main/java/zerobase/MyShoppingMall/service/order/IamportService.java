@@ -3,6 +3,7 @@ package zerobase.MyShoppingMall.service.order;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -18,17 +19,19 @@ import java.util.Map;
 
 
 @Service
-@RequiredArgsConstructor
 public class IamportService {
 
-
     private final WebClient webClient;
-
     @Value("${iamport.api.key}")
     private String apiKey;
 
     @Value("${iamport.api.secret}")
     private String apiSecret;
+
+    public IamportService(@Qualifier("iamportWebClient") WebClient webClient) {
+        this.webClient = webClient;
+    }
+
 
     public boolean verifyPayment(String impUid, String merchantUid, int expectedAmount) {
         try {
