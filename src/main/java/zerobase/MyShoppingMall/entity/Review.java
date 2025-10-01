@@ -33,4 +33,9 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_detail_id", unique = true)
+    private OrderDetail orderDetail;
+
 }

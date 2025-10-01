@@ -23,6 +23,7 @@ public class Cart {
     private Member member;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<CartItem> cartItems = new ArrayList<>();
 
 }

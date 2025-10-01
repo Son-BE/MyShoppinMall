@@ -24,7 +24,7 @@ public class OrderResponseDto {
     private Integer totalPrice;
     private Long usedPoint;
     private int actualPrice;
-    private LocalDateTime orderDate;
+    private LocalDateTime createdAt;
     private String merchantUid;
     private String impUid;
     private OrderStatus orderStatus;
@@ -59,7 +59,7 @@ public class OrderResponseDto {
                 .actualPrice(order.getTotalPrice())
 //                .usedPoint(Math.toIntExact(order.getUsedPoint()))
                 .itemNames(itemNames)
-                .orderDate(order.getCreatedAt())
+                .createdAt(order.getCreatedAt())
                 .merchantUid(order.getMerchantUid())
                 .impUid(order.getImpUid())
                 .orderStatus(order.getOrderStatus())

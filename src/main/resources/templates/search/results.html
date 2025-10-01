@@ -1,465 +1,304 @@
-<!--search/results.html-->
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SonStarMall 검색 결과">
   <title th:text="'검색: ' + ${searchQuery} + ' - SonStarMall'">검색 결과 - SonStarMall</title>
 
-  <!-- Font Awesome & Google Font -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        crossorigin="anonymous"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="/css/main.css">
-  <link rel="stylesheet" href="/css/search.css">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/main.css">
 </head>
 
 <body>
-<!-- Header -->
-<header>
-  <div class="header-container">
-    <div class="top-bar">
-      <h1 class="logo" th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">
-        SonStarMall
-      </h1>
 
-      <div class="user-info">
-        <!-- Authenticated User -->
-        <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
-          <span class="user-name" th:text="${#authentication.name} + '님'"></span>
+<!-- ========== HEADER ========== -->
+<header class="header" role="banner">
+  <div class="header-content">
+    <h1 class="logo"
+        onclick="window.location.href='/'"
+        tabindex="0"
+        role="button"
+        aria-label="SonStarMall 홈으로 이동"
+        onkeypress="if(event.key==='Enter') window.location.href='/'">
+      SonStarMall
+    </h1>
 
-          <a th:href="@{/members/profile}" class="auth-button logout-button" aria-label="프로필 페이지 이동">
-            <i class="fa-solid fa-user" aria-hidden="true"></i>
-            내 정보
-          </a>
+    <nav class="header-nav" aria-label="주요 메뉴">
+      <a href="/items" class="header-nav-link">
+        <i class="fa-solid fa-box" aria-hidden="true"></i>
+        <span>전체상품</span>
+      </a>
+      <a href="/orders/myOrder" class="header-nav-link">
+        <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+        <span>주문내역</span>
+      </a>
+      <a href="/board?category=NOTICE" class="header-nav-link">
+        <i class="fa-solid fa-comments" aria-hidden="true"></i>
+        <span>게시판</span>
+      </a>
+    </nav>
 
-          <form th:action="@{/logout}" method="post" style="display:inline;">
-            <div th:if="${_csrf != null}">
-              <input type="hidden"
-                     th:name="${_csrf.parameterName}"
-                     th:value="${_csrf.token}" />
-            </div>
-            <button type="submit" class="auth-button logout-button" aria-label="로그아웃">
-              <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
-              로그아웃
-            </button>
-          </form>
-        </div>
-
-        <!-- Guest User -->
-        <div th:if="${!#authorization.expression('isAuthenticated(')}" class="user-info">
-          <a th:href="@{/login}" class="auth-button login-button" aria-label="로그인">
-            <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
-            로그인
-          </a>
-          <a th:href="@{/signup.html}" class="auth-button login-button" aria-label="회원가입">
-            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-            회원가입
-          </a>
-        </div>
-      </div>
+    <div class="header-search">
+      <form method="get" action="/search" role="search">
+        <i class="fa-solid fa-search search-icon" aria-hidden="true"></i>
+        <input type="text"
+               name="query"
+               class="search-input"
+               th:value="${searchQuery}"
+               placeholder="상품을 검색하세요..."
+               aria-label="상품 검색"
+               required>
+      </form>
     </div>
 
-    <!-- Navigation -->
-    <nav class="main-nav">
-      <a href="/" class="nav-link">
-        <i class="fa-solid fa-house" aria-hidden="true"></i>
-        Home
-      </a>
-      <a href="/items" class="nav-link">
-        <i class="fa-solid fa-box" aria-hidden="true"></i>
-        상품 목록
-      </a>
-      <a href="/user/cart" class="nav-link">
-        <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
-        장바구니
-      </a>
-      <a href="/user/wishList" class="nav-link">
-        <i class="fa-solid fa-heart" aria-hidden="true"></i>
-        찜 목록
-      </a>
-      <a href="/orders/myOrder" class="nav-link">
-        <i class="fa-solid fa-book" aria-hidden="true"></i>
-        주문 내역
-      </a>
-      <a href="/board?category=NOTICE" class="nav-link">
-        <i class="fa-solid fa-comments" aria-hidden="true"></i>
-        게시판
-      </a>
+    <nav class="header-actions" aria-label="사용자 메뉴">
+      <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
+        <a th:href="@{/user/cart}" class="auth-button" aria-label="장바구니">
+          <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+          <span>장바구니</span>
+        </a>
+
+        <a th:href="@{/user/wishList}" class="auth-button" aria-label="찜 목록">
+          <i class="fa-solid fa-heart" aria-hidden="true"></i>
+          <span>찜 목록</span>
+        </a>
+
+        <a th:href="@{/members/profile}" class="auth-button" aria-label="프로필 페이지 이동">
+          <i class="fa-solid fa-user" aria-hidden="true"></i>
+          <span th:text="${#authentication.name}">사용자</span>
+        </a>
+
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+          <input type="hidden"
+                 th:if="${_csrf != null}"
+                 th:name="${_csrf.parameterName}"
+                 th:value="${_csrf.token}" />
+          <button type="submit" class="auth-button logout-button" aria-label="로그아웃">
+            <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+            <span>로그아웃</span>
+          </button>
+        </form>
+      </div>
+
+      <div th:unless="${#authorization.expression('isAuthenticated()')}" class="user-info">
+        <a th:href="@{/login}" class="auth-button" aria-label="로그인">
+          <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+          <span>로그인</span>
+        </a>
+        <a th:href="@{/signup}" class="auth-button" aria-label="회원가입">
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+          <span>회원가입</span>
+        </a>
+      </div>
     </nav>
   </div>
 </header>
 
-<!-- Main Content -->
-<main class="main-content search-page">
-  <!-- Search Header -->
-  <div class="search-header">
-    <div class="search-container">
-      <h1>
-        <i class="fa-solid fa-search"></i>
-        검색 결과
-      </h1>
+<!-- ========== MAIN LAYOUT ========== -->
+<div class="main-layout">
+  <main class="main-content" role="main">
 
-      <!-- Enhanced Search Bar -->
-      <form method="get" action="/search" class="search-form">
-        <div class="search-input-group">
-          <input type="text" name="query" class="search-input"
-                 th:value="${searchQuery}"
-                 placeholder="찾고 싶은 상품을 검색하세요..."
-                 autocomplete="off"/>
-          <button type="submit" class="search-button">
-            <i class="fa-solid fa-search"></i>
-          </button>
+    <!-- ========== SEARCH HERO SECTION ========== -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <h2 class="hero-title">
+          '<span th:text="${searchQuery}">검색어</span>' 검색 결과
+        </h2>
+        <p class="hero-subtitle" th:text="'총 ' + ${totalResults != null ? totalResults : 0} + '개의 상품을 찾았습니다'">
+          검색 결과
+        </p>
+      </div>
+    </section>
+
+    <!-- ========== SEARCH RESULTS SECTION ========== -->
+    <section class="story-section" aria-labelledby="search-results-title">
+
+      <!-- 결과 헤더 -->
+      <div class="section-header" style="margin-bottom: 1.5rem;">
+        <h3 id="search-results-title" class="section-title">
+          <i class="fa-solid fa-search" aria-hidden="true"></i>
+          검색 결과
+        </h3>
+
+        <!-- 정렬 옵션 -->
+        <div th:if="${searchResults != null and not #lists.isEmpty(searchResults)}" style="display: flex; gap: 1rem; align-items: center;">
+          <form method="get" action="/search" style="margin: 0;">
+            <input type="hidden" name="query" th:value="${searchQuery}"/>
+            <select name="sort"
+                    class="select-box"
+                    onchange="this.form.submit()"
+                    style="width: auto; padding: 0.5rem 1rem;">
+              <option value="latest" th:selected="${selectedSort == 'latest'}">최신순</option>
+              <option value="priceAsc" th:selected="${selectedSort == 'priceAsc'}">낮은 가격순</option>
+              <option value="priceDesc" th:selected="${selectedSort == 'priceDesc'}">높은 가격순</option>
+              <option value="popular" th:selected="${selectedSort == 'popular'}">인기순</option>
+            </select>
+          </form>
         </div>
+      </div>
 
-        <!-- Search Suggestions -->
-        <div class="search-suggestions" id="searchSuggestions">
-          <!-- 인기 검색어나 추천 검색어들이 여기에 표시됩니다 -->
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Search Results Summary -->
-  <div class="search-summary" th:if="${searchQuery}">
-    <div class="summary-content">
-      <h2>
-        '<span class="search-term" th:text="${searchQuery}">검색어</span>' 검색 결과
-      </h2>
-      <p class="search-stats">
-        <span class="result-count" th:text="'약 ' + ${totalResults != null ? totalResults : 0} + '개'">약 0개</span>의 상품을 찾았습니다
-      </p>
-    </div>
-
-    <!-- Search Sort Options -->
-    <div class="search-sort" th:if="${searchResults != null and not #lists.isEmpty(searchResults)}">
-      <form method="get" action="/search" class="sort-form">
-        <input type="hidden" name="query" th:value="${searchQuery}"/>
-        <select name="sort" class="sort-select" onchange="this.form.submit()">
-          <option value="latest" th:selected="${selectedSort == 'latest'}">최신순</option>
-          <option value="price low" th:selected="${selectedSort == 'price low'}">가격 낮은순</option>
-          <option value="price high" th:selected="${selectedSort == 'price high'}">가격 높은순</option>
-          <option value="popular" th:selected="${selectedSort == 'popular'}">인기순</option>
-          <option value="relevance" th:selected="${selectedSort == 'relevance'}">관련성순</option>
-        </select>
-      </form>
-    </div>
-  </div>
-
-  <!-- Search Results Section -->
-  <section class="search-results">
-    <!-- No Search Query -->
-    <div th:if="${searchQuery == null or searchQuery.trim() == ''}" class="no-search">
-      <div class="empty-search">
-        <i class="fa-solid fa-search-plus"></i>
+      <!-- 검색 결과 없음 -->
+      <div th:if="${searchQuery == null or searchQuery.trim() == ''}" class="no-products">
+        <i class="fa-solid fa-search" aria-hidden="true"></i>
         <h3>검색어를 입력해주세요</h3>
         <p>원하시는 상품을 검색해보세요</p>
 
-        <!-- Popular Searches -->
-        <div class="popular-searches">
-          <h4>인기 검색어</h4>
-          <div class="popular-tags">
-            <a th:each="search : ${popularSearches}"
-               th:href="@{/search(query=${search})}"
-               th:text="${search}"
-               class="popular-tag">검색어</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Search Results Content -->
-    <div th:if="${searchQuery != null and searchQuery.trim() != ''}" class="results-content">
-
-      <!-- 실제 검색 결과가 있는 경우 -->
-      <div th:if="${searchResults != null and not #lists.isEmpty(searchResults)}" class="search-items">
-        <div class="results-grid">
-          <div th:each="item : ${searchResults}" class="search-result-card">
-            <div class="result-image">
-              <a th:href="@{/items/detail/{id}(id=${item.id})}">
-                <img th:src="${item.imagePath}"
-                     th:alt="${item.itemName} + ' 상품 이미지'"
-                     onerror="this.src='/images/default.png'"/>
-                <div class="result-overlay">
-                  <span class="view-detail">상세보기</span>
-                </div>
-              </a>
-
-              <!-- 상품 뱃지 -->
-              <div class="product-badges">
-                <span class="badge new" th:if="${item.isNew}">NEW</span>
-                <span class="badge sale" th:if="${item.isOnSale}">SALE</span>
-                <span class="badge soldout" th:if="${item.quantity == 0}">품절</span>
-              </div>
-
-              <!-- 액션 버튼들 -->
-              <div class="card-actions">
-                <!-- Wishlist Button -->
-                <form th:action="@{/wishList/add}" method="post" onsubmit="return confirmAddToWishlist()">
-                  <input type="hidden" name="itemId" th:value="${item.id}"/>
-                  <div th:if="${_csrf != null}">
-                    <input type="hidden"
-                           th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}" />
-                  </div>
-
-                  <button type="submit" class="action-button wishlist"
-                          th:disabled="${item.quantity == 0}" title="찜하기">
-                    <i class="fa-heart" th:classappend="${item.isWish} ? 'fa-solid' : 'fa-regular'"></i>
-                  </button>
-                </form>
-
-                <!-- Cart Button -->
-                <form th:action="@{/user/cart/add}" method="post" onsubmit="return confirmAddToCart()">
-                  <input type="hidden" name="itemId" th:value="${item.id}"/>
-                  <input type="hidden" name="quantity" value="1"/>
-                  <div th:if="${_csrf != null}">
-                    <input type="hidden"
-                           th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}" />
-                  </div>
-                  <button type="submit" class="action-button cart"
-                          th:disabled="${item.quantity == 0}" title="장바구니 담기">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                  </button>
-                </form>
-              </div>
-            </div>
-
-            <div class="result-info">
-              <p class="brand-name">SonStarMade</p>
-              <h4 class="result-title">
-                <a th:href="@{/items/detail/{id}(id=${item.id})}" th:text="${item.itemName}">상품명</a>
-              </h4>
-              <div class="result-price">
-                <span class="current-price" th:text="${#numbers.formatInteger(item.price, 3, 'COMMA')} + '원'">가격</span>
-                <span class="original-price"
-                      th:if="${item.originalPrice != null and item.originalPrice > item.price}"
-                      th:text="${#numbers.formatInteger(item.originalPrice, 3, 'COMMA')} + '원'">원가</span>
-              </div>
-              <div class="result-meta">
-                <div class="rating" th:if="${item.rating != null and item.rating > 0}">
-                  <span class="stars" th:each="i : ${#numbers.sequence(1, 5)}">
-                    <i th:class="${i <= item.rating} ? 'fa-solid fa-star' : 'fa-regular fa-star'"></i>
-                  </span>
-                  <span class="rating-text" th:text="${item.rating}">4.5</span>
-                </div>
-                <div class="result-category" th:if="${item.category}">
-                  <i class="fa-solid fa-tag"></i>
-                  <span th:text="${item.category}">카테고리</span>
-                </div>
-              </div>
-              <div class="stock-info" th:if="${item.quantity <= 5 and item.quantity > 0}">
-                <i class="fa-solid fa-exclamation-triangle"></i>
-                <span th:text="|재고 ${item.quantity}개 남음|">재고 부족</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pagination for search results -->
-        <div class="pagination" th:if="${totalPages > 1}">
-          <a th:if="${hasPrevBlock}"
-             th:href="@{/search(query=${searchQuery}, page=${prevBlockPage}, sort=${selectedSort})}"
-             class="page-link">
-            <i class="fa-solid fa-chevron-left"></i> 이전
-          </a>
-
-          <a th:each="pageNum : ${pageNumbers}"
-             th:href="@{/search(query=${searchQuery}, page=${pageNum - 1}, sort=${selectedSort})}"
-             th:text="${pageNum}"
-             th:classappend="${pageNum == currentPage} ? 'active' : ''"
-             class="page-number">
-          </a>
-
-          <a th:if="${hasNextBlock}"
-             th:href="@{/search(query=${searchQuery}, page=${nextBlockPage}, sort=${selectedSort})}"
-             class="page-link">
-            다음 <i class="fa-solid fa-chevron-right"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- 검색 결과가 없는 경우 -->
-      <div th:if="${searchResults == null or #lists.isEmpty(searchResults)}" class="no-results">
-        <div class="empty-results">
-          <i class="fa-solid fa-search-minus"></i>
-          <h3>검색 결과가 없습니다</h3>
-          <p>
-            '<span class="search-term" th:text="${searchQuery}">검색어</span>'에 대한
-            검색 결과를 찾을 수 없습니다.
-          </p>
-
-          <div class="search-suggestions-box">
-            <h4>검색 팁:</h4>
-            <ul class="search-tips">
-              <li>검색어의 철자를 확인해보세요</li>
-              <li>더 간단한 검색어를 사용해보세요</li>
-              <li>다른 키워드로 검색해보세요</li>
-              <li>카테고리에서 직접 찾아보세요</li>
-            </ul>
-          </div>
-
-          <div class="no-results-actions">
-            <a href="/items" class="btn-primary">
-              <i class="fa-solid fa-arrow-right"></i>
-              전체 상품 보기
-            </a>
-            <a href="/" class="btn-secondary">
-              <i class="fa-solid fa-house"></i>
-              홈으로 돌아가기
+        <div th:if="${popularSearches != null}" style="margin-top: 2rem;">
+          <h4 style="margin-bottom: 1rem;">인기 검색어</h4>
+          <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+            <a th:each="keyword : ${popularSearches}"
+               th:href="@{/search(query=${keyword})}"
+               th:text="${keyword}"
+               style="padding: 0.5rem 1rem; background: var(--color-bg-secondary);
+                      border-radius: 20px; text-decoration: none; color: var(--color-text-primary);
+                      transition: var(--transition-base);">
             </a>
           </div>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Search Related Recommendations -->
-  <section class="search-related"
-           th:if="${searchRelatedItems != null and not #lists.isEmpty(searchRelatedItems)}">
-    <h3><i class="fa-solid fa-lightbulb"></i> 연관 상품</h3>
-    <div class="related-grid">
-      <div th:each="item : ${searchRelatedItems}" class="related-card">
-        <a th:href="@{/items/detail/{id}(id=${item.itemId})}">
-          <img th:src="${item.imageUrl}" alt="연관 상품" onerror="this.src='/images/default.png'" />
-          <div class="related-info">
-            <h5 th:text="${item.itemName}">상품명</h5>
-            <p th:text="|${#numbers.formatInteger(item.price, 3, 'COMMA')}원|">가격</p>
-            <span class="relation-reason" th:text="${item.recommendationReason}">연관 이유</span>
+      <!-- 검색 결과 있음 -->
+      <div th:if="${searchQuery != null and searchQuery.trim() != '' and searchResults != null and not #lists.isEmpty(searchResults)}"
+           class="story-grid"
+           role="list">
+        <article th:each="item : ${searchResults}"
+                 class="product-card"
+                 role="listitem">
+          <div class="product-image-wrapper">
+            <a th:href="@{/items/detail/{id}(id=${item.id})}"
+               th:aria-label="${item.itemName} + ' 상품 상세보기'">
+              <img th:src="${item.imagePath}"
+                   onerror="this.src='/images/default.png'"
+                   th:alt="${item.itemName}"
+                   loading="lazy" />
+              <div class="product-overlay" aria-hidden="true"></div>
+            </a>
+
+            <div class="product-actions">
+              <form th:action="@{/wishList/add}" method="post" onsubmit="return confirmAddToWishlist()">
+                <input type="hidden" name="itemId" th:value="${item.id}"/>
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit"
+                        class="action-button wishlist"
+                        th:disabled="${item.quantity == 0}"
+                        title="찜하기">
+                  <i class="fa-heart"
+                     th:classappend="${item.isWish} ? 'fa-solid' : 'fa-regular'"
+                     aria-hidden="true"></i>
+                </button>
+              </form>
+
+              <form th:action="@{/user/cart/add}" method="post" onsubmit="return confirmAddToCart()">
+                <input type="hidden" name="itemId" th:value="${item.id}"/>
+                <input type="hidden" name="quantity" value="1"/>
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit"
+                        class="action-button cart"
+                        th:disabled="${item.quantity == 0}"
+                        title="장바구니">
+                  <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                </button>
+              </form>
+            </div>
           </div>
+
+          <div class="product-info">
+            <p class="brand-name">SonStarMade</p>
+            <h3 class="product-name" th:text="${item.itemName}">상품명</h3>
+            <p class="product-price" th:text="${#numbers.formatInteger(item.price, 3, 'COMMA')} + '원'">가격</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- 검색 결과 없음 (검색어는 있지만 결과 없음) -->
+      <div th:if="${searchQuery != null and searchQuery.trim() != '' and (searchResults == null or #lists.isEmpty(searchResults))}"
+           class="no-products">
+        <i class="fa-solid fa-search-minus" aria-hidden="true"></i>
+        <h3>'<span th:text="${searchQuery}"></span>'에 대한 검색 결과가 없습니다</h3>
+        <p>다른 검색어를 시도해보세요</p>
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <a href="/items"
+             style="display: inline-flex; align-items: center; gap: 0.5rem;
+                    padding: 0.75rem 1.5rem; background: var(--color-primary); color: white;
+                    text-decoration: none; border-radius: var(--radius-md); font-weight: 600;">
+            <i class="fa-solid fa-box" aria-hidden="true"></i>
+            전체 상품 보기
+          </a>
+          <a href="/"
+             style="display: inline-flex; align-items: center; gap: 0.5rem;
+                    padding: 0.75rem 1.5rem; background: white; color: var(--color-text-primary);
+                    text-decoration: none; border-radius: var(--radius-md); font-weight: 600;
+                    border: 1px solid var(--color-border-light);">
+            <i class="fa-solid fa-house" aria-hidden="true"></i>
+            홈으로
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== PAGINATION ========== -->
+    <nav class="pagination"
+         th:if="${searchResults != null and not #lists.isEmpty(searchResults) and totalPages > 1}"
+         role="navigation"
+         aria-label="페이지 네비게이션">
+      <a th:if="${hasPrevBlock}"
+         th:href="@{/search(query=${searchQuery}, page=${prevBlockPage}, sort=${selectedSort})}"
+         aria-label="이전 페이지 블록">
+        &laquo;
+      </a>
+
+      <a th:each="pageNum : ${pageNumbers}"
+         th:href="@{/search(query=${searchQuery}, page=${pageNum - 1}, sort=${selectedSort})}"
+         th:text="${pageNum}"
+         th:classappend="${pageNum == currentPage} ? 'active' : ''"
+         th:aria-label="'페이지 ' + ${pageNum}"
+         th:aria-current="${pageNum == currentPage} ? 'page' : null">
+      </a>
+
+      <a th:if="${hasNextBlock}"
+         th:href="@{/search(query=${searchQuery}, page=${nextBlockPage}, sort=${selectedSort})}"
+         aria-label="다음 페이지 블록">
+        &raquo;
+      </a>
+    </nav>
+
+    <!-- ========== RELATED SEARCHES ========== -->
+    <section class="story-section"
+             th:if="${relatedQueries != null and not #lists.isEmpty(relatedQueries)}"
+             style="padding-top: 2rem;">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="fa-solid fa-tags" aria-hidden="true"></i>
+          관련 검색어
+        </h3>
+      </div>
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
+        <a th:each="query : ${relatedQueries}"
+           th:href="@{/search(query=${query})}"
+           th:text="${query}"
+           style="padding: 0.75rem 1.25rem; background: var(--color-bg-secondary);
+                  border-radius: var(--radius-full); text-decoration: none;
+                  color: var(--color-text-primary); transition: var(--transition-base);
+                  font-weight: 500;">
         </a>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Personalized Recommendations for Search -->
-  <section class="search-recommendations"
-           th:if="${searchPersonalizedItems != null and not #lists.isEmpty(searchPersonalizedItems)}">
-    <h3><i class="fa-solid fa-user-check"></i> 맞춤 추천 상품</h3>
-    <div class="recommendation-grid">
-      <div th:each="item : ${searchPersonalizedItems}" class="recommendation-card">
-        <a th:href="@{/items/detail/{id}(id=${item.itemId})}">
-          <img th:src="${item.imageUrl}" alt="추천 상품" onerror="this.src='/images/default.png'" />
-          <div class="recommendation-info">
-            <h5 th:text="${item.itemName}">상품명</h5>
-            <p th:text="|${#numbers.formatInteger(item.price, 3, 'COMMA')}원|">가격</p>
-            <span class="rec-reason" th:text="${item.recommendationReason}">추천 이유</span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
+  </main>
+</div>
 
-  <!-- Popular Items for Search -->
-  <section class="search-popular"
-           th:if="${searchPopularItems != null and not #lists.isEmpty(searchPopularItems)}">
-    <h3><i class="fa-solid fa-fire"></i> 인기 상품</h3>
-    <div class="popular-grid">
-      <div th:each="item : ${searchPopularItems}" class="popular-card">
-        <a th:href="@{/items/detail/{id}(id=${item.itemId})}">
-          <img th:src="${item.imageUrl}" alt="인기 상품" onerror="this.src='/images/default.png'" />
-          <div class="popular-info">
-            <h5 th:text="${item.itemName}">상품명</h5>
-            <p th:text="|${#numbers.formatInteger(item.price, 3, 'COMMA')}원|">가격</p>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Related Searches -->
-  <section class="related-searches" th:if="${relatedQueries != null and not #lists.isEmpty(relatedQueries)}">
-    <h3><i class="fa-solid fa-tags"></i> 관련 검색어</h3>
-    <div class="related-tags">
-      <a th:each="query : ${relatedQueries}"
-         th:href="@{/search(query=${query})}"
-         th:text="${query}"
-         class="related-tag">관련검색어</a>
-    </div>
-  </section>
-</main>
-
-<!-- JavaScript -->
 <script>
-  // Search functionality
-  document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.querySelector('.search-input');
-    const suggestions = document.getElementById('searchSuggestions');
-
-    // Search suggestions (mock data)
-    const popularSearches = [
-      '후드티', '청바지', '운동화', '패딩', '맨투맨',
-      '코트', '스니커즈', '바람막이', '시계', '반지'
-    ];
-
-    // Show suggestions on focus
-    searchInput?.addEventListener('focus', function() {
-      showSearchSuggestions();
-    });
-
-    // Hide suggestions on blur (with delay)
-    searchInput?.addEventListener('blur', function() {
-      setTimeout(() => {
-        suggestions.style.display = 'none';
-      }, 200);
-    });
-
-    // Search input event
-    searchInput?.addEventListener('input', function() {
-      const query = this.value.toLowerCase();
-      if (query.length > 0) {
-        const filtered = popularSearches.filter(item =>
-                item.toLowerCase().includes(query)
-        );
-        showFilteredSuggestions(filtered);
-      } else {
-        showSearchSuggestions();
-      }
-    });
-
-    function showSearchSuggestions() {
-      suggestions.innerHTML = `
-                    <div class="suggestion-header">인기 검색어</div>
-                    ${popularSearches.slice(0, 5).map(item =>
-              `<div class="suggestion-item" onclick="selectSuggestion('${item}')">
-                            <i class="fa-solid fa-fire"></i>
-                            <span>${item}</span>
-                        </div>`
-      ).join('')}
-                `;
-      suggestions.style.display = 'block';
-    }
-
-    function showFilteredSuggestions(filtered) {
-      if (filtered.length > 0) {
-        suggestions.innerHTML = `
-                        <div class="suggestion-header">검색 제안</div>
-                        ${filtered.slice(0, 5).map(item =>
-                `<div class="suggestion-item" onclick="selectSuggestion('${item}')">
-                                <i class="fa-solid fa-search"></i>
-                                <span>${item}</span>
-                            </div>`
-        ).join('')}
-                    `;
-        suggestions.style.display = 'block';
-      } else {
-        suggestions.style.display = 'none';
-      }
-    }
-
-    // Auto-focus search input
-    searchInput?.focus();
-  });
-
-  // Select suggestion
-  function selectSuggestion(suggestion) {
-    document.querySelector('.search-input').value = suggestion;
-    document.querySelector('.search-form').submit();
-  }
-
-  // Confirmation Functions
   function confirmAddToCart() {
     return confirm("장바구니에 상품을 추가하시겠습니까?");
   }
@@ -468,644 +307,35 @@
     return confirm("찜 목록에 상품을 추가하시겠습니까?");
   }
 
-  // Recent searches in localStorage
-  function saveRecentSearch(query) {
-    if (!query || query.trim() === '') return;
-
-    let recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
-    recentSearches = recentSearches.filter(item => item !== query);
-    recentSearches.unshift(query);
-    recentSearches = recentSearches.slice(0, 10); // Keep only 10 recent searches
-
-    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-  }
-
-  // Save current search
-  const currentQuery = /*[[${searchQuery}]]*/ null;
-  if (currentQuery) {
-    saveRecentSearch(currentQuery);
-  }
-
-  // Enhanced search form submission
-  document.querySelector('.search-form')?.addEventListener('submit', function(e) {
-    const query = document.querySelector('.search-input').value.trim();
-    if (!query) {
-      e.preventDefault();
-      alert('검색어를 입력해주세요.');
-      return;
-    }
-    saveRecentSearch(query);
+  // 검색 결과 애니메이션
+  document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.product-card');
+    cards.forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        card.style.transition = 'all 0.5s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, index * 50);
+    });
   });
 
-  // Keyboard navigation for suggestions
-  document.querySelector('.search-input')?.addEventListener('keydown', function(e) {
-    const suggestions = document.querySelectorAll('.suggestion-item');
-    let currentIndex = -1;
-
-    suggestions.forEach((item, index) => {
-      if (item.classList.contains('selected')) {
-        currentIndex = index;
-      }
+  // 인기 검색어 호버 효과
+  const searchTags = document.querySelectorAll('a[href*="search"]');
+  searchTags.forEach(tag => {
+    tag.addEventListener('mouseenter', function() {
+      this.style.background = 'var(--color-primary)';
+      this.style.color = 'white';
+      this.style.transform = 'translateY(-2px)';
     });
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      currentIndex = (currentIndex + 1) % suggestions.length;
-      updateSuggestionSelection(suggestions, currentIndex);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      currentIndex = currentIndex <= 0 ? suggestions.length - 1 : currentIndex - 1;
-      updateSuggestionSelection(suggestions, currentIndex);
-    } else if (e.key === 'Enter' && currentIndex >= 0) {
-      e.preventDefault();
-      suggestions[currentIndex].click();
-    }
-  });
-
-  function updateSuggestionSelection(suggestions, selectedIndex) {
-    suggestions.forEach((item, index) => {
-      item.classList.toggle('selected', index === selectedIndex);
+    tag.addEventListener('mouseleave', function() {
+      this.style.background = 'var(--color-bg-secondary)';
+      this.style.color = 'var(--color-text-primary)';
+      this.style.transform = 'translateY(0)';
     });
-
-    if (selectedIndex >= 0) {
-      const selectedText = suggestions[selectedIndex].querySelector('span').textContent;
-      document.querySelector('.search-input').value = selectedText;
-    }
-  }
-
-  // Animate search results
-  document.querySelectorAll('.search-result-card').forEach((card, index) => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(30px)';
-    setTimeout(() => {
-      card.style.transition = 'all 0.6s ease';
-      card.style.opacity = '1';
-      card.style.transform = 'translateY(0)';
-    }, index * 100);
   });
 </script>
 
-<!-- Search-specific styles -->
-<style>
-  .search-header {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    padding: 3rem 2rem;
-    margin-bottom: 2rem;
-    color: white;
-  }
-
-  .search-container h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 2rem;
-    text-align: center;
-  }
-
-  .search-input-group {
-    position: relative;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .search-input {
-    width: 100%;
-    padding: 1rem 4rem 1rem 1.5rem;
-    font-size: 1.1rem;
-    border: none;
-    border-radius: 50px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    outline: none;
-  }
-
-  .search-button {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: #4f46e5;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .search-button:hover {
-    background: #3730a3;
-    transform: translateY(-50%) scale(1.05);
-  }
-
-  .search-suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    z-index: 1000;
-    margin-top: 0.5rem;
-    display: none;
-  }
-
-  .suggestion-header {
-    padding: 1rem 1.5rem 0.5rem;
-    font-weight: 600;
-    color: #6b7280;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-  }
-
-  .suggestion-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1.5rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: #374151;
-  }
-
-  .suggestion-item:hover,
-  .suggestion-item.selected {
-    background: #f3f4f6;
-    color: #4f46e5;
-  }
-
-  .suggestion-item i {
-    width: 16px;
-    opacity: 0.6;
-  }
-
-  .search-summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .search-term {
-    color: #4f46e5;
-    font-weight: 700;
-  }
-
-  .search-sort .sort-select {
-    padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    background: white;
-    cursor: pointer;
-  }
-
-  .no-search, .no-results {
-    text-align: center;
-    padding: 4rem 2rem;
-  }
-
-  .empty-search i, .empty-results i {
-    font-size: 4rem;
-    color: #d1d5db;
-    margin-bottom: 2rem;
-  }
-
-  .popular-searches, .search-suggestions-box {
-    margin-top: 3rem;
-  }
-
-  .popular-tags, .related-tags {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 1rem;
-  }
-
-  .popular-tag, .related-tag {
-    padding: 0.5rem 1rem;
-    background: #f3f4f6;
-    border-radius: 20px;
-    text-decoration: none;
-    color: #374151;
-    transition: all 0.3s ease;
-  }
-
-  .popular-tag:hover, .related-tag:hover {
-    background: #4f46e5;
-    color: white;
-  }
-
-  .search-tips {
-    text-align: left;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-
-  .search-tips li {
-    margin-bottom: 0.5rem;
-    color: #6b7280;
-  }
-
-  .no-results-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .btn-primary,
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem 2rem;
-    text-decoration: none;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-  }
-
-  .btn-primary {
-    background: #4f46e5;
-    color: white;
-  }
-
-  .btn-secondary {
-    background: white;
-    color: #374151;
-    border: 2px solid #d1d5db;
-  }
-
-  .btn-primary:hover {
-    background: #3730a3;
-    transform: translateY(-2px);
-  }
-
-  .btn-secondary:hover {
-    background: #f9fafb;
-    transform: translateY(-2px);
-  }
-
-  /* Search Results Grid */
-  .results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-  }
-
-  .search-result-card {
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .search-result-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-  }
-
-  .result-image {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .result-image img {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .search-result-card:hover .result-image img {
-    transform: scale(1.05);
-  }
-
-  .result-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: all 0.3s ease;
-  }
-
-  .search-result-card:hover .result-overlay {
-    opacity: 1;
-  }
-
-  .view-detail {
-    color: white;
-    font-weight: 600;
-    font-size: 1.1rem;
-  }
-
-  .product-badges {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    z-index: 10;
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    border-radius: 0.25rem;
-    margin-right: 0.25rem;
-  }
-
-  .badge.new {
-    background: #10b981;
-    color: white;
-  }
-
-  .badge.sale {
-    background: #ef4444;
-    color: white;
-  }
-
-  .badge.soldout {
-    background: #6b7280;
-    color: white;
-  }
-
-  .card-actions {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    opacity: 0;
-    transition: all 0.3s ease;
-  }
-
-  .search-result-card:hover .card-actions {
-    opacity: 1;
-  }
-
-  .action-button {
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.9);
-    color: #374151;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .action-button:hover {
-    background: white;
-    transform: scale(1.1);
-  }
-
-  .action-button.wishlist:hover {
-    color: #ef4444;
-  }
-
-  .action-button.cart:hover {
-    color: #4f46e5;
-  }
-
-  .result-info {
-    padding: 1.5rem;
-  }
-
-  .brand-name {
-    color: #6b7280;
-    font-size: 0.875rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .result-title {
-    margin: 0 0 1rem 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-  }
-
-  .result-title a {
-    text-decoration: none;
-    color: #374151;
-    transition: color 0.3s ease;
-  }
-
-  .result-title a:hover {
-    color: #4f46e5;
-  }
-
-  .result-price {
-    margin-bottom: 1rem;
-  }
-
-  .current-price {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #4f46e5;
-  }
-
-  .original-price {
-    color: #9ca3af;
-    text-decoration: line-through;
-    margin-left: 0.5rem;
-    font-size: 0.9rem;
-  }
-
-  .result-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-  }
-
-  .rating {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .stars i {
-    color: #fbbf24;
-    font-size: 0.875rem;
-  }
-
-  .rating-text {
-    font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  .result-category {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  .stock-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #f59e0b;
-    font-size: 0.875rem;
-    background: #fef3c7;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-  }
-
-  /* Recommendation grids */
-  .recommendation-grid,
-  .popular-grid,
-  .related-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-
-  .recommendation-card,
-  .popular-card,
-  .related-card {
-    background: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .recommendation-card:hover,
-  .popular-card:hover,
-  .related-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  }
-
-  .recommendation-card img,
-  .popular-card img,
-  .related-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-  }
-
-  .recommendation-info,
-  .popular-info,
-  .related-info {
-    padding: 1rem;
-  }
-
-  .recommendation-info h5,
-  .popular-info h5,
-  .related-info h5 {
-    margin: 0 0 0.5rem 0;
-    font-weight: 600;
-  }
-
-  .recommendation-info p,
-  .popular-info p,
-  .related-info p {
-    margin: 0 0 0.5rem 0;
-    color: #4f46e5;
-    font-weight: 700;
-  }
-
-  .rec-reason,
-  .relation-reason {
-    font-size: 0.8rem;
-    color: #6b7280;
-    background: #f3f4f6;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-  }
-
-  /* Pagination */
-  .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 3rem 0;
-    flex-wrap: wrap;
-  }
-
-  .page-link,
-  .page-number {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    text-decoration: none;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    transition: all 0.3s ease;
-    min-width: 44px;
-    justify-content: center;
-  }
-
-  .page-number.active {
-    background: #4f46e5;
-    color: white;
-    border-color: #4f46e5;
-  }
-
-  .page-link:hover,
-  .page-number:hover:not(.active) {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .search-header {
-      padding: 2rem 1rem;
-    }
-
-    .search-container h1 {
-      font-size: 2rem;
-    }
-
-    .search-summary {
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .results-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    .recommendation-grid,
-    .popular-grid,
-    .related-grid {
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    }
-
-    .pagination {
-      gap: 0.25rem;
-    }
-
-    .page-link,
-    .page-number {
-      padding: 0.5rem 0.75rem;
-      font-size: 0.875rem;
-    }
-  }
-</style>
 </body>
 </html>

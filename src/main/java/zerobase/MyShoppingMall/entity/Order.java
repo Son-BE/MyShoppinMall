@@ -38,6 +38,8 @@ public class Order {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    private LocalDateTime deliveredAt;
+
     @Embedded
     private OrderAddress orderAddress;
 
@@ -54,9 +56,6 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
-
-
-
 
 
     @Builder.Default
@@ -83,6 +82,7 @@ public class Order {
     public String getImpUid() {
         return this.impUid;
     }
+
 
 
 }

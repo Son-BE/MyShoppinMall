@@ -46,32 +46,37 @@
         public ItemResponseDto createItem(ItemRequestDto dto) throws IOException {
             String imageUrl = itemFileService.uploadItemImage(dto.getImageFile());
 
-            Item item = Item.builder()
-                    .itemName(dto.getItemName())
-                    .itemComment(dto.getItemComment())
-                    .price(dto.getPrice())
-                    .quantity(dto.getQuantity())
-                    .deleteType('N')
-                    .createdAt(LocalDateTime.now())
-                    .category(dto.getCategory())
-                    .subCategory(dto.getSubCategory())
-                    .gender(dto.getGender())
-                    .ageGroup(dto.getAgeGroup())
-                    .style(dto.getStyle())
-                    .season(dto.getSeason())
-                    .imageUrl(imageUrl)
-                    .primaryColor(dto.getPrimaryColor())
-                    .secondaryColor(dto.getSecondaryColor())
-                    .build();
+            try {
+                Item item = Item.builder()
+                        .itemName(dto.getItemName())
+                        .itemComment(dto.getItemComment())
+                        .price(dto.getPrice())
+                        .quantity(dto.getQuantity())
+                        .deleteType('N')
+                        .createdAt(LocalDateTime.now())
+                        .category(dto.getCategory())
+                        .subCategory(dto.getSubCategory())
+                        .gender(dto.getGender())
+                        .ageGroup(dto.getAgeGroup())
+                        .style(dto.getStyle())
+                        .season(dto.getSeason())
+                        .imageUrl(imageUrl)
+                        .primaryColor(dto.getPrimaryColor())
+                        .secondaryColor(dto.getSecondaryColor())
+                        .build();
 
-            Item savedItem = itemRepository.save(item);
-            ItemResponseDto responseDto = ItemResponseDto.fromEntity(savedItem);
+                Item savedItem = itemRepository.save(item);
+                ItemResponseDto responseDto = ItemResponseDto.fromEntity(savedItem);
 
-            // 생성 후 캐싱
-            itemCacheService.cacheItem(responseDto);
+                // 생성 후 캐싱
+                itemCacheService.cacheItem(responseDto);
 
-            log.info("아이템 생성 완료, itemId: {}, itemName: {}", savedItem.getId(), savedItem.getItemName());
-            return responseDto;
+                log.info("아이템 생성 완료, itemId: {}, itemName: {}", savedItem.getId(), savedItem.getItemName());
+                return responseDto;
+            } catch (Exception e) {
+                itemFileService.deleteItemImage(imageUrl);
+                throw e;
+            }
         }
 
         /**
@@ -82,19 +87,33 @@
                 throws IOException {
             Item item = getItemEntity(itemId);
 
-            // 이미지 교체 처리
-            String newImageUrl = itemFileService.replaceItemImage(item.getImageUrl(), imageFile);
+            String oldImageUrl = item.getImageUrl();
+            String newImageUrl = null;
 
-            // 아이템 정보 업데이트
-            updateItemFields(item, dto, newImageUrl);
+            if (imageFile != null && !imageFile.isEmpty()) {
+                newImageUrl = itemFileService.uploadItemImage(imageFile);
+            }
 
-            ItemResponseDto updatedDto = ItemResponseDto.fromEntity(item);
+            try {
+                updateItemFields(item, dto, newImageUrl);
 
-            // 수정 후 캐싱 갱신
-            itemCacheService.cacheItem(updatedDto);
+                ItemResponseDto updatedDto = ItemResponseDto.fromEntity(item);
 
-            log.info("아이템 수정 완료, itemId: {}", itemId);
-            return updatedDto;
+                itemCacheService.cacheItem(updatedDto);
+
+                if (newImageUrl != null && oldImageUrl != null) {
+                    itemFileService.deleteItemImage(oldImageUrl);
+                }
+
+                log.info("아이템 수정 완료, itemId: {}", itemId);
+                return updatedDto;
+
+            } catch (Exception e) {
+                if (newImageUrl != null) {
+                    itemFileService.deleteItemImage(newImageUrl);
+                }
+                throw e;
+            }
         }
 
         /**
@@ -104,18 +123,21 @@
         public void deleteItem(Long itemId) {
             Item item = getItemEntity(itemId);
 
-            // 관련 데이터 삭제
             cartItemRepository.deleteByItemId(itemId);
             wishListRepository.deleteByItemId(itemId);
 
-            // 이미지 파일 삭제
-            itemFileService.deleteItemImage(item.getImageUrl());
-
-            // 아이템 삭제
             itemRepository.delete(item);
 
-            // 캐시에서 제거
             itemCacheService.evictCache(itemId);
+
+            String imageUrl = item.getImageUrl();
+            if (imageUrl != null) {
+                try {
+                    itemFileService.deleteItemImage(imageUrl);
+                } catch (Exception e) {
+                    log.warn("이미지 파일 삭제 실패 (무시됨): {}", imageUrl, e);
+                }
+            }
 
             log.info("아이템 삭제 완료, itemId: {}", itemId);
         }
@@ -123,10 +145,31 @@
         /**
          * 아이템 조회 (DB 직접 조회, 캐시 사용 안함)
          */
-        public ItemResponseDto getItem(Long itemId) {
-            Item item = getItemEntity(itemId);
-            validateItemNotDeleted(item);
-            return ItemResponseDto.fromEntity(item);
+        public ItemResponseDto getItem(Long itemId, Long memberId) {
+            // 1. 캐시에서 먼저 조회
+            ItemResponseDto dto = itemCacheService.getCachedItem(itemId);
+
+            if (dto == null) {
+                // 2. 캐시 미스 시 DB 조회
+                Item item = getItemEntity(itemId);
+                validateItemNotDeleted(item);
+
+                dto = ItemResponseDto.fromEntity(item);
+
+                // 3. 캐시에 저장
+                itemCacheService.cacheItem(dto);
+                log.debug("캐시 미스 - DB 조회 후 캐싱: itemId={}", itemId);
+            } else {
+                log.debug("캐시 히트: itemId={}", itemId);
+            }
+
+            // 4. 위시리스트 여부 설정
+            if (memberId != null) {
+                boolean isWish = wishListRepository.existsByMemberIdAndItemId(memberId, itemId);
+                dto.setIsWish(isWish);
+            }
+
+            return dto;
         }
 
         /**
@@ -139,7 +182,7 @@
 
                 if (dto == null) {
                     // 캐시에 없으면 DB에서 조회 후 캐싱
-                    dto = getItem(itemId);
+                    dto = getItem(itemId, memberId);
                     itemCacheService.cacheItem(dto);
                 }
 

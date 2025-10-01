@@ -78,6 +78,7 @@ public class Item {
 
     @ElementCollection
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private Set<StyleTag> styleTags = new HashSet<>();
 
     @Transient
@@ -116,5 +117,19 @@ public class Item {
 
     public String getImagePath() {
         return imageUrl;
+    }
+
+    //리뷰 등록 업데이트(증분)
+    public void updateRatingOnAdd(int newRating) {
+        double total = this.itemRating * this.reviewCount;
+
+        this.reviewCount++;
+        this.itemRating = (int) ((total + newRating) / this.reviewCount);
+    }
+
+    public void recalcRating(List<Review> reviews) {
+        this.reviewCount = reviews.size();
+        this.itemRating = (int) (reviews.isEmpty() ? 0.0 :
+                        reviews.stream().mapToInt(Review::getRating).average().orElse(0.0));
     }
 }

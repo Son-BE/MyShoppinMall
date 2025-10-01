@@ -101,11 +101,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("SELECT MAX(i.price) FROM Item i")
     Integer findMaxPrice();
 
-    @Query("SELECT i FROM Item i " +
-            "WHERE LOWER(i.itemName) LIKE LOWER(CONCAT('%', :query, '%')) " +
-            "   OR LOWER(i.itemComment) LIKE LOWER(CONCAT('%', :query, '%'))")
-
-    
+    @Query("SELECT i FROM Item i WHERE " +
+            "i.deleteType = 'N' AND (" +
+            "LOWER(i.itemName) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(i.itemComment) LIKE LOWER(CONCAT('%', :query, '%')))")
     Page<Item> searchByKeyword(@Param("query") String query, Pageable pageable);
 
     List<Item> findAllByDeleteTypeNot(char y);

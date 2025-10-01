@@ -96,8 +96,8 @@ public class AdminItemController {
 
     // 상품 수정 폼 이동
     @GetMapping("/edit/{itemId}")
-    public String showEditForm(@PathVariable Long itemId, Model model) {
-        ItemResponseDto item = itemService.getItem(itemId);
+    public String showEditForm(@PathVariable Long itemId, Long memberId,Model model) {
+        ItemResponseDto item = itemService.getItem(itemId,memberId);
         model.addAttribute("item", item);
         model.addAttribute("categories", ItemCategory.values());
         return "admin/item/edit";

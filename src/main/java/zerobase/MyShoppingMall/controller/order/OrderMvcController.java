@@ -50,11 +50,11 @@ public class OrderMvcController {
 
             addOrderListPageRecommendations(model, memberId, orders);
 
-            return "order/details_order";
+            return "order/order_list";
         } catch (Exception e) {
             log.error("주문 목록 조회 실패", e);
             model.addAttribute("error", "주문 목록을 불러올 수 없습니다.");
-            return "order/details_order";
+            return "order/order_list";
         }
     }
 
@@ -71,11 +71,11 @@ public class OrderMvcController {
 
             addOrderListPageRecommendations(model, memberId, orders);
 
-            return "order/details_order";
+            return "order/order_list";
         } catch (Exception e) {
             log.error("상태별 주문 목록 조회 실패 - status: {}", status, e);
             model.addAttribute("error", "주문 목록을 불러올 수 없습니다.");
-            return "order/details_order";
+            return "order/order_list";
         }
     }
 

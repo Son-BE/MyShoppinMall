@@ -21,6 +21,9 @@ public class OrderDetail {
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
 
+    @OneToOne(mappedBy = "orderDetail", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Review review;
+
     private int price;
     private int quantity;
     private int totalPrice;
@@ -28,4 +31,6 @@ public class OrderDetail {
     public void setOrder(Order order) {
         this.order = order;
     }
+
+
 }

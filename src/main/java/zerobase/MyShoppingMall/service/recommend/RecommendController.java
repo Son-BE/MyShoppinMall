@@ -37,7 +37,7 @@ public class RecommendController {
 
             // 3. Python NLP 서버를 통한 추천 실행
             NlpRecommendationService.RecommendationResult result = nlpRecommendationService.recommendByNaturalLanguage(
-                    query, 12, userContext
+                    query, 4, userContext
             );
 
             if (!result.isSuccess() || result.getItems().isEmpty()) {
