@@ -12,7 +12,6 @@ import uvicorn
 from sentence_transformers import SentenceTransformer
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-import openai
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -50,7 +49,7 @@ class ProductMatchRequest(BaseModel):
     products: List[Dict]
 
 class ProductScore(BaseModel):
-    product_id: Union[int, str]  # Accept both int and string/Long
+    product_id: Union[int, str]
     score: float
     match_reasons: List[str]
     semantic_similarity: float
@@ -62,20 +61,27 @@ class KoreanFashionNLPService:
         self.init_fashion_dictionaries()
         logger.info("한국어 패션 NLP 서비스 초기화 완료")
 
-    # ================= 안전한 리스트 접근 =================
     def safe_first(self, lst: list) -> Optional[str]:
         if lst and len(lst) > 0:
             return lst[0]
         return None
 
-    # ================= 사전 초기화 =================
     def init_fashion_dictionaries(self):
         """패션 도메인 특화 사전 초기화"""
+
+        # ✅ 수정: 한글->영문 매핑 추가
+        self.season_mapping = {
+            '봄': 'SPRING',
+            '여름': 'SUMMER',
+            '가을': 'AUTUMN',
+            '겨울': 'WINTER'
+        }
+
         self.season_keywords = {
-            '봄': ['봄', '스프링', '따뜻한', '산뜻한', '경량', '라이트', '가벼운'],
-            '여름': ['여름', '섬머', '시원한', '쿨', '린넨', '면', '민소매', '반팔'],
-            '가을': ['가을', '어텀', '가을맞이', '단풍', '레이어드', '카키', '브라운'],
-            '겨울': ['겨울', '윈터', '따뜻한', '보온', '코트', '패딩', '니트', '부츠']
+            'SPRING': ['봄', '스프링', '따뜻한', '산뜻한', '경량', '라이트', '가벼운'],
+            'SUMMER': ['여름', '섬머', '시원한', '쿨', '린넨', '면', '민소매', '반팔'],
+            'AUTUMN': ['가을', '어텀', '가을맞이', '단풍', '레이어드', '카키', '브라운'],
+            'WINTER': ['겨울', '윈터', '따뜻한', '보온', '코트', '패딩', '니트', '부츠']
         }
 
         self.occasion_keywords = {
@@ -120,7 +126,6 @@ class KoreanFashionNLPService:
             '액세서리': ['액세서리', '모자', '목걸이', '귀걸이', '시계', '반지', '스카프']
         }
 
-    # ================== 쿼리 분석 ==================
     def analyze_query(self, query: str, user_context: Optional[Dict] = None) -> QueryAnalysisResult:
         logger.info(f"쿼리 분석 시작: {query}")
 
@@ -173,21 +178,28 @@ class KoreanFashionNLPService:
         entities = {'season': [], 'occasion': [], 'style': [], 'color': [], 'category': [], 'gender': []}
         query_lower = query.lower()
 
-        for season, keywords in self.season_keywords.items():
+        # ✅ 수정: 영문 계절명 반환
+        for season_eng, keywords in self.season_keywords.items():
             if any(keyword in query_lower for keyword in keywords):
-                entities['season'].append(season)
+                entities['season'].append(season_eng)  # 'SPRING' 반환
+                logger.info(f"계절 감지: {season_eng}")
+
         for occasion, keywords in self.occasion_keywords.items():
             if any(keyword in query_lower for keyword in keywords):
                 entities['occasion'].append(occasion)
+
         for style, keywords in self.style_keywords.items():
             if any(keyword in query_lower for keyword in keywords):
                 entities['style'].append(style)
+
         for color, keywords in self.color_keywords.items():
             if any(keyword in query_lower for keyword in keywords):
                 entities['color'].append(color)
+
         for category, keywords in self.category_keywords.items():
             if any(keyword in query_lower for keyword in keywords):
                 entities['category'].append(category)
+
         if any(word in query_lower for word in ['남성', '남자', '맨즈']):
             entities['gender'].append('M')
         elif any(word in query_lower for word in ['여성', '여자', '우먼즈']):
@@ -212,14 +224,12 @@ class KoreanFashionNLPService:
         confidence += min(len(keywords) * 0.05, 0.2)
         return min(confidence, 1.0)
 
-    # ================= 상품 점수 계산 =================
     def score_products(self, query_analysis: QueryAnalysisResult, products: List[Dict]) -> List[ProductScore]:
         results = []
         query_vector = np.array(query_analysis.semantic_vector).reshape(1, -1)
 
         for product in products:
             try:
-                # Validate product data
                 if not self.validate_product_data(product):
                     logger.warning(f"Invalid product data: {product}")
                     continue
@@ -232,10 +242,8 @@ class KoreanFashionNLPService:
                 final_score = similarity * 0.6 + len(keyword_matches) * 0.1 + entity_bonus * 0.3
                 match_reasons = self.generate_match_reasons(query_analysis, product, keyword_matches)
 
-                # Convert product_id to consistent type
                 product_id = product.get('id')
                 if product_id is not None:
-                    # Handle both int and string/Long types
                     if isinstance(product_id, str):
                         try:
                             product_id = int(product_id)
@@ -258,7 +266,6 @@ class KoreanFashionNLPService:
         return results
 
     def validate_product_data(self, product: Dict) -> bool:
-        """Validate product data structure"""
         required_fields = ['id']
         return all(field in product for field in required_fields)
 
@@ -300,10 +307,16 @@ class KoreanFashionNLPService:
     def calculate_entity_bonus(self, query_analysis: QueryAnalysisResult, product: Dict) -> float:
         bonus = 0.0
 
-        # Season matching
+        # ✅ 수정: 계절 매칭 (이제 양쪽 다 영문)
         if query_analysis.season and product.get('season'):
-            if query_analysis.season.upper() == str(product.get('season')).upper():
+            product_season = str(product.get('season')).upper()
+            query_season = query_analysis.season.upper()
+
+            logger.info(f"계절 비교: query={query_season}, product={product_season}")
+
+            if query_season == product_season:
                 bonus += 0.3
+                logger.info(f"계절 매칭 성공! bonus={bonus}")
 
         # Gender matching
         if query_analysis.gender_target and product.get('gender'):
@@ -320,14 +333,27 @@ class KoreanFashionNLPService:
 
     def generate_match_reasons(self, query_analysis: QueryAnalysisResult, product: Dict, keyword_matches: List[str]) -> List[str]:
         reasons = []
+
         if keyword_matches:
             reasons.append(f"키워드 매칭: {', '.join(keyword_matches[:2])}")
-        if query_analysis.season and product.get('season') == query_analysis.season:
-            reasons.append(f"{query_analysis.season} 계절 상품")
+
+        # ✅ 수정: 계절 표시 개선
+        if query_analysis.season and product.get('season'):
+            if query_analysis.season.upper() == str(product.get('season')).upper():
+                season_korean = {
+                    'SPRING': '봄',
+                    'SUMMER': '여름',
+                    'AUTUMN': '가을',
+                    'WINTER': '겨울'
+                }.get(query_analysis.season.upper(), query_analysis.season)
+                reasons.append(f"{season_korean} 계절 상품")
+
         if query_analysis.occasion:
             reasons.append(f"{self.safe_first(query_analysis.occasion)} 상황에 적합")
+
         if not reasons:
             reasons.append("AI 시맨틱 분석 매칭")
+
         return reasons
 
 # ================= 서버 초기화 =================
@@ -359,7 +385,6 @@ async def analyze_query(request: NLPQueryRequest):
 @app.post("/score-products")
 async def score_products(request: ProductMatchRequest):
     try:
-        # Add request validation
         if not request.products:
             logger.warning("Empty products list received")
             return {"success": True, "data": []}

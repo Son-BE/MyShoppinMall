@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>찜 목록 | SonStarMall</title>
 
-    <!-- Font Awesome & Google Font -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          crossorigin="anonymous"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 
     <style>
         :root {
@@ -32,6 +30,12 @@
             --radius: 12px;
             --radius-lg: 16px;
             --radius-xl: 24px;
+            --header-height: 70px;
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
         }
 
         * {
@@ -48,133 +52,166 @@
             line-height: 1.6;
         }
 
-        /* Header */
-        header {
+        /* Header - 메인 페이지 스타일 */
+        .header {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            z-index: 1000;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
-            background: rgba(255, 255, 255, 0.85);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: var(--shadow-lg);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
 
-        .header-container {
+        .header-content {
+            width: 100%;
             max-width: 1400px;
+            height: 100%;
             margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .top-bar {
+            padding: 0 var(--spacing-xl);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: var(--spacing-md);
         }
 
         .logo {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             background: linear-gradient(135deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            user-select: none;
+            letter-spacing: -0.02em;
         }
 
         .logo:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
+        }
+
+        .header-nav {
+            display: flex;
+            gap: var(--spacing-xs);
+            align-items: center;
+        }
+
+        .header-nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: var(--text-gray);
+            white-space: nowrap;
+        }
+
+        .header-nav-link:hover {
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .header-nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .header-search {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .header-search form {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--spacing-md);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.65rem var(--spacing-md) 0.65rem 2.75rem;
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.08);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
         }
 
         .user-info {
             display: flex;
-            gap: 1rem;
+            gap: var(--spacing-sm);
             align-items: center;
-        }
-
-        .user-name {
-            font-weight: 500;
-            color: var(--text-dark);
         }
 
         .auth-button {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            font-size: 0.875rem;
+            gap: var(--spacing-sm);
+            padding: 0.5rem 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             text-decoration: none;
-            border-radius: var(--radius-lg);
+            border-radius: 9999px;
             transition: all 0.3s ease;
             border: none;
+            background: transparent;
+            color: var(--text-gray);
             cursor: pointer;
+            white-space: nowrap;
         }
 
-        .login-button {
-            background: rgba(255, 255, 255, 0.1);
+        .auth-button:hover {
+            background: var(--bg-light);
             color: var(--text-dark);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .login-button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
         }
 
         .logout-button {
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            background: var(--text-dark);
             color: white;
         }
 
         .logout-button:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .main-nav {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            padding: 1rem 0;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-dark);
-            text-decoration: none;
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .nav-link.active {
-            color: var(--primary);
-            background: rgba(0, 112, 243, 0.1);
-        }
-
-        .nav-link:hover {
-            color: var(--primary);
-            background: rgba(0, 112, 243, 0.05);
+            background: var(--text-gray);
         }
 
         /* Main Content */
         .main-content {
-            margin-top: 140px;
+            margin-top: calc(var(--header-height) + 2rem);
             max-width: 1400px;
             margin-left: auto;
             margin-right: auto;
             padding: 2rem;
-            min-height: calc(100vh - 140px);
+            min-height: calc(100vh - var(--header-height));
         }
 
         .wishlist-header {
@@ -449,7 +486,7 @@
 
         .notification {
             position: fixed;
-            top: 160px;
+            top: calc(var(--header-height) + 1rem);
             right: 2rem;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -457,7 +494,7 @@
             padding: 1rem 1.5rem;
             box-shadow: var(--shadow-xl);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            transform: translateX(100%);
+            transform: translateX(calc(100% + 2rem));
             transition: transform 0.3s ease;
             z-index: 1001;
         }
@@ -475,28 +512,23 @@
         }
 
         /* Responsive */
-        @media (max-width: 768px) {
-            .header-container {
-                padding: 0 1rem;
+        @media (max-width: 1024px) {
+            .header-nav {
+                display: none;
             }
+        }
 
+        @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
             }
 
-            .top-bar {
-                flex-direction: column;
-                gap: 1rem;
+            .header-content {
+                padding: 0 var(--spacing-md);
             }
 
-            .main-nav {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .nav-link {
-                width: 100%;
-                justify-content: center;
+            .header-search {
+                display: none;
             }
 
             .wishlist-header,
@@ -531,9 +563,12 @@
             .item-image-container {
                 height: 200px;
             }
+
+            .auth-button span {
+                display: none;
+            }
         }
 
-        /* Loading Animation */
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -543,7 +578,6 @@
             animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
-        /* Fade In Animation */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -561,81 +595,86 @@
     </style>
 </head>
 
-<<<<<<< HEAD
 <body>
-<!-- Header -->
-<header>
-    <div class="header-container">
-        <div class="top-bar">
-            <h1 class="logo" th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
-                SonStarMall
-            </h1>
+<!-- Header - 메인 페이지 스타일 -->
+<header class="header" role="banner">
+    <div class="header-content">
+        <h1 class="logo"
+            onclick="window.location.href='/'"
+            tabindex="0"
+            role="button"
+            aria-label="SonStarMall 홈으로 이동">
+            SonStarMall
+        </h1>
 
-            <div class="user-info">
-                <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
-                    <span class="user-name" th:text="${#authentication.name} + '님'"></span>
+        <nav class="header-nav" aria-label="주요 메뉴">
+            <a href="/" class="header-nav-link">
+                <i class="fa-solid fa-house" aria-hidden="true"></i>
+                <span>홈</span>
+            </a>
+            <a href="/" class="header-nav-link">
+                <i class="fa-solid fa-box" aria-hidden="true"></i>
+                <span>전체상품</span>
+            </a>
+            <a href="/user/cart" class="header-nav-link">
+                <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                <span>장바구니</span>
+            </a>
+            <a href="/user/wishList" class="header-nav-link active">
+                <i class="fa-solid fa-heart" aria-hidden="true"></i>
+                <span>찜 목록</span>
+            </a>
+            <a href="/orders/myOrder" class="header-nav-link">
+                <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+                <span>주문내역</span>
+            </a>
+            <a href="/board?category=NOTICE" class="header-nav-link">
+                <i class="fa-solid fa-comments" aria-hidden="true"></i>
+                <span>게시판</span>
+            </a>
+        </nav>
 
-                    <a th:href="@{/members/profile}" class="auth-button logout-button" aria-label="프로필 페이지 이동">
-                        <i class="fa-solid fa-user"></i>
-                        내 정보
-                    </a>
-
-                    <form th:action="@{/logout}" method="post" style="display:inline;">
-                        <div th:if="${_csrf != null}">
-                            <input type="hidden"
-                                   th:name="${_csrf.parameterName}"
-                                   th:value="${_csrf.token}" />
-                        </div>
-                        <button type="submit" class="auth-button logout-button" aria-label="로그아웃">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                            로그아웃
-                        </button>
-                    </form>
-                </div>
-
-                =======
-                <a th:href="@{/members/profile}" class="profile-button" aria-label="프로필 페이지 이동">
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-user" aria-hidden="true"></i> 내 정보
-                    </button>
-                </a>
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <!--                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
-                    <button type="submit" class="logout-button" aria-label="로그아웃">
-                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> 로그아웃
-                    </button>
-                </form>
-                >>>>>>> origin/master
-                <div th:if="${!#authorization.expression('isAuthenticated()')}">
-                    <a th:href="@{/login}" class="auth-button login-button" aria-label="로그인">
-                        <i class="fa-solid fa-right-to-bracket"></i>
-                        로그인
-                    </a>
-                </div>
-            </div>
+        <div class="header-search">
+            <form method="get" action="/search" role="search">
+                <i class="fa-solid fa-search search-icon" aria-hidden="true"></i>
+                <input type="text"
+                       name="query"
+                       class="search-input"
+                       placeholder="상품을 검색하세요..."
+                       aria-label="상품 검색"
+                       required>
+            </form>
         </div>
 
-        <nav class="main-nav">
-            <a href="/items" class="nav-link">
-                <i class="fa-solid fa-house"></i>
-                Home
-            </a>
-            <a href="/user/cart" class="nav-link">
-                <i class="fa-solid fa-cart-shopping"></i>
-                장바구니
-            </a>
-            <a href="/user/wishList" class="nav-link active">
-                <i class="fa-solid fa-heart"></i>
-                찜 목록
-            </a>
-            <a href="/orders/myOrder" class="nav-link">
-                <i class="fa-solid fa-book"></i>
-                주문 내역
-            </a>
-            <a href="/board?category=NOTICE" class="nav-link">
-                <i class="fa-solid fa-comments"></i>
-                게시판
-            </a>
+        <nav class="header-actions" aria-label="사용자 메뉴">
+            <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
+                <a th:href="@{/members/profile}" class="auth-button" aria-label="프로필 페이지 이동">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    <span th:text="${#authentication.name}">사용자</span>
+                </a>
+
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}" />
+                    <button type="submit" class="auth-button logout-button" aria-label="로그아웃">
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                        <span>로그아웃</span>
+                    </button>
+                </form>
+            </div>
+
+            <div th:unless="${#authorization.expression('isAuthenticated()')}" class="user-info">
+                <a th:href="@{/login}" class="auth-button" aria-label="로그인">
+                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+                    <span>로그인</span>
+                </a>
+                <a th:href="@{/signup}" class="auth-button" aria-label="회원가입">
+                    <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                    <span>회원가입</span>
+                </a>
+            </div>
         </nav>
     </div>
 </header>
@@ -660,7 +699,7 @@
             </div>
             <h3>찜한 상품이 없습니다</h3>
             <p>마음에 드는 상품을 찜해보세요!</p>
-            <a href="/items" class="shop-button">
+            <a href="/" class="shop-button">
                 <i class="fa-solid fa-shopping-bag"></i>
                 쇼핑하러 가기
             </a>
@@ -743,7 +782,6 @@
 
 <!-- JavaScript -->
 <script>
-    // Notification function
     function showNotification(message, type = 'success') {
         const notification = document.getElementById('notification');
         const notificationText = document.getElementById('notificationText');
@@ -757,7 +795,6 @@
         }, 3000);
     }
 
-    // Confirmation functions
     function confirmAddToCart() {
         showNotification('장바구니에 상품을 추가하고 있습니다...', 'success');
         return true;
@@ -779,7 +816,6 @@
         return false;
     }
 
-    // Animation on load
     document.addEventListener('DOMContentLoaded', function() {
         const wishlistItems = document.querySelectorAll('.wishlist-item');
 
@@ -793,30 +829,21 @@
                 item.style.transform = 'translateY(0)';
             }, index * 100);
         });
-
-        // Add active class to current nav item
-        const currentPath = window.location.pathname;
-        document.querySelectorAll('.nav-link').forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            }
-        });
     });
 
-    // Add ripple effect to buttons
     document.querySelectorAll('.action-btn, .clear-btn, .shop-button').forEach(btn => {
         btn.addEventListener('click', function(e) {
             if (this.disabled) return;
 
             const ripple = document.createElement('div');
             ripple.style.cssText = `
-                    position: absolute;
-                    border-radius: 50%;
-                    background: rgba(255,255,255,0.6);
-                    transform: scale(0);
-                    animation: ripple 0.6s linear;
-                    pointer-events: none;
-                `;
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.6);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            `;
 
             const rect = this.getBoundingClientRect();
             const size = Math.max(rect.width, rect.height);
@@ -832,19 +859,17 @@
         });
     });
 
-    // Add ripple animation styles
     const rippleStyle = document.createElement('style');
     rippleStyle.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
-                }
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
             }
-        `;
+        }
+    `;
     document.head.appendChild(rippleStyle);
 
-    // Heart animation on hover
     document.querySelectorAll('.wishlist-item').forEach(item => {
         const heartIcon = item.querySelector('.heart-icon');
 
@@ -857,20 +882,18 @@
         });
     });
 
-    // Add heart beat animation
     const heartStyle = document.createElement('style');
     heartStyle.textContent = `
-            @keyframes heartBeat {
-                0% { transform: scale(1); }
-                14% { transform: scale(1.3); }
-                28% { transform: scale(1); }
-                42% { transform: scale(1.3); }
-                70% { transform: scale(1); }
-            }
-        `;
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.3); }
+            70% { transform: scale(1); }
+        }
+    `;
     document.head.appendChild(heartStyle);
 
-    // Handle form submissions with loading states
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', function(e) {
             const submitBtn = this.querySelector('button[type="submit"]');

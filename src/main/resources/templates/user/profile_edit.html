@@ -1,3 +1,4 @@
+<!--profile_edit-->
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -10,13 +11,12 @@
     <!-- Font Awesome & Google Font -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           crossorigin="anonymous"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 
     <style>
         :root {
             --primary: #0070f3;
             --primary-hover: #0051cc;
-            --secondary: #ff3366;
             --accent: #7c3aed;
             --success: #10b981;
             --warning: #f59e0b;
@@ -34,6 +34,15 @@
             --radius: 12px;
             --radius-lg: 16px;
             --radius-xl: 24px;
+            --radius-full: 9999px;
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            --header-height: 70px;
+            --max-content-width: 1400px;
         }
 
         * {
@@ -50,7 +59,6 @@
             line-height: 1.6;
         }
 
-        /* Animated Background */
         body::before {
             content: '';
             position: fixed;
@@ -71,127 +79,161 @@
             50% { transform: scale(1.1) rotate(5deg); }
         }
 
-        /* Header */
-        header {
+        /* 메인 페이지 스타일 헤더 */
+        .header {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            z-index: 1000;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
-            background: rgba(255, 255, 255, 0.85);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: var(--shadow-lg);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
 
-        .header-container {
-            max-width: 1400px;
+        .header-content {
+            width: 100%;
+            max-width: var(--max-content-width);
+            height: 100%;
             margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .top-bar {
+            padding: 0 var(--spacing-xl);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: var(--spacing-md);
+        }
+
+        .header-nav {
+            display: flex;
+            gap: var(--spacing-xs);
+            align-items: center;
+        }
+
+        .header-nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+            color: var(--text-gray);
+            white-space: nowrap;
+        }
+
+        .header-nav-link:hover {
+            background: var(--bg-light);
+            color: var(--text-dark);
         }
 
         .logo {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             background: linear-gradient(135deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            user-select: none;
+            letter-spacing: -0.02em;
         }
 
         .logo:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
+        }
+
+        .header-search {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .header-search form {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--spacing-md);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.65rem var(--spacing-md) 0.65rem 2.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.08);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
         }
 
         .user-info {
             display: flex;
-            gap: 1rem;
+            gap: var(--spacing-sm);
             align-items: center;
-        }
-
-        .user-name {
-            font-weight: 500;
-            color: var(--text-dark);
         }
 
         .auth-button {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            font-size: 0.875rem;
+            gap: var(--spacing-sm);
+            padding: 0.5rem 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             text-decoration: none;
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-full);
             transition: all 0.3s ease;
             border: none;
+            background: transparent;
+            color: var(--text-gray);
             cursor: pointer;
+            white-space: nowrap;
         }
 
-        .login-button {
-            background: rgba(255, 255, 255, 0.1);
+        .auth-button:hover {
+            background: var(--bg-light);
             color: var(--text-dark);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .login-button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
         }
 
         .logout-button {
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            background: var(--text-dark);
             color: white;
         }
 
         .logout-button:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
+            background: var(--text-gray);
         }
 
-        .main-nav {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            padding: 1rem 0;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-dark);
-            text-decoration: none;
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius);
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-            color: var(--primary);
-            background: rgba(0, 112, 243, 0.05);
-        }
-
-        /* Main Content */
+        /* Main Content - 기존 스타일 유지 */
         .main-content {
-            margin-top: 140px;
+            margin-top: calc(var(--header-height) + 2rem);
             max-width: 900px;
             margin-left: auto;
             margin-right: auto;
             padding: 2rem;
-            min-height: calc(100vh - 140px);
+            min-height: calc(100vh - var(--header-height));
         }
 
         .page-header {
@@ -219,14 +261,8 @@
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .page-title {
@@ -245,7 +281,6 @@
             font-weight: 400;
         }
 
-        /* Form Containers */
         .form-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -258,14 +293,8 @@
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .section-title {
@@ -285,7 +314,6 @@
             color: var(--primary);
         }
 
-        /* Form Styles */
         .form-group {
             margin-bottom: 2rem;
         }
@@ -299,9 +327,7 @@
         }
 
         input[type="text"],
-        input[type="password"],
-        select,
-        textarea {
+        input[type="password"] {
             width: 100%;
             padding: 1rem 1.5rem;
             border: 2px solid var(--border);
@@ -314,16 +340,13 @@
         }
 
         input[type="text"]:focus,
-        input[type="password"]:focus,
-        select:focus,
-        textarea:focus {
+        input[type="password"]:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.1);
             transform: translateY(-2px);
         }
 
-        /* Nickname Container */
         .nick-container {
             display: flex;
             gap: 1rem;
@@ -351,7 +374,6 @@
             box-shadow: var(--shadow-lg);
         }
 
-        /* Message Styles */
         .message {
             padding: 1rem 1.5rem;
             border-radius: var(--radius-lg);
@@ -380,7 +402,6 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-        /* Nickname Check Message */
         #nickCheckMessage {
             margin-top: 0.5rem;
             font-size: 0.875rem;
@@ -409,7 +430,6 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-        /* Submit Buttons */
         .submit-btn {
             width: 100%;
             background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -451,7 +471,6 @@
             transform: none;
         }
 
-        /* Password Strength Indicator */
         .password-strength {
             margin-top: 0.5rem;
             display: flex;
@@ -503,7 +522,6 @@
             width: 16px;
         }
 
-        /* Loading Animation */
         .loading {
             display: inline-block;
             width: 20px;
@@ -520,27 +538,33 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .header-container {
-                padding: 0 1rem;
+            :root {
+                --header-height: 60px;
+            }
+
+            .header-content {
+                padding: 0 var(--spacing-md);
+            }
+
+            .logo {
+                font-size: 1.3rem;
+            }
+
+            .header-search {
+                display: none;
+            }
+
+            .header-nav {
+                display: none;
+            }
+
+            .auth-button span {
+                display: none;
             }
 
             .main-content {
                 padding: 1rem;
-            }
-
-            .top-bar {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .main-nav {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .nav-link {
-                width: 100%;
-                justify-content: center;
+                margin-top: calc(var(--header-height) + 1rem);
             }
 
             .page-header,
@@ -576,7 +600,6 @@
             }
         }
 
-        /* Animation delays for staggered effect */
         .form-container:nth-child(2) {
             animation-delay: 0.2s;
         }
@@ -588,199 +611,218 @@
 </head>
 
 <body>
-<!-- Header -->
-<header>
-    <div class="header-container">
-        <div class="top-bar">
-            <h2 class="logo" th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
-                SonStarMall
-            </h2>
+<!-- Header - 메인 페이지와 동일 -->
+<header class="header" role="banner">
+    <div class="header-content">
+        <h1 class="logo"
+            onclick="window.location.href='/'"
+            tabindex="0"
+            role="button"
+            aria-label="SonStarMall 홈으로 이동"
+            onkeypress="if(event.key==='Enter') window.location.href='/'">
+            SonStarMall
+        </h1>
 
-            <div class="user-info">
-                <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
-                    <span class="user-name" th:text="${#authentication.name} + '님'"></span>
+        <nav class="header-nav" aria-label="주요 메뉴">
+            <a href="/" class="header-nav-link">
+                <i class="fa-solid fa-box" aria-hidden="true"></i>
+                <span>전체상품</span>
+            </a>
+            <a href="/orders/myOrder" class="header-nav-link">
+                <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+                <span>주문내역</span>
+            </a>
+            <a href="/board?category=NOTICE" class="header-nav-link">
+                <i class="fa-solid fa-comments" aria-hidden="true"></i>
+                <span>게시판</span>
+            </a>
+        </nav>
 
-                    <a th:href="@{/members/profile}" class="auth-button logout-button" aria-label="프로필 페이지 이동">
-                        <i class="fa-solid fa-user"></i>
-                        내 정보
-                    </a>
-
-                    <form th:action="@{/logout}" method="post" style="display:inline;">
-                        <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        <button type="submit" class="auth-button logout-button" aria-label="로그아웃">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                            로그아웃
-                        </button>
-                    </form>
-                </div>
-
-                <div th:if="${!#authorization.expression('isAuthenticated()')}">
-                    <a th:href="@{/login}" class="auth-button login-button" aria-label="로그인">
-                        <i class="fa-solid fa-right-to-bracket"></i>
-                        로그인
-                    </a>
-                </div>
-            </div>
+        <div class="header-search">
+            <form method="get" action="/search" role="search">
+                <i class="fa-solid fa-search search-icon" aria-hidden="true"></i>
+                <input type="text"
+                       name="query"
+                       class="search-input"
+                       placeholder="상품을 검색하세요..."
+                       aria-label="상품 검색"
+                       required>
+            </form>
         </div>
 
-        <nav class="main-nav">
-            <a href="/items" class="nav-link">
-                <i class="fa-solid fa-house"></i>
-                Home
-            </a>
-            <a href="/user/cart" class="nav-link">
-                <i class="fa-solid fa-cart-shopping"></i>
-                장바구니
-            </a>
-            <a href="/user/wishList" class="nav-link">
-                <i class="fa-solid fa-heart"></i>
-                찜 목록
-            </a>
-            <a href="/orders/myOrder" class="nav-link">
-                <i class="fa-solid fa-book"></i>
-                주문 내역
-            </a>
-            <a href="/board?category=NOTICE" class="nav-link">
-                <i class="fa-solid fa-comments"></i>
-                게시판
-            </a>
+        <nav class="header-actions" aria-label="사용자 메뉴">
+            <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-info">
+                <a th:href="@{/user/cart}" class="auth-button" aria-label="장바구니">
+                    <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                    <span>장바구니</span>
+                </a>
+
+                <a th:href="@{/user/wishList}" class="auth-button" aria-label="찜 목록">
+                    <i class="fa-solid fa-heart" aria-hidden="true"></i>
+                    <span>찜 목록</span>
+                </a>
+
+                <a th:href="@{/members/profile}" class="auth-button" aria-label="프로필 페이지 이동">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    <span th:text="${#authentication.name}">사용자</span>
+                </a>
+
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}" />
+                    <button type="submit" class="auth-button logout-button" aria-label="로그아웃">
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                        <span>로그아웃</span>
+                    </button>
+                </form>
+            </div>
+
+            <div th:unless="${#authorization.expression('isAuthenticated()')}" class="user-info">
+                <a th:href="@{/login}" class="auth-button" aria-label="로그인">
+                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+                    <span>로그인</span>
+                </a>
+                <a th:href="@{/signup}" class="auth-button" aria-label="회원가입">
+                    <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                    <span>회원가입</span>
+                </a>
+            </div>
         </nav>
     </div>
 </header>
 
-<!-- Main Content -->
-<main class="main-content">
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1 class="page-title">
-            <i class="fa-solid fa-user-edit"></i>
-            내 정보 수정
-        </h1>
-        <p class="page-subtitle">개인정보와 비밀번호를 안전하게 관리하세요</p>
-    </div>
+<div class="main-layout">
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">내 정보 수정</h2>
+            <p class="page-subtitle">개인정보와 비밀번호를 안전하게 관리하세요</p>
+        </div>
 
-    <!-- Global Message -->
-    <div id="message" class="message"></div>
+        <!-- Global Message -->
+        <div id="message" class="message"></div>
 
-    <!-- 기본 정보 수정 폼 -->
-    <div class="form-container">
-        <form id="profileForm" onsubmit="event.preventDefault(); updateProfile();">
-            <div class="section-title">
-                <i class="fa-solid fa-id-card"></i>
-                기본 정보
-            </div>
-
-            <div class="form-group">
-                <label for="nickName">
-                    <i class="fa-solid fa-user"></i>
-                    닉네임
-                </label>
-                <div class="nick-container">
-                    <input type="text" id="nickName" name="nickName" required
-                           placeholder="사용하실 닉네임을 입력하세요" />
-                    <button type="button" id="checkNickBtn" class="btn-check-nick">
-                        <i class="fa-solid fa-check"></i>
-                        중복확인
-                    </button>
+        <!-- 기본 정보 수정 폼 -->
+        <div class="form-container">
+            <form id="profileForm" onsubmit="event.preventDefault(); updateProfile();">
+                <div class="section-title">
+                    <i class="fa-solid fa-id-card"></i>
+                    기본 정보
                 </div>
-                <div id="nickCheckMessage"></div>
-            </div>
 
-            <div class="form-group">
-                <label for="phoneNumber">
-                    <i class="fa-solid fa-phone"></i>
-                    전화번호
-                </label>
-                <input type="text" id="phoneNumber" name="phoneNumber" required
-                       placeholder="010-1234-5678" />
-            </div>
+                <div class="form-group">
+                    <label for="nickName">
+                        <i class="fa-solid fa-user"></i>
+                        닉네임
+                    </label>
+                    <div class="nick-container">
+                        <input type="text" id="nickName" name="nickName" required
+                               placeholder="사용하실 닉네임을 입력하세요" />
+                        <button type="button" id="checkNickBtn" class="btn-check-nick">
+                            <i class="fa-solid fa-check"></i>
+                            중복확인
+                        </button>
+                    </div>
+                    <div id="nickCheckMessage"></div>
+                </div>
 
-            <button type="submit" class="submit-btn">
-                <i class="fa-solid fa-save"></i>
-                정보 수정하기
-            </button>
-        </form>
-    </div>
+                <div class="form-group">
+                    <label for="phoneNumber">
+                        <i class="fa-solid fa-phone"></i>
+                        전화번호
+                    </label>
+                    <input type="text" id="phoneNumber" name="phoneNumber" required
+                           placeholder="010-1234-5678" />
+                </div>
 
-    <!-- 비밀번호 변경 폼 -->
-    <div class="form-container">
-        <form id="passwordForm" onsubmit="event.preventDefault(); updatePassword();">
-            <div class="section-title">
-                <i class="fa-solid fa-lock"></i>
-                비밀번호 변경
-            </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fa-solid fa-save"></i>
+                    정보 수정하기
+                </button>
+            </form>
+        </div>
 
-            <div class="form-group">
-                <label for="currentPassword">
-                    <i class="fa-solid fa-key"></i>
-                    현재 비밀번호
-                </label>
-                <input type="password" id="currentPassword" name="currentPassword" required
-                       placeholder="현재 사용중인 비밀번호를 입력하세요" />
-            </div>
-
-            <div class="form-group">
-                <label for="newPassword">
+        <!-- 비밀번호 변경 폼 -->
+        <div class="form-container">
+            <form id="passwordForm" onsubmit="event.preventDefault(); updatePassword();">
+                <div class="section-title">
                     <i class="fa-solid fa-lock"></i>
-                    새 비밀번호
-                </label>
-                <input type="password" id="newPassword" name="newPassword" required minlength="8"
-                       placeholder="새로운 비밀번호를 입력하세요" />
-                <div class="password-strength" id="passwordStrength">
-                    <div class="strength-bar"></div>
-                    <div class="strength-bar"></div>
-                    <div class="strength-bar"></div>
-                    <div class="strength-bar"></div>
+                    비밀번호 변경
                 </div>
-                <div class="password-requirements">
-                    <div class="requirement" id="lengthReq">
-                        <i class="fa-solid fa-times"></i>
-                        8자 이상
+
+                <div class="form-group">
+                    <label for="currentPassword">
+                        <i class="fa-solid fa-key"></i>
+                        현재 비밀번호
+                    </label>
+                    <input type="password" id="currentPassword" name="currentPassword" required
+                           placeholder="현재 사용중인 비밀번호를 입력하세요" />
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword">
+                        <i class="fa-solid fa-lock"></i>
+                        새 비밀번호
+                    </label>
+                    <input type="password" id="newPassword" name="newPassword" required minlength="8"
+                           placeholder="새로운 비밀번호를 입력하세요" />
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
                     </div>
-                    <div class="requirement" id="upperReq">
-                        <i class="fa-solid fa-times"></i>
-                        대문자 포함
-                    </div>
-                    <div class="requirement" id="lowerReq">
-                        <i class="fa-solid fa-times"></i>
-                        소문자 포함
-                    </div>
-                    <div class="requirement" id="numberReq">
-                        <i class="fa-solid fa-times"></i>
-                        숫자 포함
+                    <div class="password-requirements">
+                        <div class="requirement" id="lengthReq">
+                            <i class="fa-solid fa-times"></i>
+                            8자 이상
+                        </div>
+                        <div class="requirement" id="upperReq">
+                            <i class="fa-solid fa-times"></i>
+                            대문자 포함
+                        </div>
+                        <div class="requirement" id="lowerReq">
+                            <i class="fa-solid fa-times"></i>
+                            소문자 포함
+                        </div>
+                        <div class="requirement" id="numberReq">
+                            <i class="fa-solid fa-times"></i>
+                            숫자 포함
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="confirmPassword">
-                    <i class="fa-solid fa-check-double"></i>
-                    새 비밀번호 확인
-                </label>
-                <input type="password" id="confirmPassword" name="confirmPassword" required minlength="8"
-                       placeholder="새 비밀번호를 다시 입력하세요" />
-            </div>
+                <div class="form-group">
+                    <label for="confirmPassword">
+                        <i class="fa-solid fa-check-double"></i>
+                        새 비밀번호 확인
+                    </label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required minlength="8"
+                           placeholder="새 비밀번호를 다시 입력하세요" />
+                </div>
 
-            <button type="submit" class="submit-btn">
-                <i class="fa-solid fa-shield-alt"></i>
-                비밀번호 변경하기
-            </button>
-        </form>
-    </div>
-</main>
+                <button type="submit" class="submit-btn">
+                    <i class="fa-solid fa-shield-alt"></i>
+                    비밀번호 변경하기
+                </button>
+            </form>
+        </div>
+    </main>
+</div>
 
 <!-- JavaScript -->
 <script>
     const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-    // Message display function with animation
     function showMessage(text, isError = false) {
         const messageDiv = document.getElementById('message');
         messageDiv.textContent = text;
         messageDiv.className = `message ${isError ? 'error' : 'success'} show`;
 
-        // Auto hide after 5 seconds
         setTimeout(() => {
             messageDiv.classList.remove('show');
             setTimeout(() => {
@@ -790,14 +832,12 @@
         }, 5000);
     }
 
-    // Nickname check message function
     function showNickMessage(text, isError = false) {
         const messageDiv = document.getElementById('nickCheckMessage');
         messageDiv.textContent = text;
         messageDiv.className = `${isError ? 'error' : 'success'} show`;
     }
 
-    // Fetch profile information
     async function fetchProfile() {
         try {
             const res = await fetch('/api/members/profile', {
@@ -816,12 +856,10 @@
         }
     }
 
-    // Update profile information
     async function updateProfile() {
         const submitBtn = document.querySelector('#profileForm .submit-btn');
         const originalText = submitBtn.innerHTML;
 
-        // Show loading state
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<div class="loading"></div> 수정 중...';
 
@@ -848,13 +886,11 @@
         } catch (err) {
             showMessage(err.message, true);
         } finally {
-            // Restore button state
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
         }
     }
 
-    // Password strength checker
     function checkPasswordStrength(password) {
         const strengthBars = document.querySelectorAll('.strength-bar');
         const requirements = {
@@ -864,12 +900,10 @@
             number: /\d/.test(password)
         };
 
-        // Reset bars
         strengthBars.forEach(bar => {
             bar.className = 'strength-bar';
         });
 
-        // Update requirement indicators
         document.getElementById('lengthReq').className = requirements.length ? 'requirement met' : 'requirement';
         document.getElementById('lengthReq').querySelector('i').className = requirements.length ? 'fa-solid fa-check' : 'fa-solid fa-times';
 
@@ -882,7 +916,6 @@
         document.getElementById('numberReq').className = requirements.number ? 'requirement met' : 'requirement';
         document.getElementById('numberReq').querySelector('i').className = requirements.number ? 'fa-solid fa-check' : 'fa-solid fa-times';
 
-        // Calculate strength
         const metRequirements = Object.values(requirements).filter(Boolean).length;
 
         if (metRequirements >= 4) {
@@ -893,10 +926,9 @@
             strengthBars[0].classList.add('weak');
         }
 
-        return metRequirements >= 3; // Return true if password is acceptable
+        return metRequirements >= 3;
     }
 
-    // Update password
     async function updatePassword() {
         const currentPassword = document.getElementById('currentPassword').value.trim();
         const newPassword = document.getElementById('newPassword').value.trim();
@@ -915,7 +947,6 @@
         const submitBtn = document.querySelector('#passwordForm .submit-btn');
         const originalText = submitBtn.innerHTML;
 
-        // Show loading state
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<div class="loading"></div> 변경 중...';
 
@@ -938,7 +969,6 @@
             showMessage('비밀번호가 성공적으로 변경되었습니다.');
             document.getElementById('passwordForm').reset();
 
-            // Reset password strength indicators
             const strengthBars = document.querySelectorAll('.strength-bar');
             strengthBars.forEach(bar => bar.className = 'strength-bar');
 
@@ -950,54 +980,33 @@
         } catch (err) {
             showMessage(err.message, true);
         } finally {
-            // Restore button state
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
         }
     }
 
-    // Initialize page
     document.addEventListener('DOMContentLoaded', function() {
-        // Load profile data
         fetchProfile();
 
-        // Logo click handler
-        const logo = document.querySelector('.logo');
-        if (logo) {
-            logo.addEventListener('click', function() {
-                window.location.href = '/items';
-            });
-
-            logo.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    window.location.href = '/items';
-                }
-            });
-        }
-
-        // Password strength checking
         const newPasswordInput = document.getElementById('newPassword');
         newPasswordInput.addEventListener('input', function() {
             checkPasswordStrength(this.value);
         });
 
-        // Real-time password confirmation check
         const confirmPasswordInput = document.getElementById('confirmPassword');
         confirmPasswordInput.addEventListener('input', function() {
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = this.value;
 
             if (confirmPassword && newPassword !== confirmPassword) {
-                this.style.borderColor = 'var(--error)';
+                this.style.borderColor = 'var(--color-error)';
             } else if (confirmPassword && newPassword === confirmPassword) {
-                this.style.borderColor = 'var(--success)';
+                this.style.borderColor = 'var(--color-success)';
             } else {
-                this.style.borderColor = 'var(--border)';
+                this.style.borderColor = 'var(--color-border-light)';
             }
         });
 
-        // Phone number formatting
         const phoneInput = document.getElementById('phoneNumber');
         phoneInput.addEventListener('input', function() {
             let value = this.value.replace(/[^\d]/g, '');
@@ -1009,34 +1018,19 @@
             this.value = value;
         });
 
-        // Nickname input validation
         const nickNameInput = document.getElementById('nickName');
         nickNameInput.addEventListener('input', function() {
             const nickCheckMessage = document.getElementById('nickCheckMessage');
             nickCheckMessage.classList.remove('show');
 
-            // Remove special characters except Korean, English, numbers
             this.value = this.value.replace(/[^가-힣a-zA-Z0-9]/g, '');
 
             if (this.value.length > 20) {
                 this.value = this.value.substring(0, 20);
             }
         });
-
-        // Add input animations
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'scale(1.02)';
-            });
-
-            input.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'scale(1)';
-            });
-        });
     });
 
-    // Nickname duplicate check
     const checkNickBtn = document.getElementById('checkNickBtn');
     checkNickBtn.addEventListener('click', async () => {
         const nickName = document.getElementById('nickName').value.trim();
@@ -1051,7 +1045,6 @@
             return;
         }
 
-        // Show loading state
         const originalText = checkNickBtn.innerHTML;
         checkNickBtn.disabled = true;
         checkNickBtn.innerHTML = '<div class="loading"></div>';
@@ -1080,147 +1073,9 @@
         } catch (error) {
             showNickMessage('닉네임 확인 중 오류가 발생했습니다.', true);
         } finally {
-            // Restore button state
             checkNickBtn.disabled = false;
             checkNickBtn.innerHTML = originalText;
         }
-    });
-
-    // Form validation helpers
-    function validatePhoneNumber(phone) {
-        const phoneRegex = /^010-\d{4}-\d{4}$/;
-        return phoneRegex.test(phone);
-    }
-
-    function validateNickname(nickname) {
-        return nickname.length >= 2 && nickname.length <= 20 && /^[가-힣a-zA-Z0-9]+$/.test(nickname);
-    }
-
-    // Enhanced form submission with validation
-    document.getElementById('profileForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const nickName = document.getElementById('nickName').value.trim();
-        const phoneNumber = document.getElementById('phoneNumber').value.trim();
-
-        if (!validateNickname(nickName)) {
-            showMessage('닉네임은 2-20자의 한글, 영문, 숫자만 가능합니다.', true);
-            return;
-        }
-
-        if (!validatePhoneNumber(phoneNumber)) {
-            showMessage('전화번호 형식이 올바르지 않습니다. (010-XXXX-XXXX)', true);
-            return;
-        }
-
-        updateProfile();
-    });
-
-    // Auto-save draft functionality (optional)
-    let autoSaveInterval;
-
-    function startAutoSave() {
-        autoSaveInterval = setInterval(() => {
-            const nickName = document.getElementById('nickName').value.trim();
-            const phoneNumber = document.getElementById('phoneNumber').value.trim();
-
-            if (nickName || phoneNumber) {
-                localStorage.setItem('profileDraft', JSON.stringify({
-                    nickName,
-                    phoneNumber,
-                    timestamp: Date.now()
-                }));
-            }
-        }, 30000); // Save every 30 seconds
-    }
-
-    function loadDraft() {
-        const draft = localStorage.getItem('profileDraft');
-        if (draft) {
-            try {
-                const data = JSON.parse(draft);
-                const isRecent = Date.now() - data.timestamp < 3600000; // 1 hour
-
-                if (isRecent && confirm('이전에 작성하던 내용이 있습니다. 불러오시겠습니까?')) {
-                    document.getElementById('nickName').value = data.nickName || '';
-                    document.getElementById('phoneNumber').value = data.phoneNumber || '';
-                }
-            } catch (e) {
-                localStorage.removeItem('profileDraft');
-            }
-        }
-    }
-
-    function clearDraft() {
-        localStorage.removeItem('profileDraft');
-    }
-
-    // Initialize auto-save (uncomment if needed)
-    // startAutoSave();
-    // loadDraft();
-
-    // Clear draft on successful submission
-    const originalUpdateProfile = updateProfile;
-    updateProfile = async function() {
-        await originalUpdateProfile();
-        clearDraft();
-    };
-
-    // Handle browser back/forward buttons
-    window.addEventListener('popstate', function(e) {
-        if (confirm('변경사항이 저장되지 않을 수 있습니다. 정말로 나가시겠습니까?')) {
-            // Allow navigation
-        } else {
-            // Stay on page
-            history.pushState(null, null, location.href);
-        }
-    });
-
-    // Warn before leaving page with unsaved changes
-    let hasUnsavedChanges = false;
-
-    document.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', () => {
-            hasUnsavedChanges = true;
-        });
-    });
-
-    window.addEventListener('beforeunload', function(e) {
-        if (hasUnsavedChanges) {
-            e.preventDefault();
-            e.returnValue = '';
-            return '';
-        }
-    });
-
-    // Clear unsaved changes flag on successful submission
-    document.addEventListener('DOMContentLoaded', function() {
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', function() {
-                hasUnsavedChanges = false;
-            });
-        });
-    });
-
-    // Accessibility improvements
-    document.addEventListener('keydown', function(e) {
-        // Allow Enter key to submit focused form
-        if (e.key === 'Enter' && e.target.matches('input:not([type="submit"])')) {
-            const form = e.target.closest('form');
-            if (form) {
-                const submitBtn = form.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
-                    submitBtn.click();
-                }
-            }
-        }
-    });
-
-    // Error handling
-    window.addEventListener('error', function(e) {
-        console.error('JavaScript Error:', e.error);
-        showMessage('페이지에서 오류가 발생했습니다. 새로고침 후 다시 시도해주세요.', true);
     });
 </script>
 

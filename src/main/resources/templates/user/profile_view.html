@@ -1,3 +1,4 @@
+<!--profile_view-->
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -611,7 +612,7 @@
 <header>
     <div class="header-container">
         <div class="top-bar">
-            <h2 class="logo" th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
+            <h2 class="logo" th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">
                 SonStarMall
             </h2>
 
@@ -643,7 +644,7 @@
         </div>
 
         <nav class="main-nav">
-            <a href="/items" class="nav-link">
+            <a href="/" class="nav-link">
                 <i class="fa-solid fa-house"></i>
                 Home
             </a>
@@ -842,13 +843,13 @@
         const logo = document.querySelector('.logo');
         if (logo) {
             logo.addEventListener('click', function() {
-                window.location.href = '/items';
+                window.location.href = '/';
             });
 
             logo.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    window.location.href = '/items';
+                    window.location.href = '/';
                 }
             });
         }

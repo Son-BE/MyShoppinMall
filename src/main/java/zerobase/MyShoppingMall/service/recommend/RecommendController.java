@@ -3,10 +3,14 @@ package zerobase.MyShoppingMall.service.recommend;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import zerobase.MyShoppingMall.entity.Item;
+import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,10 +23,18 @@ public class RecommendController {
 
     private final NlpRecommendationService nlpRecommendationService;
 
+    /**
+     * 웹 UI용 자연어 추천
+     * @AuthenticationPrincipal을 사용하여 자동으로 사용자 정보 주입
+     */
     @GetMapping("/nlp")
     public String nlpRecommend(@RequestParam("query") String query,
-                               @RequestParam(value = "userId", required = false) Long userId,
+                               @AuthenticationPrincipal CustomUserDetails userDetails,
                                Model model) {
+
+        // 사용자 ID 추출
+        Long userId = extractUserId(userDetails);
+
         log.info("NLP 추천 요청: {} (사용자: {})", query, userId);
 
         try {
@@ -33,7 +45,7 @@ public class RecommendController {
             }
 
             // 2. 사용자 컨텍스트 구성
-            Map<String, Object> userContext = buildUserContext(userId);
+            Map<String, Object> userContext = buildUserContext(userId, userDetails);
 
             // 3. Python NLP 서버를 통한 추천 실행
             NlpRecommendationService.RecommendationResult result = nlpRecommendationService.recommendByNaturalLanguage(
@@ -74,6 +86,12 @@ public class RecommendController {
             model.addAttribute("keywords", extractKeywordsFromResult(result));
             model.addAttribute("hasHighConfidence", result.getConfidence() > 0.8);
 
+            // 사용자 정보 추가
+            if (userId != null) {
+                model.addAttribute("userId", userId);
+                model.addAttribute("isAuthenticated", true);
+            }
+
             return "fragments/ai-recommend-result";
 
         } catch (Exception e) {
@@ -87,11 +105,18 @@ public class RecommendController {
 
     /**
      * API용 자연어 추천
+     * @AuthenticationPrincipal을 사용하여 자동으로 사용자 정보 주입
      */
     @PostMapping("/api/nlp")
     @ResponseBody
-    public ResponseEntity<?> nlpRecommendApi(@RequestBody NLPRecommendRequest request) {
+    public ResponseEntity<?> nlpRecommendApi(@RequestBody NLPRecommendRequest request,
+                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         long startTime = System.currentTimeMillis();
+
+        // 사용자 ID 추출
+        Long userId = extractUserId(userDetails);
+
+        log.info("API NLP 추천 요청: {} (사용자: {})", request.getQuery(), userId);
 
         try {
             // 입력 검증
@@ -103,9 +128,11 @@ public class RecommendController {
                 return ResponseEntity.badRequest().body(errorResponse);
             }
 
-            // 사용자 컨텍스트 구성
-            Map<String, Object> userContext = Optional.ofNullable(request.getUserContext())
-                    .orElse(new HashMap<>());
+            // 사용자 컨텍스트 구성 (요청의 context와 인증 정보 병합)
+            Map<String, Object> userContext = buildUserContext(userId, userDetails);
+            if (request.getUserContext() != null) {
+                userContext.putAll(request.getUserContext());
+            }
 
             int limit = Math.max(1, Math.min(request.getLimit(), 50));
 
@@ -149,6 +176,8 @@ public class RecommendController {
             response.put("totalCandidates", result.getTotalCandidates());
             response.put("nlpServiceStatus", nlpRecommendationService.isNLPServiceHealthy());
             response.put("timestamp", new Date());
+            response.put("userId", userId); // 사용자 ID 포함
+            response.put("isAuthenticated", userId != null);
 
             return ResponseEntity.ok(response);
 
@@ -163,6 +192,7 @@ public class RecommendController {
             errorResponse.put("query", request.getQuery());
             errorResponse.put("processingTime", endTime - startTime);
             errorResponse.put("timestamp", new Date());
+            errorResponse.put("userId", userId);
 
             return ResponseEntity.ok(errorResponse);
         }
@@ -173,16 +203,26 @@ public class RecommendController {
      */
     @PostMapping("/api/feedback")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> collectFeedback(@RequestBody RecommendationFeedback feedback) {
+    public ResponseEntity<Map<String, Object>> collectFeedback(@RequestBody RecommendationFeedback feedback,
+                                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
-            log.info("추천 피드백 수집: 쿼리={}, 만족도={}, 클릭된상품={}",
-                    feedback.getQuery(), feedback.getSatisfaction(), feedback.getClickedItems());
+            Long userId = extractUserId(userDetails);
 
+            // 피드백에 사용자 ID 자동 설정
+            if (userId != null && feedback.getUserId() == null) {
+                feedback.setUserId(userId);
+            }
+
+            log.info("추천 피드백 수집: 쿼리={}, 만족도={}, 클릭된상품={}, 사용자={}",
+                    feedback.getQuery(), feedback.getSatisfaction(), feedback.getClickedItems(), userId);
+
+            // TODO: 피드백 데이터 저장 로직 구현
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "피드백이 성공적으로 수집되었습니다.");
             response.put("timestamp", new Date());
+            response.put("userId", userId);
 
             return ResponseEntity.ok(response);
 
@@ -264,12 +304,54 @@ public class RecommendController {
 
     // === 유틸리티 메서드들 ===
 
-    private Map<String, Object> buildUserContext(Long userId) {
+    /**
+     * CustomUserDetails에서 사용자 ID 추출
+     */
+    private Long extractUserId(CustomUserDetails userDetails) {
+        if (userDetails != null && userDetails.getMember() != null) {
+            return userDetails.getMember().getId();
+        }
+
+        // 대안: SecurityContext에서 직접 추출
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
+                CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+                if (principal.getMember() != null) {
+                    return principal.getMember().getId();
+                }
+            }
+        } catch (Exception e) {
+            log.debug("SecurityContext에서 사용자 정보 추출 실패: {}", e.getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * 사용자 컨텍스트 구성 (강화 버전)
+     */
+    private Map<String, Object> buildUserContext(Long userId, CustomUserDetails userDetails) {
         Map<String, Object> context = new HashMap<>();
 
         if (userId != null) {
             context.put("userId", userId);
+        }
+
+        // CustomUserDetails에서 추가 정보 추출
+        if (userDetails != null && userDetails.getMember() != null) {
+            context.put("userEmail", userDetails.getMember().getEmail());
+            context.put("userName", userDetails.getMember().getName());
+            context.put("userNickname", userDetails.getMember().getNickName());
+
+            // 성별 정보가 있다면 추가
+            if (userDetails.getMember().getGender() != null) {
+                context.put("userGender", userDetails.getMember().getGender().toString());
+            }
+
             // TODO: 사용자 선호도, 구매 이력 등 추가
+            // context.put("purchaseHistory", getPurchaseHistory(userId));
+            // context.put("preferences", getUserPreferences(userId));
         }
 
         // 현재 계절 정보

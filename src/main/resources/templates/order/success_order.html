@@ -657,7 +657,7 @@
 <header>
     <div class="header-container">
         <div class="top-bar">
-            <h2 class="logo" th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">
+            <h2 class="logo" th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">
                 SonStarMall
             </h2>
 
@@ -689,7 +689,7 @@
         </div>
 
         <nav class="main-nav">
-            <a href="/items" class="nav-link">
+            <a href="/" class="nav-link">
                 <i class="fa-solid fa-house"></i>
                 Home
             </a>
@@ -821,7 +821,7 @@
 
         <!-- Action Buttons -->
         <div class="action-buttons">
-            <a href="/items" class="btn btn-secondary">
+            <a href="/" class="btn btn-secondary">
                 <i class="fa-solid fa-house"></i>
                 홈으로 가기
             </a>
@@ -865,13 +865,13 @@
         const logo = document.querySelector('.logo');
         if (logo) {
             logo.addEventListener('click', function() {
-                window.location.href = '/items';
+                window.location.href = '/';
             });
 
             logo.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    window.location.href = '/items';
+                    window.location.href = '/';
                 }
             });
         }
@@ -916,7 +916,7 @@
         // Auto redirect after 30 seconds (optional)
         setTimeout(() => {
             if (confirm('30초가 지났습니다. 홈페이지로 이동하시겠습니까?')) {
-                window.location.href = '/items';
+                window.location.href = '/';
             }
         }, 30000);
 

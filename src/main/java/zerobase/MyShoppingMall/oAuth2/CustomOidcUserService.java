@@ -42,6 +42,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         if (attributes.containsKey("phone_number")) {
             phone = (String) attributes.get("phone_number");
         } else {
+
             phone = null;
         }
 

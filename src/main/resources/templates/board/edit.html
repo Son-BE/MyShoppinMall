@@ -502,7 +502,7 @@
 <header>
     <div class="header-container">
         <div class="top-bar">
-            <h2 class="logo" th:onclick="|window.location.href='/items'|" tabindex="0" role="button" aria-label="홈으로 이동">SonStarMall</h2>
+            <h2 class="logo" th:onclick="|window.location.href='/'|" tabindex="0" role="button" aria-label="홈으로 이동">SonStarMall</h2>
             <div class="user-info">
                 <div th:if="${#authorization.expression('isAuthenticated()')}">
                     <span class="user-name" th:text="${#authentication.name} + '님'"></span>
@@ -524,7 +524,7 @@
             </div>
         </div>
         <nav class="main-nav">
-            <a href="/items"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="/"><i class="fa-solid fa-house"></i> Home</a>
             <a href="/user/cart"><i class="fa-solid fa-cart-shopping"></i> 장바구니</a>
             <a href="/user/wishList"><i class="fa-solid fa-heart"></i> 찜 목록</a>
             <a href="/orders/myOrder"><i class="fa-solid fa-book"></i> 주문 내역</a>
