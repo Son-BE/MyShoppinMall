@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenAI 챗봇 테스트</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+
+    .container {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    .test-section {
+      margin: 30px 0;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+    }
+
+    .test-section h2 {
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .response {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-left: 4px solid #4CAF50;
+      border-radius: 4px;
+      white-space: pre-wrap;
+    }
+
+    .error {
+      border-left-color: #f44336;
+      background-color: #ffebee;
+    }
+
+    .loading {
+      display: none;
+      color: #666;
+      font-style: italic;
+    }
+
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .status.success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status.error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🤖 OpenAI 챗봇 테스트 페이지</h1>
+
+  <!-- API 연결 테스트 -->
+  <div class="test-section">
+    <h2>1. API 연결 테스트</h2>
+    <button onclick="testConnection()">연결 테스트</button>
+    <div id="connectionStatus" class="status" style="display:none;"></div>
+  </div>
+
+  <!-- 기본 채팅 테스트 -->
+  <div class="test-section">
+    <h2>2. 기본 채팅 테스트</h2>
+    <input type="text" id="chatInput" placeholder="질문을 입력하세요..." />
+    <button onclick="sendChat()">전송</button>
+    <div id="chatLoading" class="loading">응답을 기다리는 중...</div>
+    <div id="chatResponse" class="response" style="display:none;"></div>
+  </div>
+
+  <!-- 쇼핑 어시스턴트 테스트 -->
+  <div class="test-section">
+    <h2>3. 쇼핑 어시스턴트 테스트</h2>
+    <textarea id="shoppingInput" rows="3" placeholder="쇼핑 관련 질문을 입력하세요...
+예: 겨울 코트 추천해줘"></textarea>
+    <button onclick="sendShoppingQuery()">질문하기</button>
+    <div id="shoppingLoading" class="loading">AI가 답변을 생성중...</div>
+    <div id="shoppingResponse" class="response" style="display:none;"></div>
+  </div>
+
+  <!-- 상품 추천 테스트 -->
+  <div class="test-section">
+    <h2>4. 상품 추천 테스트</h2>
+    <select id="category">
+      <option value="">카테고리 선택</option>
+      <option value="전자제품">전자제품</option>
+      <option value="의류">의류</option>
+      <option value="가전제품">가전제품</option>
+      <option value="스포츠용품">스포츠용품</option>
+    </select>
+    <input type="text" id="budget" placeholder="예산 (예: 50만원)" />
+    <input type="text" id="preference" placeholder="선호사항 (예: 가벼운, 실용적인)" />
+    <button onclick="getRecommendations()">추천 받기</button>
+    <div id="recommendLoading" class="loading">추천 상품을 찾는 중...</div>
+    <div id="recommendResponse" class="response" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = '/api/ai';
+
+  async function testConnection() {
+    const statusDiv = document.getElementById('connectionStatus');
+    statusDiv.style.display = 'block';
+    statusDiv.className = 'status';
+    statusDiv.textContent = '연결 테스트 중...';
+
+    try {
+      const response = await fetch(`${API_BASE}/test`);
+      const data = await response.json();
+
+      if (response.ok) {
+        statusDiv.className = 'status success';
+        statusDiv.innerHTML = `
+                        ✅ 연결 성공!<br>
+                        모델: ${data.model}<br>
+                        메시지: ${data.message}
+                    `;
+      } else {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = '❌ 연결 실패: ' + data.message;
+      }
+    } catch (error) {
+      statusDiv.className = 'status error';
+      statusDiv.textContent = '❌ 연결 실패: ' + error.message;
+    }
+  }
+
+  async function sendChat() {
+    const input = document.getElementById('chatInput');
+    const loading = document.getElementById('chatLoading');
+    const responseDiv = document.getElementById('chatResponse');
+
+    if (!input.value.trim()) {
+      alert('질문을 입력해주세요!');
+      return;
+    }
+
+    loading.style.display = 'block';
+    responseDiv.style.display = 'none';
+
+    try {
+      const response = await fetch(`${API_BASE}/chat?prompt=${encodeURIComponent(input.value)}`);
+      const data = await response.text();
+
+      loading.style.display = 'none';
+      responseDiv.style.display = 'block';
+      responseDiv.className = 'response';
+      responseDiv.textContent = data;
+    } catch (error) {
+      loading.style.display = 'none';
+      responseDiv.style.display = 'block';
+      responseDiv.className = 'response error';
+      responseDiv.textContent = '오류: ' + error.message;
+    }
+  }
+
+  async function sendShoppingQuery() {
+    const input = document.getElementById('shoppingInput');
+    const loading = document.getElementById('shoppingLoading');
+    const responseDiv = document.getElementById('shoppingResponse');
+
+    if (!input.value.trim()) {
+      alert('질문을 입력해주세요!');
+      return;
+    }
+
+    loading.style.display = 'block';
+    responseDiv.style.display = 'none';
+
+    try {
+      const response = await fetch(`${API_BASE}/shopping-assistant`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: input.value
+        })
+      });
+
+      const data = await response.json();
+
+      loading.style.display = 'none';
+      responseDiv.style.display = 'block';
+      responseDiv.className = 'response';
+      responseDiv.textContent = data.response || data.error || '응답 없음';
+    } catch (error) {
+      loading.style.display = 'none';
+      responseDiv.style.display = 'block';
+      responseDiv.className = 'response error';
+      responseDiv.textContent = '오류: ' + error.message;
+    }
+  }
+
+  async function getRecommendations() {
+    const category = document.getElementById('category').value;
+    const budget = document.getElementById('budget').value;
+    const preference = document.getElementById('preference').value;
+    const loading = document.getElementById('recommendLoading');
+    const responseDiv = document.getElementById('recommendResponse');
+
+    if (!category && !budget && !preference) {
+      alert('최소한 하나의 조건을 입력해주세요!');
+      return;
+    }
+
+    loading.style.display = 'block';
+    responseDiv.style.display = 'none';
+
+    try {
+      const response = await fetch(`${API_BASE}/recommend`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category: category,
+          budget: budget,
+          preference: preference
+        })
+      });
+
+      const data = await response.json();
+
+      loading.style.display = 'none';
+      responseDiv.style.display = 'block';
+      responseDiv.className = 'response';
+      responseDiv.textContent = data.recommendations || '추천 결과 없음';
+    } catch (error) {
+      loading.style.display = 'none';
+      responseDiv.style.display = 'block';
+      responseDiv.className = 'response error';
+      responseDiv.textContent = '오류: ' + error.message;
+    }
+  }
+</script>
+</body>
+</html>

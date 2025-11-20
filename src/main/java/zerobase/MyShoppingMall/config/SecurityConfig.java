@@ -75,7 +75,7 @@ public class SecurityConfig {
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**", "/oauth2/**", "/admin/upload-and-classify", "/admin/upload/**")
+                        .ignoringRequestMatchers("/api/**", "/oauth2/**","/payment/**", "/admin/upload-and-classify", "/admin/upload/**")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 )
