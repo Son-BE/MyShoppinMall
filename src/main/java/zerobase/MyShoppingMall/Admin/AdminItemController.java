@@ -101,6 +101,7 @@ public class AdminItemController {
         model.addAttribute("item", item);
         model.addAttribute("categories", ItemCategory.values());
         return "admin/item/edit";
+
     }
 
     @GetMapping("/get-subcategories")
@@ -114,5 +115,6 @@ public class AdminItemController {
                 ));
 
         return subCategoryMap;
+
     }
 }

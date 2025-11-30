@@ -59,6 +59,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/recommendations/**").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/recommendations/**").permitAll()
 
+                        .requestMatchers("/api/chat/**").permitAll()
+
                         .requestMatchers("/api/members/**").authenticated()
                         .requestMatchers("/api/cart/**").authenticated()
                         .requestMatchers("/api/wishList/**").authenticated()

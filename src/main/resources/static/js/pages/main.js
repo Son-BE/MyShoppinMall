@@ -386,5 +386,37 @@ window.addEventListener('beforeunload', () => {
     App.cleanup();
 });
 
+function toggleChatbot() {
+    document.getElementById("chatbot-popup").classList.toggle("hidden");
+}
+
+function appendMessage(sender, text) {
+    const chatBody = document.getElementById("chat-body");
+    const div = document.createElement("div");
+    div.className = sender === "user" ? "user-msg" : "bot-msg";
+    div.innerText = text;
+    chatBody.appendChild(div);
+    chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+async function sendMessage() {
+    const input = document.getElementById("chat-input");
+    const message = input.value.trim();
+    if (!message) return;
+
+    appendMessage("user", message);
+    input.value = "";
+
+    try {
+        const response = await axios.post("/api/chat", {
+            message: message
+        });
+
+        appendMessage("bot", response.data.answer);
+    } catch (err) {
+        appendMessage("bot", "⚠ 서버 오류가 발생했습니다.");
+    }
+}
+
 // 앱 시작
 App.init();

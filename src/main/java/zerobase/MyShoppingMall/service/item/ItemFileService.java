@@ -37,28 +37,28 @@ public class ItemFileService {
             throw new IOException("이미지 업로드에 실패했습니다.", e);
         }
     }
-    public String replaceItemImage(String oldImageUrl, MultipartFile newImageFile) throws IOException {
-        if (newImageFile == null || newImageFile.isEmpty()) {
-            log.info("새 이미지 파일이 없어 기존 이미지 유지");
-            return oldImageUrl;
-        }
-
-        validateImageFile(newImageFile);
-
-        try {
-            String newImageUrl = s3UploadService.uploadFile(newImageFile);
-            if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
-                deleteImageFromS3(oldImageUrl);
-            }
-
-            log.info("이미지 교체 성공, 기존: {}, 새로운: {}", oldImageUrl, newImageUrl);
-            return newImageUrl;
-        } catch (IOException e) {
-            log.error("이미지 교체 실패, 파일명: {}, 예외: {}",
-                    newImageFile.getOriginalFilename(), e.getMessage());
-            throw new IOException("이미지 교체에 실패했습니다.", e);
-        }
-    }
+//    public String replaceItemImage(String oldImageUrl, MultipartFile newImageFile) throws IOException {
+//        if (newImageFile == null || newImageFile.isEmpty()) {
+//            log.info("새 이미지 파일이 없어 기존 이미지 유지");
+//            return oldImageUrl;
+//        }
+//
+//        validateImageFile(newImageFile);
+//
+//        try {
+//            String newImageUrl = s3UploadService.uploadFile(newImageFile);
+//            if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
+//                deleteImageFromS3(oldImageUrl);
+//            }
+//
+//            log.info("이미지 교체 성공, 기존: {}, 새로운: {}", oldImageUrl, newImageUrl);
+//            return newImageUrl;
+//        } catch (IOException e) {
+//            log.error("이미지 교체 실패, 파일명: {}, 예외: {}",
+//                    newImageFile.getOriginalFilename(), e.getMessage());
+//            throw new IOException("이미지 교체에 실패했습니다.", e);
+//        }
+//    }
     public void deleteItemImage(String imageUrl) {
         if (imageUrl == null || imageUrl.isEmpty()) {
             log.info("삭제할 이미지 URL이 없음");

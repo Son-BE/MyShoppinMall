@@ -8,6 +8,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class WebClientConfig {
+
+    @Value("${openai.api.key}")
+    private String apiKey;
+
     @Bean
     @Qualifier("iamportWebClient")
     public WebClient iamportWebClient(WebClient.Builder builder) {
@@ -20,4 +24,12 @@ public class WebClientConfig {
                                   @Value("${nlp.service.url:http://nlp-server:5001}") String nlpServiceUrl) {
         return builder.baseUrl(nlpServiceUrl).build();
     }
+
+    @Bean
+    @Qualifier("chatbot")
+    public WebClient.Builder webClientBuilder() {
+        return WebClient.builder();
+    }
+
+
 }

@@ -727,6 +727,58 @@ body {
     color: var(--color-text-muted);
     font-style: italic;
 }
+#chatbot-button {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 55px;
+    height: 55px;
+    background: #4a73f3;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 26px;
+}
+
+#chatbot-popup {
+    position: fixed;
+    right: 20px;
+    bottom: 90px;
+    width: 320px;
+    height: 450px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+}
+
+.hidden { display: none; }
+
+.chat-header {
+    background: #4a73f3;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+#chat-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background: #fafafa;
+}
+.chat-input-box {
+    padding: 10px;
+    display: flex;
+}
+.chat-input-box input {
+    flex: 1;
+    padding: 8px;
+}
 
 /* No Products State */
 .no-products {

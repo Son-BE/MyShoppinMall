@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sentence-transformers
+psycopg2-binary
+pgvector
+sqlalchemy
+python-dotenv
+pymysql
+cryptography
+pydantic-settings
+openai
