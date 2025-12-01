@@ -36,37 +36,37 @@ public class DataInit {
     private boolean skipIfExists = false;
     private boolean createAdmin = false;
 
-    @PostConstruct
-    public void init() {
-        long startTime = System.currentTimeMillis();
-        log.info("=== 더미 데이터 생성 시작 ===");
-
-        try {
-            // 기존 데이터 확인
-            if (skipIfExists && hasExistingData()) {
-                log.info("기존 데이터가 존재하여 더미 데이터 생성을 건너뜁니다.");
-                return;
-            }
-
-            createMembers();
-            createItems();
-            // 병렬로 데이터 생성
-            CompletableFuture<Void> memberFuture = CompletableFuture.runAsync(this::createMembers);
-            CompletableFuture<Void> itemFuture = CompletableFuture.runAsync(this::createItems);
-
-            // 모든 작업 완료 대기
-            CompletableFuture.allOf(memberFuture, itemFuture).join();
-//            CompletableFuture.allOf(itemFuture).join();
-
-            long endTime = System.currentTimeMillis();
-            log.info("=== 더미 데이터 생성 완료 === (소요시간: {}ms)", endTime - startTime);
-
-            printDataStatistics();
-
-        } catch (Exception e) {
-            log.error("더미 데이터 생성 중 오류 발생: {}", e.getMessage(), e);
-        }
-    }
+//    @PostConstruct
+//    public void init() {
+//        long startTime = System.currentTimeMillis();
+//        log.info("=== 더미 데이터 생성 시작 ===");
+//
+//        try {
+//            // 기존 데이터 확인
+//            if (skipIfExists && hasExistingData()) {
+//                log.info("기존 데이터가 존재하여 더미 데이터 생성을 건너뜁니다.");
+//                return;
+//            }
+//
+//            createMembers();
+//            createItems();
+//            // 병렬로 데이터 생성
+//            CompletableFuture<Void> memberFuture = CompletableFuture.runAsync(this::createMembers);
+//            CompletableFuture<Void> itemFuture = CompletableFuture.runAsync(this::createItems);
+//
+//            // 모든 작업 완료 대기
+//            CompletableFuture.allOf(memberFuture, itemFuture).join();
+////            CompletableFuture.allOf(itemFuture).join();
+//
+//            long endTime = System.currentTimeMillis();
+//            log.info("=== 더미 데이터 생성 완료 === (소요시간: {}ms)", endTime - startTime);
+//
+//            printDataStatistics();
+//
+//        } catch (Exception e) {
+//            log.error("더미 데이터 생성 중 오류 발생: {}", e.getMessage(), e);
+//        }
+//    }
 
     private boolean hasExistingData() {
         long memberCount = memberRepository.count();

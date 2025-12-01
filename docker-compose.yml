@@ -241,6 +241,8 @@ services:
       HUGGINGFACE_API_TIMEOUT: ${HUGGINGFACE_API_TIMEOUT}
       HUGGINGFACE_API_MAX_RETRIES: ${HUGGINGFACE_API_MAX_RETRIES}
       HUGGINGFACE_MODELS_EMBEDDING: ${HUGGINGFACE_MODELS_EMBEDDING}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      AI_SERVICE_URL: http://ai-service:8000
       JAVA_OPTS: "-Dcom.amazonaws.sdk.disableEc2Metadata=true -Dcom.amazonaws.services.s3.disableGetObjectMD5Validation=true -Djdk.management.jfr.allowed=false -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -Djava.lang.management.ManagementFactory.disableCgroupMetrics=true"
     networks:
       - shop-network

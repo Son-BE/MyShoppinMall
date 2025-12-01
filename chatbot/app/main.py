@@ -1,17 +1,26 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from typing import Optional
 from app.services.embedding_service import embedding_service
 from app.services.retrieval_service import retrieval_service
 from app.services.llm_service import llm_service
+from app.services.chat_history_service import chat_history_service
 
 app = FastAPI(title="SonStarMall AI Service")
 
 class ChatRequest(BaseModel):
     message: str
+    session_id: Optional[str] = None
+
+class RelatedProduct(BaseModel):
+    product_id: int
+    product_name: str
+    category: str
+    similarity: float
 
 class ChatResponse(BaseModel):
     answer: str
-    related_products: list
+    related_products: list[RelatedProduct]
 
 @app.get("/")
 def root():
@@ -32,13 +41,28 @@ def search_products(query: str, top_k: int = 5):
 @app.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest):
     """챗봇 대화"""
-    # 1. 관련 상품 검색
+    session_id = request.session_id or "default"
+
+    # 1. 대화 히스토리 조회
+    history = chat_history_service.get_history(session_id)
+
+    # 2. 관련 상품 검색
     products = retrieval_service.search_similar_products(request.message, top_k=5)
 
-    # 2. LLM으로 답변 생성
-    answer = llm_service.generate_response(request.message, products)
+    # 3. LLM으로 답변 생성
+    answer = llm_service.generate_response(request.message, products, history)
+
+    # 4. 대화 저장
+    chat_history_service.save_message(session_id, "user", request.message)
+    chat_history_service.save_message(session_id, "assistant", answer)
 
     return ChatResponse(answer=answer, related_products=products)
+
+@app.get("/chat/history/{session_id}")
+def get_chat_history(session_id: str):
+    """대화 히스토리 조회"""
+    history = chat_history_service.get_history(session_id, limit=20)
+    return {"session_id": session_id, "history": history}
 
 @app.get("/health")
 def health_check():
