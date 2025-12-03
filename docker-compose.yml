@@ -142,31 +142,31 @@ services:
   #       max-size: "10m"
   #       max-file: "3"
 
-  nlp-server:
-    build:
-      context: ./nlp-server
-      dockerfile: Dockerfile
-    environment:
-      - PYTHONUNBUFFERED=1
-      - MODEL_CACHE_DIR=/app/model_cache
-    ports:
-      - "5001:5001"
-    volumes:
-      - nlp_models:/app/model_cache
-    networks:
-      - shop-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 120s
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-        reservations:
-          memory: 2G
+#  nlp-server:
+#    build:
+#      context: ./nlp-server
+#      dockerfile: Dockerfile
+#    environment:
+#      - PYTHONUNBUFFERED=1
+#      - MODEL_CACHE_DIR=/app/model_cache
+#    ports:
+#      - "5001:5001"
+#    volumes:
+#      - nlp_models:/app/model_cache
+#    networks:
+#      - shop-network
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 120s
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 4G
+#        reservations:
+#          memory: 2G
 
   ai-service:
     build:
@@ -255,9 +255,9 @@ services:
 volumes:
   mysql-data:
   redis-data:
-  recommend-data:
-  classifier-models:
-  classifier-logs:
+#  recommend-data:
+#  classifier-models:
+#  classifier-logs:
   nlp_models:
   postgres_vector_data:
 

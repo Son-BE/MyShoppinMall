@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Optional, List
 from app.services.embedding_service import embedding_service
 from app.services.retrieval_service import retrieval_service
 from app.services.llm_service import llm_service
@@ -10,17 +10,20 @@ app = FastAPI(title="SonStarMall AI Service")
 
 class ChatRequest(BaseModel):
     message: str
-    session_id: Optional[str] = None
+    session_id: Optional[str] = Field(None, alias="sessionId")
+
+    class Config:
+        populate_by_name = True
 
 class RelatedProduct(BaseModel):
-    product_id: int
-    product_name: str
+    productId: int
+    productName: str
     category: str
     similarity: float
 
 class ChatResponse(BaseModel):
     answer: str
-    related_products: list[RelatedProduct]
+    relatedProducts: List[RelatedProduct]
 
 @app.get("/")
 def root():
@@ -56,7 +59,17 @@ def chat(request: ChatRequest):
     chat_history_service.save_message(session_id, "user", request.message)
     chat_history_service.save_message(session_id, "assistant", answer)
 
-    return ChatResponse(answer=answer, related_products=products)
+    related_products = [
+        RelatedProduct(
+            productId=p["product_id"],
+            productName=p["product_name"],
+            category=p["category"],
+            similarity=p.get("similarity", 0.0)
+        )
+        for p in products
+    ]
+
+    return ChatResponse(answer=answer, relatedProducts=related_products)
 
 @app.get("/chat/history/{session_id}")
 def get_chat_history(session_id: str):

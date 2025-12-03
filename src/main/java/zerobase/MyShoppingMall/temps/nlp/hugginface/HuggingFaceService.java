@@ -1,6 +1,5 @@
 package zerobase.MyShoppingMall.temps.nlp.hugginface;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,15 +49,11 @@ public class HuggingFaceService {
         log.info("HuggingFace 서비스 초기화 완료 - 모델:{}", embeddingModel);
     }
 
-    /**
-     * 텍스트를 임베딩 벡터로 변환
-     */
     @Cacheable(value = "embeddings", key = "#text.hashCode()")
     public double[] getEmbedding(String text) {
         log.debug("임베딩 생성 요청:{}", text.substring(0, Math.min(50, text.length())));
 
         try {
-            // 한국어 특화 프롬프트
             String promptedText = addKoreanPrompt(text);
             Map<String, Object> requestBody = Map.of(
                     "inputs", promptedText,
@@ -88,22 +83,13 @@ public class HuggingFaceService {
         }
     }
 
-    /**
-     * 한국어 패션 특화 프롬프트
-     */
     private String addKoreanPrompt(String text) {
-        //e5 모델 -> 특화 프롬프트 사용
         if (embeddingModel.contains("e5")) {
             return "query: " + text;
         }
-
-        // 일반적인 한국어 패션 검색 프롬프트
         return "한국어 패션 상품 검색: " + text;
     }
 
-    /**
-     * 재시도 가능한 예외인지 확인
-     */
     private boolean isRetryableException(Throwable throwable) {
         if (throwable instanceof WebClientResponseException) {
             WebClientResponseException ex = (WebClientResponseException) throwable;
@@ -111,15 +97,7 @@ public class HuggingFaceService {
             return statusCode == 503 || statusCode == 429 || statusCode == 502 || statusCode == 500;
         }
 
-        // 네트워크 오류 등도 재시도
         return throwable instanceof java.net.ConnectException ||
                 throwable instanceof java.util.concurrent.TimeoutException;
     }
-
-
-
-
-
-
-
 }
