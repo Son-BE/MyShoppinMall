@@ -5,14 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.dto.wishlist.WishListDto;
-
+import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.service.wishList.WishListService;
-import zerobase.MyShoppingMall.temps.RecommendationService;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ import java.util.List;
 public class WishListController {
 
     private final WishListService wishListService;
-    private final RecommendationService recommendationService;
+//    private final RecommendationService recommendationService;
 
     //찜목록 조회
     @GetMapping
@@ -41,7 +42,7 @@ public class WishListController {
         Member member = userDetails.getMember();
         try{
             wishListService.addToWishList(member.getId(), itemId);
-            recordUserInteraction(member.getId(), itemId, "like");
+//            recordUserInteraction(member.getId(), itemId, "like");
 
             redirectAttributes.addFlashAttribute("message", "찜목록에 상품이 추가되었습니다!");
         } catch (IllegalArgumentException e) {
@@ -71,14 +72,14 @@ public class WishListController {
     /**
      * 사용자 상호작용 기록 (안전하게 처리)
      */
-    private void recordUserInteraction(Long memberId, Long itemId, String action) {
-        try {
-            recommendationService.recordUserInteraction(memberId, itemId, action);
-            log.debug("위시리스트 상호작용 기록 - 사용자: {}, 상품: {}, 액션: {}", memberId, itemId, action);
-        } catch (Exception e) {
-            log.warn("위시리스트 상호작용 기록 실패 - 사용자: {}, 상품: {}, 액션: {}",
-                    memberId, itemId, action, e);
-        }
-    }
+//    private void recordUserInteraction(Long memberId, Long itemId, String action) {
+//        try {
+//            recommendationService.recordUserInteraction(memberId, itemId, action);
+//            log.debug("위시리스트 상호작용 기록 - 사용자: {}, 상품: {}, 액션: {}", memberId, itemId, action);
+//        } catch (Exception e) {
+//            log.warn("위시리스트 상호작용 기록 실패 - 사용자: {}, 상품: {}, 액션: {}",
+//                    memberId, itemId, action, e);
+//        }
+//    }
 
 }

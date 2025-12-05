@@ -1,5 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
 sentence-transformers
 psycopg2-binary
 pgvector
@@ -9,3 +9,8 @@ pymysql
 cryptography
 pydantic-settings
 openai
+pillow
+transformers
+torch
+torchvision
+python-multipart

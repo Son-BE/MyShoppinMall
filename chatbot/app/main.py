@@ -5,8 +5,12 @@ from app.services.embedding_service import embedding_service
 from app.services.retrieval_service import retrieval_service
 from app.services.llm_service import llm_service
 from app.services.chat_history_service import chat_history_service
+from app.routers import classify
 
 app = FastAPI(title="SonStarMall AI Service")
+
+# 라우터 등록
+app.include_router(classify.router)
 
 class ChatRequest(BaseModel):
     message: str

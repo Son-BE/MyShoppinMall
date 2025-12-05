@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 등록 - AI 자동 분류</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin-upload.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="admin-header">
+    <div class="header-content">
+        <a href="/" class="logo">
+            <i class="fa-solid fa-store"></i>
+            SonStarMall Admin
+        </a>
+        <nav class="header-nav">
+            <a href="/admin/products/upload" class="nav-link active">
+                <i class="fa-solid fa-upload"></i> 상품 등록
+            </a>
+            <a href="/" class="nav-link">
+                <i class="fa-solid fa-home"></i> 메인으로
+            </a>
+        </nav>
+    </div>
+</header>
+
+<main class="admin-main">
+    <div class="page-header">
+        <h1><i class="fa-solid fa-wand-magic-sparkles"></i> AI 자동 상품 등록</h1>
+        <p>이미지를 업로드하면 AI가 자동으로 상품 정보를 분석합니다</p>
+    </div>
+
+    <div class="upload-container">
+        <!-- 업로드 영역 -->
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="imageInput" accept="image/*" multiple hidden>
+                <div class="upload-placeholder" id="uploadPlaceholder">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <h3>이미지를 드래그하거나 클릭하여 업로드</h3>
+                    <p>JPG, PNG, WEBP (최대 10MB)</p>
+                </div>
+                <div class="upload-preview" id="uploadPreview" style="display: none;">
+                    <img id="previewImage" src="" alt="미리보기">
+                    <button type="button" class="btn-remove" id="removeImage">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="button" class="btn-analyze" id="analyzeBtn" disabled>
+                <i class="fa-solid fa-robot"></i>
+                AI 분석 시작
+            </button>
+        </div>
+
+        <!-- 분석 결과 영역 -->
+        <div class="result-section" id="resultSection" style="display: none;">
+            <div class="result-header">
+                <h2><i class="fa-solid fa-sparkles"></i> AI 분석 결과</h2>
+                <div class="confidence-badge" id="confidenceBadge">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <span id="confidenceText">분석 완료</span>
+                </div>
+            </div>
+
+            <form id="productForm" class="product-form">
+                <!-- 기본 정보 -->
+                <div class="form-section">
+                    <h3><i class="fa-solid fa-tag"></i> 기본 정보</h3>
+
+                    <div class="form-group">
+                        <label for="itemName">상품명 *</label>
+                        <input type="text" id="itemName" name="itemName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="itemComment">상품 설명</label>
+                        <textarea id="itemComment" name="itemComment" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="price">가격 *</label>
+                            <input type="number" id="price" name="price" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity">수량</label>
+                            <input type="number" id="quantity" name="quantity" value="100" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 분류 정보 -->
+                <div class="form-section">
+                    <h3><i class="fa-solid fa-layer-group"></i> 분류 정보</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gender">성별 *</label>
+                            <select id="gender" name="gender" required>
+                                <option value="MALE">남성</option>
+                                <option value="FEMALE">여성</option>
+                                <option value="UNISEX">공용</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">카테고리 *</label>
+                            <select id="category" name="category" required>
+                                <optgroup label="남성">
+                                    <option value="MENS_TOP">남성 상의</option>
+                                    <option value="MENS_BOTTOM">남성 하의</option>
+                                    <option value="MENS_OUTER">남성 아우터</option>
+                                    <option value="MENS_SHOES">남성 신발</option>
+                                    <option value="MENS_ACCESSORY">남성 악세서리</option>
+                                </optgroup>
+                                <optgroup label="여성">
+                                    <option value="WOMENS_TOP">여성 상의</option>
+                                    <option value="WOMENS_BOTTOM">여성 하의</option>
+                                    <option value="WOMENS_OUTER">여성 아우터</option>
+                                    <option value="WOMENS_SHOES">여성 신발</option>
+                                    <option value="WOMENS_ACCESSORY">여성 악세서리</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="subCategory">세부 카테고리</label>
+                            <select id="subCategory" name="subCategory">
+                                <!-- JavaScript로 동적 생성 -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="season">시즌</label>
+                            <select id="season" name="season">
+                                <option value="ALL_SEASON">사계절</option>
+                                <option value="SPRING">봄</option>
+                                <option value="SUMMER">여름</option>
+                                <option value="AUTUMN">가을</option>
+                                <option value="WINTER">겨울</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 스타일 정보 -->
+                <div class="form-section">
+                    <h3><i class="fa-solid fa-palette"></i> 스타일 정보</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="style">스타일</label>
+                            <select id="style" name="style">
+                                <option value="CASUAL">캐주얼</option>
+                                <option value="FORMAL">포멀</option>
+                                <option value="SPORTY">스포티</option>
+                                <option value="STREET">스트릿</option>
+                                <option value="MINIMAL">미니멀</option>
+                                <option value="VINTAGE">빈티지</option>
+                                <option value="CHIC">시크</option>
+                                <option value="CUTE">큐트</option>
+                                <option value="DANDY">댄디</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ageGroup">연령대</label>
+                            <select id="ageGroup" name="ageGroup">
+                                <option value="ADULT">성인</option>
+                                <option value="TEEN">10대</option>
+                                <option value="TWENTY">20대</option>
+                                <option value="THIRTY">30대</option>
+                                <option value="FORTY">40대</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="primaryColor">주요 색상</label>
+                            <select id="primaryColor" name="primaryColor">
+                                <option value="">선택 안함</option>
+                                <option value="BLACK">블랙</option>
+                                <option value="WHITE">화이트</option>
+                                <option value="GRAY">그레이</option>
+                                <option value="NAVY">네이비</option>
+                                <option value="BLUE">블루</option>
+                                <option value="RED">레드</option>
+                                <option value="PINK">핑크</option>
+                                <option value="BEIGE">베이지</option>
+                                <option value="BROWN">브라운</option>
+                                <option value="GREEN">그린</option>
+                                <option value="YELLOW">옐로우</option>
+                                <option value="ORANGE">오렌지</option>
+                                <option value="PURPLE">퍼플</option>
+                                <option value="MULTI">멀티컬러</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="secondaryColor">보조 색상</label>
+                            <select id="secondaryColor" name="secondaryColor">
+                                <option value="">선택 안함</option>
+                                <option value="BLACK">블랙</option>
+                                <option value="WHITE">화이트</option>
+                                <option value="GRAY">그레이</option>
+                                <option value="NAVY">네이비</option>
+                                <option value="BLUE">블루</option>
+                                <option value="RED">레드</option>
+                                <option value="PINK">핑크</option>
+                                <option value="BEIGE">베이지</option>
+                                <option value="BROWN">브라운</option>
+                                <option value="GREEN">그린</option>
+                                <option value="YELLOW">옐로우</option>
+                                <option value="ORANGE">오렌지</option>
+                                <option value="PURPLE">퍼플</option>
+                                <option value="MULTI">멀티컬러</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 숨겨진 필드 -->
+                <input type="hidden" id="imagePath" name="imagePath">
+
+                <!-- 버튼 영역 -->
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelBtn">
+                        <i class="fa-solid fa-xmark"></i> 취소
+                    </button>
+                    <button type="submit" class="btn-submit">
+                        <i class="fa-solid fa-check"></i> 상품 등록
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 로딩 오버레이 -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="loadingText">AI가 이미지를 분석하고 있습니다...</p>
+        </div>
+    </div>
+
+    <!-- 성공 모달 -->
+    <div class="modal-overlay" id="successModal" style="display: none;">
+        <div class="modal-content success">
+            <i class="fa-solid fa-circle-check"></i>
+            <h2>상품 등록 완료!</h2>
+            <p id="successMessage"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="location.reload()">
+                    다른 상품 등록
+                </button>
+                <a href="/" class="btn-primary">
+                    메인으로
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/admin-upload.js"></script>
+</body>
+</html>

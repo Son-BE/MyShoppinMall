@@ -24,12 +24,9 @@ import zerobase.MyShoppingMall.service.item.ViewHistoryService;
 import zerobase.MyShoppingMall.service.order.OrderService;
 import zerobase.MyShoppingMall.temps.CategoryStats;
 import zerobase.MyShoppingMall.temps.CategoryStatsService;
-import zerobase.MyShoppingMall.temps.RecommendationResponse;
-import zerobase.MyShoppingMall.temps.RecommendationService;
 import zerobase.MyShoppingMall.type.Gender;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Controller
@@ -43,7 +40,7 @@ public class ItemController {
     private final ReviewRepository reviewRepository;
     private final OrderService orderService;
     private final PaginationService paginationService;
-    private final RecommendationService recommendationService;
+//    private final RecommendationService recommendationService;
     private final CategoryStatsService categoryStatsService;
 
     @GetMapping
@@ -73,7 +70,7 @@ public class ItemController {
         PaginationInfo paginationInfo = paginationService.createPaginationInfo(itemPage);
 
         addItemListPageAttributes(model, itemPage, paginationInfo, gender, sort, subCategory);
-        addItemListPageRecommendations(model, userDetails);
+//        addItemListPageRecommendations(model, userDetails);
 
         log.info("상품 목록 페이지 로드 - 검색: {}, 필터: gender={}, sort={}, category={}, page={}",
                 search, gender, sort, subCategory, page);
@@ -107,11 +104,11 @@ public class ItemController {
         // 모델에 기본 정보 추가
         addItemDetailAttributes(model, item, reviews, averageRating, canWriteReview, orderId);
 
-        // 추천 정보 추가 (실패해도 페이지는 정상 표시)
-        addItemDetailRecommendations(model, memberId, id, item);
-
-        // 사용자 상호작용 기록 (비동기 처리 권장)
-        recordUserInteraction(memberId, id, "view");
+//        // 추천 정보 추가 (실패해도 페이지는 정상 표시)
+//        addItemDetailRecommendations(model, memberId, id, item);
+//
+//        // 사용자 상호작용 기록 (비동기 처리 권장)
+//        recordUserInteraction(memberId, id, "view");
 
         log.info("아이템 상세 페이지 로드 - itemId: {}, memberId: {}", id, memberId);
         return "user/detail";
@@ -221,79 +218,79 @@ public class ItemController {
         return "재고 충분";
     }
 
-    private void addItemListPageRecommendations(Model model, CustomUserDetails userDetails) {
-        try {
-            Long memberId = getMemberId(userDetails);
+//    private void addItemListPageRecommendations(Model model, CustomUserDetails userDetails) {
+//        try {
+//            Long memberId = getMemberId(userDetails);
+//
+//            // 개인화 추천
+//            if (memberId != null) {
+//                RecommendationResponse personalRecs = recommendationService.getSafeRecommendations(
+//                        memberId, 4, "content_based"
+//                );
+//                if (personalRecs.isSuccess() && personalRecs.getRecommendations() != null) {
+//                    model.addAttribute("quickRecommendations", personalRecs.getRecommendations());
+//                }
+//            }
+//
+//            // 인기 상품
+//            Map<String, Object> popularItems = recommendationService.getPopularItems(6);
+//            if (popularItems != null && Boolean.TRUE.equals(popularItems.get("success"))) {
+//                model.addAttribute("listPagePopularItems", popularItems.get("recommendations"));
+//            }
+//
+//        } catch (Exception e) {
+//            log.warn("상품 목록 페이지 추천 실패", e);
+//        }
+//    }
 
-            // 개인화 추천
-            if (memberId != null) {
-                RecommendationResponse personalRecs = recommendationService.getSafeRecommendations(
-                        memberId, 4, "content_based"
-                );
-                if (personalRecs.isSuccess() && personalRecs.getRecommendations() != null) {
-                    model.addAttribute("quickRecommendations", personalRecs.getRecommendations());
-                }
-            }
-
-            // 인기 상품
-            Map<String, Object> popularItems = recommendationService.getPopularItems(6);
-            if (popularItems != null && Boolean.TRUE.equals(popularItems.get("success"))) {
-                model.addAttribute("listPagePopularItems", popularItems.get("recommendations"));
-            }
-
-        } catch (Exception e) {
-            log.warn("상품 목록 페이지 추천 실패", e);
-        }
-    }
-
-    private void addItemDetailRecommendations(
-            Model model,
-            Long memberId,
-            Long itemId,
-            ItemResponseDto currentItem) {
-
-        try {
-            // 유사 상품
-            Map<String, Object> similarItems = recommendationService.getSimilarItems(
-                    List.of(itemId.intValue()), 6
-            );
-            if (similarItems != null && Boolean.TRUE.equals(similarItems.get("success"))) {
-                model.addAttribute("similarItems", similarItems.get("recommendations"));
-            }
-
-            // 같은 카테고리 상품
-            if (currentItem.getCategory() != null) {
-                Map<String, Object> categoryItems = recommendationService.getCategoryRecommendations(
-                        String.valueOf(currentItem.getCategory()), 6
-                );
-                if (categoryItems != null && Boolean.TRUE.equals(categoryItems.get("success"))) {
-                    model.addAttribute("sameCategoryItems", categoryItems.get("recommendations"));
-                }
-            }
-
-            // 개인화 추천
-            if (memberId != null) {
-                RecommendationResponse personalRecs = recommendationService.getSafeRecommendations(
-                        memberId, 8, "hybrid"
-                );
-                if (personalRecs.isSuccess() && personalRecs.getRecommendations() != null) {
-                    model.addAttribute("detailPersonalizedItems", personalRecs.getRecommendations());
-                }
-            }
-
-        } catch (Exception e) {
-            log.warn("상품 상세 추천 실패 - itemId: {}", itemId, e);
-        }
-    }
-
-    private void recordUserInteraction(Long memberId, Long itemId, String action) {
-        if (memberId != null) {
-            try {
-                recommendationService.recordUserInteraction(memberId, itemId, action);
-                log.debug("사용자 상호작용 기록 - 사용자: {}, 상품: {}, 액션: {}", memberId, itemId, action);
-            } catch (Exception e) {
-                log.warn("사용자 상호작용 기록 실패 (무시됨)", e);
-            }
-        }
-    }
+//    private void addItemDetailRecommendations(
+//            Model model,
+//            Long memberId,
+//            Long itemId,
+//            ItemResponseDto currentItem) {
+//
+//        try {
+//            // 유사 상품
+//            Map<String, Object> similarItems = recommendationService.getSimilarItems(
+//                    List.of(itemId.intValue()), 6
+//            );
+//            if (similarItems != null && Boolean.TRUE.equals(similarItems.get("success"))) {
+//                model.addAttribute("similarItems", similarItems.get("recommendations"));
+//            }
+//
+//            // 같은 카테고리 상품
+//            if (currentItem.getCategory() != null) {
+//                Map<String, Object> categoryItems = recommendationService.getCategoryRecommendations(
+//                        String.valueOf(currentItem.getCategory()), 6
+//                );
+//                if (categoryItems != null && Boolean.TRUE.equals(categoryItems.get("success"))) {
+//                    model.addAttribute("sameCategoryItems", categoryItems.get("recommendations"));
+//                }
+//            }
+//
+//            // 개인화 추천
+//            if (memberId != null) {
+//                RecommendationResponse personalRecs = recommendationService.getSafeRecommendations(
+//                        memberId, 8, "hybrid"
+//                );
+//                if (personalRecs.isSuccess() && personalRecs.getRecommendations() != null) {
+//                    model.addAttribute("detailPersonalizedItems", personalRecs.getRecommendations());
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            log.warn("상품 상세 추천 실패 - itemId: {}", itemId, e);
+//        }
+//    }
+//
+//    private void recordUserInteraction(Long memberId, Long itemId, String action) {
+//        if (memberId != null) {
+//            try {
+//                recommendationService.recordUserInteraction(memberId, itemId, action);
+//                log.debug("사용자 상호작용 기록 - 사용자: {}, 상품: {}, 액션: {}", memberId, itemId, action);
+//            } catch (Exception e) {
+//                log.warn("사용자 상호작용 기록 실패 (무시됨)", e);
+//            }
+//        }
+//    }
 }

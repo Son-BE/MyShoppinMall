@@ -11,7 +11,6 @@ import zerobase.MyShoppingMall.dto.order.OrderCreateRequest;
 import zerobase.MyShoppingMall.dto.order.OrderResponseDto;
 import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.service.order.OrderService;
-import zerobase.MyShoppingMall.temps.RecommendationService;
 import zerobase.MyShoppingMall.type.OrderStatus;
 
 import java.util.List;
@@ -23,7 +22,7 @@ import java.util.Map;
 @RequestMapping("/orders")
 public class OrderMvcController {
     private final OrderService orderService;
-    private final RecommendationService recommendationService;
+//    private final RecommendationService recommendationService;
 
     @PostMapping("/create")
     public String createOrderForm(@AuthenticationPrincipal CustomUserDetails userDetails,
@@ -48,7 +47,7 @@ public class OrderMvcController {
             model.addAttribute("orders", orders);
             model.addAttribute("orderStatuses", OrderStatus.values());
 
-            addOrderListPageRecommendations(model, memberId, orders);
+//            addOrderListPageRecommendations(model, memberId, orders);
 
             return "order/order_list";
         } catch (Exception e) {
@@ -69,7 +68,7 @@ public class OrderMvcController {
             model.addAttribute("selectedStatus", status);
             model.addAttribute("orderStatuses", OrderStatus.values());
 
-            addOrderListPageRecommendations(model, memberId, orders);
+//            addOrderListPageRecommendations(model, memberId, orders);
 
             return "order/order_list";
         } catch (Exception e) {
@@ -95,7 +94,7 @@ public class OrderMvcController {
             model.addAttribute("actualPrice", order.getActualPrice());
             model.addAttribute("usedPoint", order.getUsedPoint());
 
-            addOrderDetailPageRecommendations(model, userDetails.getMember().getId(), order);
+//            addOrderDetailPageRecommendations(model, userDetails.getMember().getId(), order);
 
             return "order/details_order";
         } catch (Exception e) {
@@ -119,7 +118,7 @@ public class OrderMvcController {
 
             model.addAttribute("order", order);
 
-            addOrderCompletePageRecommendations(model, userDetails.getMember().getId(), order);
+//            addOrderCompletePageRecommendations(model, userDetails.getMember().getId(), order);
 
             return "order/success_order";
         } catch (Exception e) {
@@ -230,47 +229,47 @@ public class OrderMvcController {
         return "redirect:/orders/myOrder";
     }
 
-    private void addOrderListPageRecommendations(Model model, Long memberId, List<OrderResponseDto> orders) {
-        try {
-            if (!orders.isEmpty()) {
-                var repurchaseRecs = recommendationService.getRecommendations(memberId, 6, "user_based");
-                model.addAttribute("repurchaseRecommendations", repurchaseRecs.getRecommendations());
-            }
-            Map<String, Object> newItems = recommendationService.getPopularItems(8);
-            model.addAttribute("newItemRecommendations", newItems.get("recommendations"));
-
-            log.debug("주문 목록 페이지 추천 추가 완료 - 사용자: {}", memberId);
-
-        } catch (Exception e) {
-            log.warn("주문 목록 페이지 추천 추가 실패 - 사용자: {}", memberId, e);
-        }
-    }
-
-    private void addOrderDetailPageRecommendations(Model model, Long memberId, OrderResponseDto order) {
-        try {
-            var personalRecs = recommendationService.getRecommendations(memberId, 6, "content_based");
-            model.addAttribute("relatedRecommendations", personalRecs.getRecommendations());
-
-            log.debug("주문 상세 페이지 추천 추가 완료 - 주문: {}", order.getOrderId());
-
-        } catch (Exception e) {
-            log.warn("주문 상세 페이지 추천 추가 실패 - 주문: {}", order.getOrderId(), e);
-        }
-    }
-
-    private void addOrderCompletePageRecommendations(Model model, Long memberId, OrderResponseDto order) {
-        try {
-            var nextPurchaseRecs = recommendationService.getRecommendations(memberId, 6, "hybrid");
-            model.addAttribute("nextPurchaseRecommendations", nextPurchaseRecs.getRecommendations());
-
-            Map<String, Object> trendingItems = recommendationService.getPopularItems(4);
-            model.addAttribute("trendingRecommendations", trendingItems.get("recommendations"));
-
-            log.debug("주문 완료 페이지 추천 추가 완료 - 주문: {}", order.getOrderId());
-
-        } catch (Exception e) {
-            log.warn("주문 완료 페이지 추천 추가 실패 - 주문: {}", order.getOrderId(), e);
-        }
-    }
+//    private void addOrderListPageRecommendations(Model model, Long memberId, List<OrderResponseDto> orders) {
+//        try {
+//            if (!orders.isEmpty()) {
+//                var repurchaseRecs = recommendationService.getRecommendations(memberId, 6, "user_based");
+//                model.addAttribute("repurchaseRecommendations", repurchaseRecs.getRecommendations());
+//            }
+//            Map<String, Object> newItems = recommendationService.getPopularItems(8);
+//            model.addAttribute("newItemRecommendations", newItems.get("recommendations"));
+//
+//            log.debug("주문 목록 페이지 추천 추가 완료 - 사용자: {}", memberId);
+//
+//        } catch (Exception e) {
+//            log.warn("주문 목록 페이지 추천 추가 실패 - 사용자: {}", memberId, e);
+//        }
+//    }
+//
+//    private void addOrderDetailPageRecommendations(Model model, Long memberId, OrderResponseDto order) {
+//        try {
+//            var personalRecs = recommendationService.getRecommendations(memberId, 6, "content_based");
+//            model.addAttribute("relatedRecommendations", personalRecs.getRecommendations());
+//
+//            log.debug("주문 상세 페이지 추천 추가 완료 - 주문: {}", order.getOrderId());
+//
+//        } catch (Exception e) {
+//            log.warn("주문 상세 페이지 추천 추가 실패 - 주문: {}", order.getOrderId(), e);
+//        }
+//    }
+//
+//    private void addOrderCompletePageRecommendations(Model model, Long memberId, OrderResponseDto order) {
+//        try {
+//            var nextPurchaseRecs = recommendationService.getRecommendations(memberId, 6, "hybrid");
+//            model.addAttribute("nextPurchaseRecommendations", nextPurchaseRecs.getRecommendations());
+//
+//            Map<String, Object> trendingItems = recommendationService.getPopularItems(4);
+//            model.addAttribute("trendingRecommendations", trendingItems.get("recommendations"));
+//
+//            log.debug("주문 완료 페이지 추천 추가 완료 - 주문: {}", order.getOrderId());
+//
+//        } catch (Exception e) {
+//            log.warn("주문 완료 페이지 추천 추가 실패 - 주문: {}", order.getOrderId(), e);
+//        }
+//    }
 
 }

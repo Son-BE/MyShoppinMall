@@ -3,19 +3,12 @@ package zerobase.MyShoppingMall.controller.cart;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import zerobase.MyShoppingMall.dto.cart.CartItemResponseDto;
 import zerobase.MyShoppingMall.entity.CartItem;
-import zerobase.MyShoppingMall.entity.Member;
 import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.service.cart.CartService;
-import zerobase.MyShoppingMall.service.item.S3UploadService;
-import zerobase.MyShoppingMall.temps.RecommendationService;
 import zerobase.MyShoppingMall.type.AddToCartResult;
-
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +20,7 @@ import java.util.stream.Collectors;
 public class CartController {
     private final CartService cartService;
 
-    private final RecommendationService recommendationService;
+//    private final RecommendationService recommendationService;
 
     @GetMapping
     public List<CartItemResponseDto> getCartItems(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -53,9 +46,9 @@ public class CartController {
 
         AddToCartResult result = cartService.addItemToCart(memberId, itemId, quantity);
 
-        if (result.isSuccess()) {
-            recordUserInteraction(memberId, itemId, "cart");
-        }
+//        if (result.isSuccess()) {
+//            recordUserInteraction(memberId, itemId, "cart");
+//        }
 
         return result;
     }
@@ -77,17 +70,17 @@ public class CartController {
         cartService.clearCart(memberId);
     }
 
-    /**
-     * 사용자 상호작용 기록
-     */
-    private void recordUserInteraction(Long memberId, Long itemId, String action) {
-        try {
-            recommendationService.recordUserInteraction(memberId, itemId, action);
-            log.debug("장바구니 상호작용 기록 - 사용자: {}, 상품: {}, 액션: {}", memberId, itemId, action);
-        } catch (Exception e) {
-            log.warn("장바구니 상호작용 기록 실패 - 사용자: {}, 상품: {}, 액션: {}",
-                    memberId, itemId, action, e);
-        }
-    }
+//    /**
+//     * 사용자 상호작용 기록
+//     */
+//    private void recordUserInteraction(Long memberId, Long itemId, String action) {
+//        try {
+//            recommendationService.recordUserInteraction(memberId, itemId, action);
+//            log.debug("장바구니 상호작용 기록 - 사용자: {}, 상품: {}, 액션: {}", memberId, itemId, action);
+//        } catch (Exception e) {
+//            log.warn("장바구니 상호작용 기록 실패 - 사용자: {}, 상품: {}, 액션: {}",
+//                    memberId, itemId, action, e);
+//        }
+//    }
 
 }

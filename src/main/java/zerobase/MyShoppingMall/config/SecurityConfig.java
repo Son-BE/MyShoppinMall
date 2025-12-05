@@ -48,18 +48,25 @@ public class SecurityConfig {
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**")
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**")  // API 전체 CSRF 비활성화
+                )
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)  // 세션 허용
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/members/check-nickname").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/members/join", "/api/members/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/members/check-email").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/recommendations/**").permitAll()
-                            .requestMatchers(HttpMethod.POST, "/api/recommendations/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/recommendations/**").permitAll()
 
                         .requestMatchers("/api/chat/**").permitAll()
+
+                        // 관리자 API - 세션 인증 사용
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         .requestMatchers("/api/members/**").authenticated()
                         .requestMatchers("/api/cart/**").authenticated()

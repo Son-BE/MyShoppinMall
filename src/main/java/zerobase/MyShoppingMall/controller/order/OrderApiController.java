@@ -10,7 +10,6 @@ import zerobase.MyShoppingMall.dto.order.OrderResponseDto;
 import zerobase.MyShoppingMall.dto.payment.PaymentCompleteRequest;
 import zerobase.MyShoppingMall.oAuth2.CustomUserDetails;
 import zerobase.MyShoppingMall.service.order.OrderService;
-import zerobase.MyShoppingMall.temps.RecommendationService;
 import zerobase.MyShoppingMall.type.OrderStatus;
 
 import java.util.HashMap;
@@ -23,7 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OrderApiController {
     private final OrderService orderService;
-    private final RecommendationService recommendationService;
+//    private final RecommendationService recommendationService;
 
 
     @PostMapping("/create")
