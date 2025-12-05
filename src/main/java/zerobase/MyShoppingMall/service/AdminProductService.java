@@ -15,6 +15,7 @@ import zerobase.MyShoppingMall.dto.admin.ImageClassificationResult;
 import zerobase.MyShoppingMall.dto.admin.ProductCreateRequest;
 import zerobase.MyShoppingMall.entity.Item;
 import zerobase.MyShoppingMall.repository.item.ItemRepository;
+import zerobase.MyShoppingMall.service.item.S3UploadService;
 import zerobase.MyShoppingMall.type.*;
 
 import java.io.IOException;
@@ -31,6 +32,7 @@ public class AdminProductService {
 
     private final WebClient.Builder webClientBuilder;
     private final ItemRepository itemRepository;
+    private final S3UploadService s3UploadService;
 
     @Value("${ai.service.url:http://localhost:8000}")
     private String aiServiceUrl;
@@ -110,25 +112,29 @@ public class AdminProductService {
      * 이미지 저장
      */
     private String saveImage(MultipartFile file) throws IOException {
-        Path uploadDir = Paths.get(uploadPath);
-        if (!Files.exists(uploadDir)) {
-            Files.createDirectories(uploadDir);
-        }
+        String imageUrl = s3UploadService.uploadFile(file);
+        log.info("이미지 S3 업로드 완료 :{}", imageUrl);
+        return imageUrl;
 
-        String originalFileName = file.getOriginalFilename();
-        String extension = "";
-        if (originalFileName != null && originalFileName.contains(".")) {
-            extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        }
-        String newFileName = UUID.randomUUID().toString() + extension;
-
-        Path filePath = uploadDir.resolve(newFileName);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        String webPath = "/upload/images/" + newFileName;
-        log.info("이미지 저장 완료: {}", webPath);
-
-        return webPath;
+//        Path uploadDir = Paths.get(uploadPath);
+//        if (!Files.exists(uploadDir)) {
+//            Files.createDirectories(uploadDir);
+//        }
+//
+//        String originalFileName = file.getOriginalFilename();
+//        String extension = "";
+//        if (originalFileName != null && originalFileName.contains(".")) {
+//            extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+//        }
+//        String newFileName = UUID.randomUUID().toString() + extension;
+//
+//        Path filePath = uploadDir.resolve(newFileName);
+//        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+//
+//        String webPath = "/upload/images/" + newFileName;
+//        log.info("이미지 저장 완료: {}", webPath);
+//
+//        return webPath;
     }
 
     /**
@@ -415,13 +421,16 @@ public class AdminProductService {
     public void deleteImage(String imagePath) {
         if (imagePath == null || imagePath.isEmpty()) return;
 
-        try {
-            String filename = imagePath.substring(imagePath.lastIndexOf("/") + 1);
-            Path filePath = Paths.get(uploadPath).resolve(filename);
-            Files.deleteIfExists(filePath);
-            log.info("이미지 삭제: {}", imagePath);
-        } catch (IOException e) {
-            log.error("이미지 삭제 실패: {}", e.getMessage());
-        }
+        s3UploadService.deleteFile(imagePath);
+        log.info("S3 이미지 삭제 완료: {}", imagePath);
+
+//        try {
+//            String filename = imagePath.substring(imagePath.lastIndexOf("/") + 1);
+//            Path filePath = Paths.get(uploadPath).resolve(filename);
+//            Files.deleteIfExists(filePath);
+//            log.info("이미지 삭제: {}", imagePath);
+//        } catch (IOException e) {
+//            log.error("이미지 삭제 실패: {}", e.getMessage());
+//        }
     }
 }
