@@ -67,9 +67,9 @@ class HeroChatbot {
 
         if (type === 'bot') {
             messageDiv.innerHTML = `
-        <i class="fa-solid fa-robot"></i>
-        <span>${this.escapeHtml(text)}</span>
-      `;
+                <i class="fa-solid fa-robot"></i>
+                <span>${this.escapeHtml(text)}</span>
+            `;
         } else {
             messageDiv.innerHTML = `<span>${this.escapeHtml(text)}</span>`;
         }
@@ -82,26 +82,31 @@ class HeroChatbot {
         const cardsWrapper = document.createElement('div');
         cardsWrapper.className = 'chat-product-cards-wrapper';
 
-        const cards = products.slice(0, 5).map(p => `
-      <a href="/items/detail/${p.productId}" class="chat-product-card">
-        <div class="chat-product-image">
-          <img src="/images/items/${p.productId}.jpg" 
-               alt="${this.escapeHtml(p.productName)}" 
-               onerror="this.src='/images/default.png'">
-        </div>
-        <div class="chat-product-info">
-          <p class="chat-product-name">${this.escapeHtml(p.productName)}</p>
-          <p class="chat-product-category">${this.formatCategory(p.category)}</p>
-          <span class="chat-product-link">상품 보기 →</span>
-        </div>
-      </a>
-    `).join('');
+        const cards = products.slice(0, 5).map(p => {
+            // ✅ API 응답의 imageUrl 사용 (S3 URL)
+            const imageUrl = p.imageUrl || '/images/default.png';
+
+            return `
+                <a href="/items/detail/${p.productId}" class="chat-product-card">
+                    <div class="chat-product-image">
+                        <img src="${this.escapeHtml(imageUrl)}" 
+                             alt="${this.escapeHtml(p.productName)}" 
+                             onerror="this.src='/images/default.png'">
+                    </div>
+                    <div class="chat-product-info">
+                        <p class="chat-product-name">${this.escapeHtml(p.productName)}</p>
+                        <p class="chat-product-category">${this.formatCategory(p.category)}</p>
+                        <span class="chat-product-link">상품 보기 →</span>
+                    </div>
+                </a>
+            `;
+        }).join('');
 
         cardsWrapper.innerHTML = `
-      <div class="chat-product-cards-container">
-        ${cards}
-      </div>
-    `;
+            <div class="chat-product-cards-container">
+                ${cards}
+            </div>
+        `;
 
         this.messagesContainer.appendChild(cardsWrapper);
         this.scrollToBottom();
@@ -117,6 +122,8 @@ class HeroChatbot {
             'WOMENS_SHOES': '여성 신발',
             'MENS_OUTER': '남성 아우터',
             'WOMENS_OUTER': '여성 아우터',
+            'MENS_ACCESSORY': '남성 악세서리',
+            'WOMENS_ACCESSORY': '여성 악세서리',
             'ACCESSORIES': '악세서리'
         };
         return categoryMap[category] || category;
@@ -127,11 +134,11 @@ class HeroChatbot {
         indicator.className = 'bot-message';
         indicator.id = 'typing-indicator';
         indicator.innerHTML = `
-      <i class="fa-solid fa-robot"></i>
-      <div class="typing-indicator">
-        <span></span><span></span><span></span>
-      </div>
-    `;
+            <i class="fa-solid fa-robot"></i>
+            <div class="typing-indicator">
+                <span></span><span></span><span></span>
+            </div>
+        `;
         this.messagesContainer.appendChild(indicator);
         this.scrollToBottom();
     }
@@ -151,6 +158,7 @@ class HeroChatbot {
     }
 
     escapeHtml(text) {
+        if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;

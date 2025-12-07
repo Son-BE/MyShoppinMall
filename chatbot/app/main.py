@@ -12,6 +12,7 @@ app = FastAPI(title="SonStarMall AI Service")
 # 라우터 등록
 app.include_router(classify.router)
 
+
 class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = Field(None, alias="sessionId")
@@ -19,19 +20,24 @@ class ChatRequest(BaseModel):
     class Config:
         populate_by_name = True
 
+
 class RelatedProduct(BaseModel):
     productId: int
     productName: str
     category: str
     similarity: float
+    imageUrl: Optional[str] = None  # ✅ 추가
+
 
 class ChatResponse(BaseModel):
     answer: str
     relatedProducts: List[RelatedProduct]
 
+
 @app.get("/")
 def root():
     return {"message": "AI Service is running"}
+
 
 @app.post("/embeddings/sync")
 def sync_embeddings():
@@ -39,11 +45,13 @@ def sync_embeddings():
     count = embedding_service.sync_all_items()
     return {"message": f"{count}개 상품 임베딩 완료"}
 
+
 @app.get("/search")
 def search_products(query: str, top_k: int = 5):
     """유사 상품 검색"""
     results = retrieval_service.search_similar_products(query, top_k)
     return {"query": query, "results": results}
+
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest):
@@ -63,23 +71,27 @@ def chat(request: ChatRequest):
     chat_history_service.save_message(session_id, "user", request.message)
     chat_history_service.save_message(session_id, "assistant", answer)
 
+    # imageUrl
     related_products = [
         RelatedProduct(
             productId=p["product_id"],
             productName=p["product_name"],
             category=p["category"],
-            similarity=p.get("similarity", 0.0)
+            similarity=p.get("similarity", 0.0),
+            imageUrl=p.get("image_url")
         )
         for p in products
     ]
 
     return ChatResponse(answer=answer, relatedProducts=related_products)
 
+
 @app.get("/chat/history/{session_id}")
 def get_chat_history(session_id: str):
     """대화 히스토리 조회"""
     history = chat_history_service.get_history(session_id, limit=20)
     return {"session_id": session_id, "history": history}
+
 
 @app.get("/health")
 def health_check():
